@@ -1,0 +1,62 @@
+#agent-claim {
+  padding-block: var(--page-top) var(--page-bottom);
+
+  & > [data-part="container"] {
+    margin-inline: auto;
+    width: min(100% - 2rem, 32rem);
+
+    & > [data-part="header"] {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: var(--space-3);
+
+      & > [data-part="eyebrow"] {
+        color: var(--blue);
+        font-weight: 700;
+        margin: 0 0 var(--space-1);
+      }
+
+      & > h1 {
+        margin: 0 0 var(--space-1);
+      }
+
+      & > p:last-child {
+        color: var(--muted);
+        margin: 0;
+      }
+    }
+
+    & > [data-part="form"] {
+      display: grid;
+      gap: var(--space-2);
+      padding-block: var(--space-3);
+
+      & > label {
+        font-weight: 700;
+      }
+
+      & > input[type="text"] {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 0;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: var(--font-size);
+        letter-spacing: 0.35em;
+        padding: 0.7rem;
+        text-align: center;
+
+        &:focus {
+          border-color: var(--blue);
+          outline: 2px solid color-mix(in srgb, var(--blue) 20%, transparent);
+          outline-offset: 1px;
+        }
+      }
+    }
+
+    & > [data-part="security-note"] {
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      margin: 0;
+      padding-top: var(--space-2);
+    }
+  }
+}

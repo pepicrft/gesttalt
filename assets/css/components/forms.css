@@ -1,0 +1,93 @@
+.editor-form,
+.upload-form {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.field,
+.fieldset {
+  display: grid;
+  gap: 0.35rem;
+
+  & label,
+  & > label {
+    font-size: var(--font-size);
+    font-weight: 700;
+  }
+}
+
+input,
+textarea,
+select,
+.input {
+  background: #fff;
+  border: 1px solid #aaa59d;
+  border-radius: 1px;
+  color: var(--ink);
+  font-size: var(--font-size);
+  font-weight: 400;
+  padding: 0.62rem 0.68rem;
+  width: 100%;
+
+  &:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 2px rgb(6 89 199 / 14%);
+    outline: 0;
+  }
+}
+
+textarea {
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.editor-body,
+.theme-editor textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--font-size);
+}
+
+.form-grid {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.field-error {
+  color: var(--red);
+  font-size: var(--font-size);
+  margin: 0;
+}
+
+.inline-form {
+  align-items: end;
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: 1fr auto;
+  margin-top: 1.5rem;
+
+  & label {
+    grid-column: 1 / -1;
+  }
+}
+
+.check-row {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+
+  & input {
+    width: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

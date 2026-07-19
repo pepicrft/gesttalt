@@ -1,0 +1,61 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <div id="illegal-content-report">
+    <.legal_document
+      eyebrow={dgettext("legal", "Hosting safety")}
+      title={dgettext("legal", "Report illegal content")}
+      description={
+        dgettext(
+          "legal",
+          "Use this route to identify a specific post, page, image, or publication that you believe is illegal."
+        )
+      }
+    >
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Electronic reporting")}</h2>
+        <p data-state="missing">
+          {dgettext(
+            "legal",
+            "The reporting form and monitored contact address will be activated before public customer publications are accepted. Reports will receive an electronic acknowledgment and a decision notice where contact details are provided."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "What a report must include")}</h2>
+        <ul>
+          <li>{dgettext("legal", "The exact internet address of the content.")}</li>
+          <li>{dgettext("legal", "A clear explanation of why you believe it is illegal.")}</li>
+          <li>
+            {dgettext(
+              "legal",
+              "Your name and email address, except where the law permits an anonymous report."
+            )}
+          </li>
+          <li>
+            {dgettext(
+              "legal",
+              "A good-faith statement that the information in the report is accurate and complete."
+            )}
+          </li>
+        </ul>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "What happens next")}</h2>
+        <p>
+          {dgettext(
+            "legal",
+            "Reports will be assessed diligently, objectively, and without arbitrary treatment. Gesttalt may request more information, preserve relevant records, restrict content where warranted, notify the affected publisher, and explain available ways to challenge the decision."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Immediate danger")}</h2>
+        <p>
+          {dgettext(
+            "legal",
+            "If someone is in immediate danger, contact the appropriate emergency or law-enforcement service first. This reporting route is not an emergency service."
+          )}
+        </p>
+      </section>
+    </.legal_document>
+  </div>
+</Layouts.app>

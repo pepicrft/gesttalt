@@ -1,0 +1,88 @@
+defmodule GesttaltWeb.SiteSettingsController do
+  use GesttaltWeb, :controller
+
+  alias Gesttalt.Plans
+  alias Gesttalt.Sites
+  alias Gesttalt.Sites.{Domain, Site}
+
+  def show(conn, _params) do
+    site = current_site(conn)
+
+    render(conn, :show,
+      page_title: "Publication settings",
+      site: site,
+      domains: Sites.list_domains(site),
+      site_changeset: Site.changeset(site, %{}),
+      domain_changeset: Domain.changeset(%Domain{}, %{})
+    )
+  end
+
+  def update(conn, %{"site" => attrs}) do
+    case Sites.update_site(current_site(conn), attrs) do
+      {:ok, _site} ->
+        conn |> put_flash(:info, "Publication updated.") |> redirect(to: ~p"/admin/settings")
+
+      {:error, changeset} ->
+        render(conn, :show,
+          page_title: "Publication settings",
+          site: current_site(conn),
+          domains: Sites.list_domains(current_site(conn)),
+          site_changeset: changeset,
+          domain_changeset: Domain.changeset(%Domain{}, %{})
+        )
+    end
+  end
+
+  def create_domain(conn, %{"domain" => attrs}) do
+    site = current_site(conn)
+
+    with :ok <- Plans.authorize(site, :custom_domains),
+         {:ok, _domain} <- Sites.add_custom_domain(site, attrs) do
+      conn
+      |> put_flash(:info, "Domain added. Add the verification record shown below.")
+      |> redirect(to: ~p"/admin/settings")
+    else
+      {:error, :subscription_required} ->
+        conn
+        |> put_flash(
+          :error,
+          dgettext("billing", "Upgrade to the Publisher plan to connect a custom domain.")
+        )
+        |> redirect(to: ~p"/admin/billing")
+
+      {:error, reason} ->
+        conn
+        |> put_flash(:error, "Domain could not be added: #{inspect(reason)}")
+        |> redirect(to: ~p"/admin/settings")
+    end
+  end
+
+  def verify_domain(conn, %{"id" => id}) do
+    case Sites.verify_domain(current_site(conn), id) do
+      {:ok, _domain} ->
+        conn
+        |> put_flash(:info, "Domain verified and activated.")
+        |> redirect(to: ~p"/admin/settings")
+
+      {:error, :verification_record_not_found} ->
+        conn
+        |> put_flash(:error, "The verification record was not found yet.")
+        |> redirect(to: ~p"/admin/settings")
+
+      {:error, reason} ->
+        conn
+        |> put_flash(:error, "Domain could not be verified: #{inspect(reason)}")
+        |> redirect(to: ~p"/admin/settings")
+    end
+  end
+
+  def delete_domain(conn, %{"id" => id}) do
+    Sites.delete_domain(current_site(conn), id)
+    conn |> put_flash(:info, "Domain removed.") |> redirect(to: ~p"/admin/settings")
+  end
+
+  defp current_site(conn) do
+    {:ok, site} = Sites.ensure_site_for_user(conn.assigns.current_scope.user)
+    site
+  end
+end

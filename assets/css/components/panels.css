@@ -1,0 +1,11 @@
+.panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  padding: 1.4rem;
+}
+
+.empty-state {
+  color: var(--muted);
+  padding: 3rem 0;
+  text-align: center;
+}

@@ -1,0 +1,38 @@
+<Layouts.app flash={@flash} current_scope={@current_scope} admin>
+  <div id="admin-theme">
+    <header id="page-heading">
+      <p data-part="eyebrow">Design</p><h1 data-part="title">Theme</h1><p data-part="description">
+        Ask an agent to adjust standard design variables, route-specific Liquid templates, and vanilla Cascading Style Sheets while the preview updates beside your conversation.
+      </p>
+    </header>
+    <section class="panel" data-part="agent-workflow">
+      <div data-part="workflow-copy">
+        <p data-part="eyebrow">Agent workflow</p><h2>Edit without moving theme files around</h2><p>
+          Connect your agent to the
+          <a href="https://modelcontextprotocol.io/">Model Context Protocol</a>
+          endpoint at <code>/mcp</code>. The agent can create an isolated editing session and give you its preview address.
+        </p>
+      </div>
+      <ol data-part="steps">
+        <li>
+          <strong>Create a session.</strong>
+          The active <span data-part="theme-name">{@theme.name}</span>
+          theme becomes an in-process draft.
+        </li>
+        <li>
+          <strong>Open the preview.</strong>
+          Keep it beside your agent conversation. It reloads after every accepted edit.
+        </li>
+        <li>
+          <strong>Publish or discard.</strong>
+          The live publication changes only when the agent publishes the session.
+        </li>
+      </ol>
+      <p>
+        Start with the standard color, typography, spacing, radius, size, and shadow variables, adapted from the <a href="https://theme-ui.com/theme-spec">Theme UI (user interface) theme specification</a>.
+        Edit Liquid only when the home, article, or page structure needs to change.
+      </p>
+      <a class="button button--primary" href={~p"/docs#themes"}>Read the theme editing guide</a>
+    </section>
+  </div>
+</Layouts.app>

@@ -1,0 +1,653 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:26
+#, elixir-autogen, elixir-format
+msgid "A clear explanation of why you believe it is illegal."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/cancel.html.heex:16
+#, elixir-autogen, elixir-format
+msgid "A direct cancellation form and confirmation page will be activated before paid consumer subscriptions are offered. It will remain available without requiring access to the customer dashboard and will issue an immediate electronic confirmation."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:34
+#, elixir-autogen, elixir-format
+msgid "A good-faith statement that the information in the report is accurate and complete."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:121
+#, elixir-autogen, elixir-format
+msgid "A publication owner may separately determine how information from its visitors is used. Publication owners are responsible for providing their own legal information where required. Gesttalt will offer a Data Processing Agreement when it processes personal information on their behalf."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:36
+#, elixir-autogen, elixir-format
+msgid "Account details, including email address and authentication information."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "Account holders must provide accurate information, keep their credentials secure, and promptly report suspected misuse. Paid consumer accounts are intended for people who are at least 18 years old."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:94
+#, elixir-autogen, elixir-format
+msgid "Account, publication, invoice, security-log, support-message, and backup retention periods remain to be confirmed."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:23
+#, elixir-autogen, elixir-format
+msgid "Accounts"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:49
+#, elixir-autogen, elixir-format
+msgid "Address of consumer:"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:76
+#, elixir-autogen, elixir-format
+msgid "Affected account holders will receive a clear reason for a restriction where the law permits it. The final policy will state whether any automated moderation is used and describe the available review process."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:97
+#, elixir-autogen, elixir-format
+msgid "Availability and liability"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:57
+#: lib/gesttalt_web/controllers/page_html/cancel.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Cancel a subscription"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/cancel.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "Cancellation ends future renewal of an ongoing subscription. It does not replace the statutory right to withdraw from a recent consumer contract."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:83
+#, elixir-autogen, elixir-format
+msgid "Cancellation, withdrawal, and export"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:106
+#, elixir-autogen, elixir-format
+msgid "Changes and governing law"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:54
+#, elixir-autogen, elixir-format
+msgid "Connected applications, authorization grants, and security tokens."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "Consumer contracts"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:67
+#, elixir-autogen, elixir-format
+msgid "Consumer dispute resolution"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:16
+#, elixir-autogen, elixir-format
+msgid "Consumers generally have fourteen days from the day the contract is concluded to withdraw without giving a reason. The final notice will use the applicable German statutory model and explain any consequences of asking Gesttalt to begin service during that period."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:86
+#, elixir-autogen, elixir-format
+msgid "Consumers may separately exercise a statutory right of withdrawal through the"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:30
+#, elixir-autogen, elixir-format
+msgid "Contact"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:68
+#, elixir-autogen, elixir-format
+msgid "Content restrictions and moderation"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:14
+#, elixir-autogen, elixir-format
+msgid "Contracting party and scope"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:14
+#, elixir-autogen, elixir-format
+msgid "Controller"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:101
+#, elixir-autogen, elixir-format
+msgid "Cookies and browser storage"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/cancel.html.heex:32
+#, elixir-autogen, elixir-format
+msgid "Current account access"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:119
+#, elixir-autogen, elixir-format
+msgid "Customer publications"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:85
+#, elixir-autogen, elixir-format
+msgid "Customers may cancel an ongoing subscription through the"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:50
+#, elixir-autogen, elixir-format
+msgid "Date:"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:112
+#, elixir-autogen, elixir-format
+msgid "Depending on the circumstances, you may request access, correction, deletion, restriction, portability, or object to processing. You may withdraw consent where processing relies on consent and complain to a competent data-protection authority."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:49
+#, elixir-autogen, elixir-format
+msgid "Digital service contacts"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:70
+#, elixir-autogen, elixir-format
+msgid "Do not publish illegal material, infringe intellectual-property or privacy rights, impersonate others, distribute malicious software, facilitate fraud, or use the service to threaten or exploit people. Gesttalt may review reports and restrict content or accounts where required by law or these terms."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:59
+#, elixir-autogen, elixir-format
+msgid "Domains and legal responsibilities"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/cancel.html.heex:14
+#, elixir-autogen, elixir-format
+msgid "Electronic cancellation"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:14
+#, elixir-autogen, elixir-format
+msgid "Electronic reporting"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:32
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "Email"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:58
+#, elixir-autogen, elixir-format
+msgid "End an ongoing Gesttalt subscription."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/cancel.html.heex:34
+#, elixir-autogen, elixir-format
+msgid "Existing account holders can"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:103
+#, elixir-autogen, elixir-format
+msgid "Gesttalt is designed to use browser storage only where it is necessary for authentication, security, checkout, and features explicitly requested by the user. Optional analytics or marketing storage will not be enabled without an appropriate consent mechanism."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:34
+#, elixir-autogen, elixir-format
+msgid "Gesttalt provides tools to create and publish posts and pages, store images, use custom domains, edit Liquid themes, and publish through supported programmatic interfaces. Exact plan limits and support commitments will be shown before an order is placed."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "Hosting safety"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:32
+#, elixir-autogen, elixir-format
+msgid "How Gesttalt handles personal information."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:23
+#, elixir-autogen, elixir-format
+msgid "How to withdraw"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:42
+#, elixir-autogen, elixir-format
+msgid "I hereby give notice that I withdraw from my contract for the following service:"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:53
+#, elixir-autogen, elixir-format
+msgid "If someone is in immediate danger, contact the appropriate emergency or law-enforcement service first. This reporting route is not an emergency service."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:51
+#, elixir-autogen, elixir-format
+msgid "Immediate danger"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "Information about the person responsible for operating Gesttalt and how to contact them."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:48
+#, elixir-autogen, elixir-format
+msgid "Information about withdrawing from a recent Gesttalt consumer contract."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:71
+#, elixir-autogen, elixir-format
+msgid "Information is used to provide the contracted publishing service, secure accounts, process payments, answer requests, meet legal duties, and improve reliability. The final policy will map each purpose to its legal basis."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/cancel.html.heex:23
+#, elixir-autogen, elixir-format
+msgid "Information the form will request"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:33
+#, elixir-autogen, elixir-format
+msgid "Information we handle"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:24
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Legal notice"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:99
+#, elixir-autogen, elixir-format
+msgid "Maintenance, support, backups, statutory defect rights, liability, force-majeure events, and service discontinuation clauses require final legal review. Nothing in these terms will exclude rights or liability that cannot legally be excluded."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:61
+#, elixir-autogen, elixir-format
+msgid "Messages sent to support, privacy, or illegal-content reporting contacts."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:32
+#, elixir-autogen, elixir-format
+msgid "Model withdrawal form"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:48
+#, elixir-autogen, elixir-format
+msgid "Name of consumer:"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/cancel.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "Ongoing subscriptions"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:36
+#, elixir-autogen, elixir-format
+msgid "Operator name, postal address, and email to be provided"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:47
+#, elixir-autogen, elixir-format
+msgid "Ordered on:"
+msgstr ""
+
+#: lib/gesttalt_web/components/legal_components.ex:21
+#, elixir-autogen, elixir-format
+msgid "Pre-launch draft."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:41
+#, elixir-autogen, elixir-format
+msgid "Price, renewal, and payment"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:31
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Privacy policy"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:25
+#, elixir-autogen, elixir-format
+msgid "Provider and contact information for Gesttalt."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "Provider information"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:42
+#, elixir-autogen, elixir-format
+msgid "Publication content, uploaded images, themes, settings, and custom domains."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:32
+#, elixir-autogen, elixir-format
+msgid "Publishing service"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:64
+#: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Report illegal content"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:66
+#, elixir-autogen, elixir-format
+msgid "Report specific content that may be illegal on a Gesttalt publication."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:44
+#, elixir-autogen, elixir-format
+msgid "Reports will be assessed diligently, objectively, and without arbitrary treatment. Gesttalt may request more information, preserve relevant records, restrict content where warranted, notify the affected publisher, and explain available ways to challenge the decision."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:92
+#, elixir-autogen, elixir-format
+msgid "Retention"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:46
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Right of withdrawal"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:79
+#, elixir-autogen, elixir-format
+msgid "Service providers and international transfers"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:21
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:18
+#, elixir-autogen, elixir-format
+msgid "Serviceable address"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:51
+#, elixir-autogen, elixir-format
+msgid "Signature, only when submitted on paper:"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:48
+#, elixir-autogen, elixir-format
+msgid "Subscription, invoice, and payment status received from the payment provider."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:59
+#, elixir-autogen, elixir-format
+msgid "Technical request, security, error, and delivery logs."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:38
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Terms of service"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/cancel.html.heex:28
+#, elixir-autogen, elixir-format
+msgid "The email address where confirmation should be sent."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "The exact internet address of the content."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:85
+#, elixir-autogen, elixir-format
+msgid "The final list will identify hosting, database, image storage, payment, email, monitoring, support, and backup providers, their processing locations, and any safeguards used for transfers outside the European Economic Area."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:90
+#, elixir-autogen, elixir-format
+msgid "The final terms will state how long content remains available for export after cancellation."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:108
+#, elixir-autogen, elixir-format
+msgid "The notice period and grounds for changing these terms will be finalized with counsel. German law is expected to apply without depriving consumers of mandatory protections available where they live."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:69
+#, elixir-autogen, elixir-format
+msgid "The operator's participation status will be confirmed before launch. The former European online dispute-resolution platform is not used because it has been discontinued."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:16
+#, elixir-autogen, elixir-format
+msgid "The reporting form and monitored contact address will be activated before public customer publications are accepted. Reports will receive an electronic acknowledgment and a decision notice where contact details are provided."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/cancel.html.heex:27
+#, elixir-autogen, elixir-format
+msgid "The requested cancellation date."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/cancel.html.heex:26
+#, elixir-autogen, elixir-format
+msgid "The subscription or contract to cancel."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:40
+#, elixir-autogen, elixir-format
+msgid "The terms that govern use of the Gesttalt publishing platform."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "These terms describe the publishing service, subscriptions, customer responsibilities, and how content is handled."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "This policy explains which personal information Gesttalt handles, why it is needed, and the choices available to you."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:35
+#, elixir-autogen, elixir-format
+msgid "To:"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "Use this route to identify a specific post, page, image, or publication that you believe is illegal."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "Using Gesttalt"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:40
+#, elixir-autogen, elixir-format
+msgid "Value-added tax identification number"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:23
+#, elixir-autogen, elixir-format
+msgid "What a report must include"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:42
+#, elixir-autogen, elixir-format
+msgid "What happens next"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:69
+#, elixir-autogen, elixir-format
+msgid "Why we handle it"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:14
+#, elixir-autogen, elixir-format
+msgid "Withdrawal period"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "Withdrawal reverses a recently concluded consumer contract. It is separate from cancelling an ongoing subscription."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:61
+#, elixir-autogen, elixir-format
+msgid "You are responsible for controlling connected domains and for the legal notices, privacy information, and other disclosures required for your own publication. Gesttalt may pause a domain connection when control cannot be verified or its configuration creates a security risk."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:52
+#, elixir-autogen, elixir-format
+msgid "You retain ownership of the content and themes you upload. You grant Gesttalt the limited rights needed to store, process, back up, and publicly deliver them at your direction. You must have the rights needed to publish all submitted text, images, code, and other material."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:50
+#, elixir-autogen, elixir-format
+msgid "Your content and themes"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "Your information"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/cancel.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "Your name and account email."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:28
+#, elixir-autogen, elixir-format
+msgid "Your name and email address, except where the law permits an anonymous report."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:110
+#, elixir-autogen, elixir-format
+msgid "Your rights"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:86
+#, elixir-autogen, elixir-format
+msgid "cancellation page"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/cancel.html.heex:35
+#, elixir-autogen, elixir-format
+msgid "log in"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/cancel.html.heex:36
+#, elixir-autogen, elixir-format
+msgid "to review their billing status. Dashboard access will not be the only cancellation method once subscriptions are available."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:90
+#, elixir-autogen, elixir-format
+msgid "withdrawal page"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:25
+#, elixir-autogen, elixir-format, fuzzy
+msgid "A continuously accessible electronic withdrawal form, including a separate confirmation step and immediate confirmation by email, will be activated before consumer subscriptions are offered. Send withdrawal notices to Pedro Piñera at hola@pepicrft.me. The postal address is still required."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:51
+#, elixir-autogen, elixir-format
+msgid "Customers, authorities, the European Commission, and the European Board for Digital Services may contact hola@pepicrft.me. Communication is possible in German and English."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:16
+#, elixir-autogen, elixir-format
+msgid "Gesttalt is operated by Pedro Piñera as a sole proprietor. The serviceable address and effective date of these terms will be inserted before launch. These terms will apply to Gesttalt accounts and paid publishing subscriptions."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:14
+#, elixir-autogen, elixir-format
+msgid "Individual service provider"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:18
+#, elixir-autogen, elixir-format
+msgid "Legal form"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:16
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:16
+#, elixir-autogen, elixir-format
+msgid "Name"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:60
+#, elixir-autogen, elixir-format
+msgid "Pedro Piñera is responsible for editorial content. The address is the serviceable address stated above."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:58
+#, elixir-autogen, elixir-format
+msgid "Responsible for editorial content"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:19
+#, elixir-autogen, elixir-format
+msgid "Sole proprietor, not a separate legal entity"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:27
+#, elixir-autogen, elixir-format
+msgid "Supervisory authority"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:38
+#, elixir-autogen, elixir-format
+msgid "Tax information"
+msgstr ""
+
+#: lib/gesttalt_web/components/legal_components.ex:22
+#, elixir-autogen, elixir-format
+msgid "The serviceable address, tax treatment, and remaining service-provider information will be completed before paid subscriptions are offered. This page is not yet a final legal notice."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:41
+#, elixir-autogen, elixir-format
+msgid "To be added only if one has been issued"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:28
+#, elixir-autogen, elixir-format
+msgid "To be confirmed from the serviceable address"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:17
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:17
+#, elixir-autogen, elixir-format
+msgid "Trading as"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:22
+#: lib/gesttalt_web/controllers/page_html/privacy.html.heex:19
+#, elixir-autogen, elixir-format
+msgid "A separate serviceable business address will be added before launch"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/terms.html.heex:43
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Text publishing from the web, an application, or an agent on a Gesttalt subdomain is free. The Publisher plan is expected to cost €5 per month and unlock custom domains, media uploads, and custom themes. The final gross price, value-added tax treatment, billing date, renewal terms, payment provider, failed-payment handling, and cancellation effective date remain to be confirmed."
+msgstr ""

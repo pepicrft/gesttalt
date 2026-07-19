@@ -1,0 +1,68 @@
+:is(#login, #signup, #session-confirmation, #account-settings) {
+  padding-block: var(--page-top) var(--page-bottom);
+
+  & > [data-part="container"] {
+    margin-inline: auto;
+    max-width: 28rem;
+
+    & > [data-part="header"] {
+      text-align: left;
+    }
+
+    & > [data-part="form"] {
+      display: grid;
+      gap: var(--space-2);
+
+      & [data-part="checkbox-field"] [data-part="label"] {
+        align-items: center;
+        display: flex;
+        gap: var(--space-1);
+
+        & > [data-part="control"] {
+          margin: 0;
+          width: auto;
+        }
+      }
+    }
+  }
+
+  & [data-part="alert"] {
+    background: #edf4fc;
+    border: 1px solid #b8cee9;
+    padding: 0.8rem;
+  }
+
+  & [data-part="divider"] {
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    margin: var(--space-3) 0;
+    padding-top: 0.7rem;
+    text-align: center;
+  }
+}
+
+#account-settings {
+  margin-inline: auto;
+  max-width: 38rem;
+
+  & > [data-part="form"] {
+    display: grid;
+    gap: var(--space-2);
+  }
+}
+
+.w-full {
+  width: 100%;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.mt-8 {
+  margin-top: 2rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}

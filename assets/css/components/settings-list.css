@@ -1,0 +1,41 @@
+#settings-list {
+  margin-top: 3rem;
+
+  & > [data-part="title"] {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.7rem;
+  }
+
+  & > [data-part="row"] {
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 1.5rem;
+    justify-content: space-between;
+    padding: 1rem 0;
+
+    & > [data-part="content"] {
+      display: grid;
+      gap: 0.4rem;
+
+      & > [data-part="description"] {
+        color: var(--muted);
+        margin: 0;
+      }
+    }
+
+    & > [data-part="actions"] {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+  }
+
+  @media (max-width: 760px) {
+    & > [data-part="row"] {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+}

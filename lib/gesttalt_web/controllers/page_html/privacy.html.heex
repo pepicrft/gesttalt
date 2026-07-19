@@ -1,0 +1,129 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <div id="privacy-policy">
+    <.legal_document
+      eyebrow={dgettext("legal", "Your information")}
+      title={dgettext("legal", "Privacy policy")}
+      description={
+        dgettext(
+          "legal",
+          "This policy explains which personal information Gesttalt handles, why it is needed, and the choices available to you."
+        )
+      }
+    >
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Controller")}</h2>
+        <dl data-part="facts">
+          <dt>{dgettext("legal", "Name")}</dt><dd>Pedro Piñera</dd>
+          <dt>{dgettext("legal", "Trading as")}</dt><dd>Gesttalt</dd>
+          <dt>{dgettext("legal", "Serviceable address")}</dt><dd data-state="missing">
+            {dgettext(
+              "legal",
+              "A separate serviceable business address will be added before launch"
+            )}
+          </dd>
+          <dt>{dgettext("legal", "Email")}</dt><dd>
+            <a href="mailto:hola@pepicrft.me">hola@pepicrft.me</a>
+          </dd>
+          <dt>{dgettext("legal", "Supervisory authority")}</dt><dd data-state="missing">
+            {dgettext("legal", "To be confirmed from the serviceable address")}
+          </dd>
+        </dl>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Information we handle")}</h2>
+        <ul>
+          <li>
+            {dgettext(
+              "legal",
+              "Account details, including email address and authentication information."
+            )}
+          </li>
+          <li>
+            {dgettext(
+              "legal",
+              "Publication content, uploaded images, themes, settings, and custom domains."
+            )}
+          </li>
+          <li>
+            {dgettext(
+              "legal",
+              "Subscription, invoice, and payment status received from the payment provider."
+            )}
+          </li>
+          <li>
+            {dgettext(
+              "legal",
+              "Connected applications, authorization grants, and security tokens."
+            )}
+          </li>
+          <li>{dgettext("legal", "Technical request, security, error, and delivery logs.")}</li>
+          <li>
+            {dgettext(
+              "legal",
+              "Messages sent to support, privacy, or illegal-content reporting contacts."
+            )}
+          </li>
+        </ul>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Why we handle it")}</h2>
+        <p>
+          {dgettext(
+            "legal",
+            "Information is used to provide the contracted publishing service, secure accounts, process payments, answer requests, meet legal duties, and improve reliability. The final policy will map each purpose to its legal basis."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">
+          {dgettext(
+            "legal",
+            "Service providers and international transfers"
+          )}
+        </h2>
+        <p data-state="missing">
+          {dgettext(
+            "legal",
+            "The final list will identify hosting, database, image storage, payment, email, monitoring, support, and backup providers, their processing locations, and any safeguards used for transfers outside the European Economic Area."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Retention")}</h2>
+        <p data-state="missing">
+          {dgettext(
+            "legal",
+            "Account, publication, invoice, security-log, support-message, and backup retention periods remain to be confirmed."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Cookies and browser storage")}</h2>
+        <p>
+          {dgettext(
+            "legal",
+            "Gesttalt is designed to use browser storage only where it is necessary for authentication, security, checkout, and features explicitly requested by the user. Optional analytics or marketing storage will not be enabled without an appropriate consent mechanism."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Your rights")}</h2>
+        <p>
+          {dgettext(
+            "legal",
+            "Depending on the circumstances, you may request access, correction, deletion, restriction, portability, or object to processing. You may withdraw consent where processing relies on consent and complain to a competent data-protection authority."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Customer publications")}</h2>
+        <p>
+          {dgettext(
+            "legal",
+            "A publication owner may separately determine how information from its visitors is used. Publication owners are responsible for providing their own legal information where required. Gesttalt will offer a Data Processing Agreement when it processes personal information on their behalf."
+          )}
+        </p>
+      </section>
+    </.legal_document>
+  </div>
+</Layouts.app>

@@ -1,0 +1,67 @@
+#app-header {
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  border-top: 4px solid var(--blue);
+
+  & > [data-part="inner"] {
+    align-items: center;
+    display: flex;
+    gap: 1.5rem;
+    min-height: 58px;
+
+    & > [data-part="wordmark"] {
+      color: var(--ink);
+      font-size: var(--font-size);
+      font-weight: 700;
+      margin-right: auto;
+      text-decoration: none;
+
+      & > [data-part="period"] {
+        color: var(--blue);
+      }
+    }
+
+    & > [data-part="navigation"] {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      & a:not(.button) {
+        color: var(--ink);
+        font-size: var(--font-size);
+        text-decoration: none;
+
+        &:hover {
+          color: var(--blue);
+          text-decoration: underline;
+        }
+      }
+
+      & a.button {
+        font-size: var(--font-size);
+      }
+    }
+  }
+
+  @media (max-width: 760px) {
+    & > [data-part="inner"] {
+      align-items: flex-start;
+      flex-wrap: wrap;
+      padding-block: 0.8rem;
+
+      & > [data-part="navigation"][data-context="admin"] {
+        flex-wrap: nowrap;
+        order: 3;
+        overflow-x: auto;
+        width: 100%;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    & > [data-part="inner"] > [data-part="navigation"][data-context="public"] > a:first-child {
+      display: none;
+    }
+  }
+}

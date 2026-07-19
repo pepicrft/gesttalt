@@ -1,0 +1,21 @@
+#flash-group {
+  display: grid;
+  gap: 0.5rem;
+  position: fixed;
+  right: max(1rem, calc((100vw - 1100px) / 2));
+  top: 5rem;
+  width: min(24rem, calc(100% - 2rem));
+  z-index: 10;
+
+  & > [data-part="message"] {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--blue);
+    box-shadow: 0 6px 24px rgb(0 0 0 / 8%);
+    padding: 0.85rem 1rem;
+
+    &[data-kind="error"] {
+      border-left-color: var(--red);
+    }
+  }
+}

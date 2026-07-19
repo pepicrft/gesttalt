@@ -1,0 +1,44 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <div id="session-confirmation">
+    <div data-part="container">
+      <div data-part="header">
+        <.header>Welcome {@user.email}</.header>
+      </div>
+
+      <.form
+        :if={!@user.confirmed_at}
+        for={@form}
+        id="confirmation_form"
+        action={~p"/users/log-in?_action=confirmed"}
+        phx-mounted={JS.focus_first()}
+        data-part="form"
+      >
+        <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
+        <.input field={@form[:remember_me]} type="checkbox" label="Keep me signed in" />
+        <.button phx-disable-with="Confirming..." class="btn btn-primary w-full">
+          Confirm account
+        </.button>
+      </.form>
+
+      <.form
+        :if={@user.confirmed_at}
+        for={@form}
+        id="login_form"
+        action={~p"/users/log-in"}
+        phx-mounted={JS.focus_first()}
+        data-part="form"
+      >
+        <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
+        <.input
+          :if={!@current_scope}
+          field={@form[:remember_me]}
+          type="checkbox"
+          label="Keep me signed in"
+        />
+        <.button phx-disable-with="Logging in..." class="btn btn-primary w-full">
+          Log in
+        </.button>
+      </.form>
+    </div>
+  </div>
+</Layouts.app>

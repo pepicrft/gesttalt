@@ -1,0 +1,56 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <div id="withdrawal-policy">
+    <.legal_document
+      eyebrow={dgettext("legal", "Consumer contracts")}
+      title={dgettext("legal", "Right of withdrawal")}
+      description={
+        dgettext(
+          "legal",
+          "Withdrawal reverses a recently concluded consumer contract. It is separate from cancelling an ongoing subscription."
+        )
+      }
+    >
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Withdrawal period")}</h2>
+        <p>
+          {dgettext(
+            "legal",
+            "Consumers generally have fourteen days from the day the contract is concluded to withdraw without giving a reason. The final notice will use the applicable German statutory model and explain any consequences of asking Gesttalt to begin service during that period."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "How to withdraw")}</h2>
+        <p data-state="missing">
+          {dgettext(
+            "legal",
+            "A continuously accessible electronic withdrawal form, including a separate confirmation step and immediate confirmation by email, will be activated before consumer subscriptions are offered. Send withdrawal notices to Pedro Piñera at hola@pepicrft.me. The postal address is still required."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Model withdrawal form")}</h2>
+        <div data-part="model-form">
+          <p>
+            {dgettext("legal", "To:")}
+            <span data-state="missing">{dgettext(
+              "legal",
+              "Operator name, postal address, and email to be provided"
+            )}</span>
+          </p>
+          <p>
+            {dgettext(
+              "legal",
+              "I hereby give notice that I withdraw from my contract for the following service:"
+            )}
+          </p>
+          <p>{dgettext("legal", "Ordered on:")}</p>
+          <p>{dgettext("legal", "Name of consumer:")}</p>
+          <p>{dgettext("legal", "Address of consumer:")}</p>
+          <p>{dgettext("legal", "Date:")}</p>
+          <p>{dgettext("legal", "Signature, only when submitted on paper:")}</p>
+        </div>
+      </section>
+    </.legal_document>
+  </div>
+</Layouts.app>

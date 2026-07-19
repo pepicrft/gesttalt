@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "gesttalt.fullname" . }}-migrate
+  labels:
+    {{- include "gesttalt.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: {{ .Values.migrationJob.backoffLimit }}
+  ttlSecondsAfterFinished: {{ .Values.migrationJob.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      labels:
+        {{- include "gesttalt.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: wait-for-postgres
+          image: {{ .Values.postgres.waitImage | quote }}
+          command:
+            - sh
+            - -ec
+            - until pg_isready --host "$PGHOST" --username "$PGUSER" --dbname "$PGDATABASE"; do sleep 2; done
+          env:
+            - name: PGHOST
+              value: {{ include "gesttalt.postgresHost" . | quote }}
+            - name: PGUSER
+              value: {{ .Values.postgres.user | quote }}
+            - name: PGDATABASE
+              value: {{ .Values.postgres.database | quote }}
+      containers:
+        - name: migrate
+          image: {{ include "gesttalt.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [/app/bin/gesttalt, eval, Gesttalt.Release.migrate_and_seed]
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secrets.envSecretName }}

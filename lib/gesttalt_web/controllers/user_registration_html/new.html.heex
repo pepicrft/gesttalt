@@ -1,0 +1,34 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <div id="signup">
+    <div data-part="container">
+      <div data-part="header">
+        <.header>
+          Register for an account
+          <:subtitle>
+            Already registered?
+            <.link navigate={~p"/users/log-in"} class="font-semibold text-brand hover:underline">
+              Log in
+            </.link>
+            to your account now.
+          </:subtitle>
+        </.header>
+      </div>
+
+      <.form :let={f} for={@changeset} action={~p"/users/register"} data-part="form">
+        <.input
+          field={f[:email]}
+          type="email"
+          label="Email"
+          autocomplete="username"
+          spellcheck="false"
+          required
+          phx-mounted={JS.focus()}
+        />
+
+        <.button phx-disable-with="Creating account..." class="btn btn-primary w-full">
+          Create an account
+        </.button>
+      </.form>
+    </div>
+  </div>
+</Layouts.app>

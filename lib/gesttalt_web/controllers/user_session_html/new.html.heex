@@ -1,0 +1,63 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <div id="login">
+    <div data-part="container">
+      <div data-part="header">
+        <.header>
+          Log in
+          <:subtitle>
+            <%= if @current_scope do %>
+              You need to reauthenticate to perform sensitive actions on your account.
+            <% else %>
+              Don't have an account? <.link
+                navigate={~p"/users/register"}
+                class="font-semibold text-brand hover:underline"
+                phx-no-format
+              >Sign up</.link> for an account now.
+            <% end %>
+          </:subtitle>
+        </.header>
+      </div>
+
+      <%= if Application.get_env(:gesttalt, :dev_routes, false) do %>
+        <form action="/dev/users/log-in-as-test-user" method="post" data-part="test-login">
+          <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+          <.button class="btn btn-secondary w-full">
+            Log in as test user
+          </.button>
+        </form>
+      <% end %>
+
+      <.form
+        :let={f}
+        for={@form}
+        as={:user}
+        id="login_form"
+        action={~p"/users/log-in"}
+        data-part="form"
+      >
+        <.input
+          readonly={!!@current_scope}
+          field={f[:email]}
+          type="email"
+          label="Email"
+          autocomplete="username"
+          spellcheck="false"
+          required
+          phx-mounted={JS.focus()}
+        />
+        <.input
+          field={f[:password]}
+          type="password"
+          label="Password"
+          autocomplete="current-password"
+          spellcheck="false"
+          required
+        />
+        <.input field={f[:remember_me]} type="checkbox" label="Keep me signed in" />
+        <.button class="btn btn-primary w-full">
+          Log in <span aria-hidden="true">→</span>
+        </.button>
+      </.form>
+    </div>
+  </div>
+</Layouts.app>

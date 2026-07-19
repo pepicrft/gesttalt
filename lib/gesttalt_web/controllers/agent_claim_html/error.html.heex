@@ -1,0 +1,14 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <main id="agent-claim">
+    <div data-part="container">
+      <header data-part="header">
+        <p data-part="eyebrow">{dgettext("agent_auth", "Agent publishing")}</p>
+        <h1>{dgettext("agent_auth", "Access unavailable")}</h1>
+        <p>{@message}</p>
+      </header>
+      <p data-part="security-note">
+        <.link navigate={~p"/docs#mcp"}>{dgettext("agent_auth", "Read the publishing guide")}</.link>
+      </p>
+    </div>
+  </main>
+</Layouts.app>

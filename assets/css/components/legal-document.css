@@ -1,0 +1,113 @@
+#legal-document {
+  max-width: 720px;
+  padding-block: var(--page-top) var(--page-bottom);
+
+  & > [data-part="header"] {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: var(--space-3);
+
+    & > [data-part="eyebrow"] {
+      color: var(--blue);
+      font-size: var(--font-size);
+      font-weight: 700;
+      margin: 0 0 var(--space-1);
+    }
+
+    & > [data-part="title"] {
+      font-size: var(--font-size);
+      margin: 0 0 var(--space-1);
+    }
+
+    & > [data-part="description"] {
+      color: var(--muted);
+      margin: 0;
+      max-width: 640px;
+    }
+  }
+
+  & > [data-part="draft-notice"] {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    margin-top: var(--space-3);
+    padding: var(--space-2);
+  }
+
+  & > [data-part="content"] {
+    & > [data-part="section"] {
+      border-bottom: 1px solid var(--line);
+      padding-block: var(--space-3);
+
+      & > [data-part="title"] {
+        font-size: var(--font-size);
+        margin: 0 0 var(--space-1);
+      }
+
+      & > p:last-child,
+      & > ul:last-child,
+      & > [data-part="model-form"]:last-child {
+        margin-bottom: 0;
+      }
+
+      & > ul {
+        padding-left: var(--space-3);
+      }
+
+      & > [data-part="facts"] {
+        display: grid;
+        grid-template-columns: minmax(12rem, 1fr) 2fr;
+        margin: 0;
+
+        & > dt,
+        & > dd {
+          border-top: 1px solid var(--line);
+          margin: 0;
+          padding: 0.6rem 0;
+        }
+
+        & > dt:first-child,
+        & > dt:first-child + dd {
+          border-top: 0;
+        }
+
+        & > dt {
+          font-weight: 700;
+          padding-right: var(--space-2);
+        }
+      }
+
+      & [data-state="missing"] {
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      & > [data-part="model-form"] {
+        background: #fff;
+        border: 1px solid var(--line);
+        padding: var(--space-2);
+
+        & > p {
+          margin: 0;
+
+          & + p {
+            margin-top: var(--space-2);
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 560px) {
+    & > [data-part="content"] > [data-part="section"] > [data-part="facts"] {
+      grid-template-columns: 1fr;
+
+      & > dt {
+        padding-bottom: 0;
+      }
+
+      & > dd {
+        border-top: 0;
+        padding-top: 0.2rem;
+      }
+    }
+  }
+}

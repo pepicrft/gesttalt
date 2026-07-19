@@ -1,0 +1,63 @@
+<Layouts.app flash={@flash} current_scope={@current_scope} admin>
+  <div id="admin-clients">
+    <header id="page-heading">
+      <p data-part="eyebrow">
+        <a href="https://oauth.net/2/">OAuth 2.0 authorization framework</a>
+      </p><h1 data-part="title">
+        Connected applications
+      </h1><p data-part="description">
+        Create clients for mobile apps, automation, and other tools. Public apps should use Proof Key for Code Exchange.
+      </p>
+    </header>
+    <section :if={@created_client} class="panel" data-part="secret-panel">
+      <h2>Client created</h2><p>Copy these credentials now and keep the secret private.</p><dl data-part="credentials">
+        <dt>Client identifier</dt><dd><code>{@created_client.id}</code></dd><dt>Client secret</dt><dd>
+          <code>{@created_client.secret}</code>
+        </dd>
+      </dl>
+    </section>
+    <form action={~p"/admin/oauth-clients"} method="post" class="panel" data-part="client-form">
+      <input type="hidden" name="_csrf_token" value={get_csrf_token()} /><div
+        class="field"
+        data-part="field"
+      >
+        <label for="client-name">Name</label><input id="client-name" name="client[name]" required />
+      </div><div class="field" data-part="field">
+        <label for="redirect-uris">Redirect addresses, one per line</label><textarea
+          id="redirect-uris"
+          name="client[redirect_uris]"
+          rows="4"
+          placeholder="myapp://oauth/callback"
+          required
+        ></textarea>
+      </div><label class="check-row"><input
+        type="checkbox"
+        name="client[confidential]"
+        value="true"
+      /> This client can keep a secret</label><button class="button button--primary">Create client</button>
+    </form>
+    <section id="settings-list">
+      <h2 data-part="title">Your clients</h2><article
+        :for={client <- @clients}
+        id={"client-row-#{client.id}"}
+        data-part="row"
+      >
+        <div data-part="content">
+          <strong>{client.name}</strong><code>{client.id}</code><p data-part="description">
+            {Enum.join(client.redirect_uris, ", ")}
+          </p>
+        </div><form
+          data-part="actions"
+          action={~p"/admin/oauth-clients/#{client.id}"}
+          method="post"
+        >
+          <input type="hidden" name="_method" value="delete" /><input
+            type="hidden"
+            name="_csrf_token"
+            value={get_csrf_token()}
+          /><button class="link-button">Delete</button>
+        </form>
+      </article>
+    </section>
+  </div>
+</Layouts.app>

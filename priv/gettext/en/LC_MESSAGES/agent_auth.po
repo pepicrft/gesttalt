@@ -1,0 +1,105 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/gesttalt_web/controllers/agent_claim_html/show.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "Access confirmed"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_html/error.html.heex:6
+#, elixir-autogen, elixir-format
+msgid "Access unavailable"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_controller.ex:26
+#, elixir-autogen, elixir-format
+msgid "Agent access confirmed"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_controller.ex:103
+#, elixir-autogen, elixir-format
+msgid "Agent access unavailable"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_html/error.html.heex:5
+#: lib/gesttalt_web/controllers/agent_claim_html/show.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Agent publishing"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_html/show.html.heex:45
+#, elixir-autogen, elixir-format
+msgid "Confirm access"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_controller.ex:39
+#: lib/gesttalt_web/controllers/agent_claim_controller.ex:89
+#: lib/gesttalt_web/controllers/agent_claim_html/show.html.heex:10
+#, elixir-autogen, elixir-format
+msgid "Confirm agent access"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_html/show.html.heex:31
+#, elixir-autogen, elixir-format
+msgid "Confirmation code"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_html/show.html.heex:20
+#, elixir-autogen, elixir-format
+msgid "Enter the six-digit code shown by your agent. Gesttalt will bind its publishing access to your signed-in account."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_html/show.html.heex:51
+#, elixir-autogen, elixir-format
+msgid "Only confirm a code you requested. The agent receives publishing access, never your password."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_html/error.html.heex:10
+#, elixir-autogen, elixir-format
+msgid "Read the publishing guide"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_controller.ex:77
+#, elixir-autogen, elixir-format
+msgid "Sign in, then confirm the code shown by your agent."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_controller.ex:121
+#, elixir-autogen, elixir-format
+msgid "That code does not match. Check the six digits shown by your agent."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_controller.ex:130
+#, elixir-autogen, elixir-format
+msgid "This agent access request is invalid or has expired."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_controller.ex:114
+#, elixir-autogen, elixir-format
+msgid "This request belongs to a different email address. Sign out and use the requested account."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_controller.ex:127
+#, elixir-autogen, elixir-format
+msgid "This request has already been confirmed."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_controller.ex:65
+#, elixir-autogen, elixir-format
+msgid "We created your Gesttalt account. Open the sign-in link sent to your email, then confirm the code shown by your agent."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/agent_claim_html/show.html.heex:15
+#, elixir-autogen, elixir-format
+msgid "Your agent can now finish registration and publish to your Gesttalt site. You may close this page."
+msgstr ""

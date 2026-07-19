@@ -1,0 +1,245 @@
+defmodule Gesttalt.Sites do
+  @moduledoc "The tenant boundary for publications, domains, themes, and media."
+
+  import Ecto.Query, warn: false
+
+  alias Ecto.Multi
+  alias Gesttalt.Accounts.User
+  alias Gesttalt.Repo
+  alias Gesttalt.Sites.{Domain, Image, Site, Theme, ThemeDefaults}
+
+  @platform_host "gesttalt.org"
+
+  def platform_host, do: Application.get_env(:gesttalt, :platform_host, @platform_host)
+
+  def list_sites, do: Repo.all(from site in Site, order_by: [asc: site.name])
+
+  def get_site!(id), do: Site |> Repo.get!(id) |> Repo.preload([:domains, :theme])
+
+  def get_site(id), do: Site |> Repo.get(id) |> preload_site()
+
+  def get_site_for_user(%User{id: user_id}) do
+    Site |> Repo.get_by(user_id: user_id) |> preload_site()
+  end
+
+  def get_site_for_user!(%User{} = user) do
+    get_site_for_user(user) || raise Ecto.NoResultsError, queryable: Site
+  end
+
+  def ensure_site_for_user(%User{} = user) do
+    case get_site_for_user(user) do
+      %Site{} = site -> {:ok, site}
+      nil -> create_default_site(user)
+    end
+  end
+
+  def create_default_site(%User{} = user) do
+    base_handle = user.email |> String.split("@") |> hd() |> normalize_handle()
+    handle = available_handle(base_handle)
+
+    Multi.new()
+    |> Multi.insert(
+      :site,
+      Site.changeset(%Site{}, %{
+        user_id: user.id,
+        name: display_name(user.email),
+        handle: handle,
+        tagline: "Independent writing, published thoughtfully."
+      })
+    )
+    |> Multi.insert(:domain, fn %{site: site} ->
+      Domain.changeset(%Domain{}, %{
+        site_id: site.id,
+        hostname: "#{handle}.#{platform_host()}",
+        kind: :subdomain,
+        status: :active,
+        verification_token: token(),
+        verified_at: now()
+      })
+    end)
+    |> Multi.insert(:theme, fn %{site: site} ->
+      Theme.changeset(%Theme{}, Map.put(ThemeDefaults.attrs(), :site_id, site.id))
+    end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{site: site}} -> {:ok, get_site!(site.id)}
+      {:error, _operation, reason, _changes} -> {:error, reason}
+    end
+  end
+
+  def update_site(%Site{} = site, attrs) do
+    site |> Site.changeset(attrs) |> Repo.update()
+  end
+
+  def get_site_by_stripe_customer(customer_id) when is_binary(customer_id),
+    do: Repo.get_by(Site, stripe_customer_id: customer_id)
+
+  def get_site_by_stripe_customer(_customer_id), do: nil
+
+  def update_billing(%Site{} = site, attrs),
+    do: site |> Site.billing_changeset(attrs) |> Repo.update()
+
+  def get_site_by_host(host) when is_binary(host) do
+    hostname = normalize_host(host)
+
+    Domain
+    |> where([domain], domain.hostname == ^hostname and domain.status == :active)
+    |> join(:inner, [domain], site in assoc(domain, :site))
+    |> preload([domain, site], site: {site, [:theme, :domains]})
+    |> Repo.one()
+    |> case do
+      %Domain{site: site} -> site
+      nil -> nil
+    end
+  end
+
+  def platform_host?(host),
+    do: normalize_host(host) in [platform_host(), "www.#{platform_host()}", "localhost"]
+
+  def list_domains(%Site{id: site_id}) do
+    Repo.all(
+      from domain in Domain, where: domain.site_id == ^site_id, order_by: [asc: domain.hostname]
+    )
+  end
+
+  def add_custom_domain(%Site{id: site_id}, attrs) do
+    attrs = Map.put(attrs, key_for(attrs, :site_id), site_id)
+    attrs = Map.put_new(attrs, key_for(attrs, :verification_token), token())
+
+    %Domain{}
+    |> Domain.changeset(attrs)
+    |> Ecto.Changeset.put_change(:kind, :custom)
+    |> Ecto.Changeset.put_change(:status, :pending)
+    |> Repo.insert()
+  end
+
+  def verify_domain(%Site{} = site, id) do
+    domain = Repo.get_by!(Domain, id: id, site_id: site.id)
+    expected = "gesttalt-domain=#{domain.verification_token}"
+
+    if expected in dns_txt_values("_gesttalt.#{domain.hostname}") do
+      domain
+      |> Domain.changeset(%{status: :active, verified_at: now()})
+      |> Repo.update()
+    else
+      {:error, :verification_record_not_found}
+    end
+  end
+
+  def delete_domain(%Site{} = site, id) do
+    case Repo.get_by(Domain, id: id, site_id: site.id, kind: :custom) do
+      %Domain{} = domain -> Repo.delete(domain)
+      nil -> {:error, :not_found}
+    end
+  end
+
+  def get_theme!(%Site{id: site_id}), do: Repo.get_by!(Theme, site_id: site_id)
+
+  def update_theme(%Site{} = site, attrs) do
+    site |> get_theme!() |> Theme.changeset(attrs) |> Repo.update()
+  end
+
+  def list_images(%Site{id: site_id}) do
+    Repo.all(
+      from image in Image, where: image.site_id == ^site_id, order_by: [desc: image.inserted_at]
+    )
+  end
+
+  def get_image!(%Site{id: site_id}, id), do: Repo.get_by!(Image, id: id, site_id: site_id)
+
+  def store_image(%Site{} = site, %Plug.Upload{} = upload, alt_text \\ nil) do
+    content_type = upload.content_type || MIME.from_path(upload.filename)
+    extension = upload.filename |> Path.extname() |> String.downcase()
+    storage_key = "#{site.id}/#{Ecto.UUID.generate()}#{extension}"
+    destination = Path.join(uploads_dir(), storage_key)
+    File.mkdir_p!(Path.dirname(destination))
+
+    attrs = %{
+      site_id: site.id,
+      filename: Path.basename(upload.filename),
+      storage_key: storage_key,
+      content_type: content_type,
+      byte_size: File.stat!(upload.path).size,
+      alt_text: alt_text
+    }
+
+    changeset = Image.changeset(%Image{}, attrs)
+
+    if changeset.valid? do
+      with :ok <- File.cp(upload.path, destination),
+           {:ok, image} <- Repo.insert(changeset) do
+        {:ok, image}
+      else
+        {:error, reason} ->
+          File.rm(destination)
+          {:error, reason}
+      end
+    else
+      {:error, changeset}
+    end
+  end
+
+  def delete_image(%Site{} = site, id) do
+    image = get_image!(site, id)
+
+    with {:ok, image} <- Repo.delete(image) do
+      File.rm(Path.join(uploads_dir(), image.storage_key))
+      {:ok, image}
+    end
+  end
+
+  def image_path(%Image{storage_key: storage_key}), do: Path.join(uploads_dir(), storage_key)
+  def image_url(%Image{id: id, filename: filename}), do: "/media/#{id}/#{URI.encode(filename)}"
+
+  defp preload_site(nil), do: nil
+  defp preload_site(site), do: Repo.preload(site, [:domains, :theme])
+
+  defp available_handle(base, attempt \\ 0) do
+    candidate = if attempt == 0, do: base, else: "#{base}-#{attempt + 1}"
+
+    if Repo.exists?(from site in Site, where: site.handle == ^candidate),
+      do: available_handle(base, attempt + 1),
+      else: candidate
+  end
+
+  defp display_name(email) do
+    email
+    |> String.split("@")
+    |> hd()
+    |> String.replace(~r/[._-]+/, " ")
+    |> String.split()
+    |> Enum.map_join(" ", &String.capitalize/1)
+  end
+
+  defp normalize_handle(value) do
+    value
+    |> String.downcase()
+    |> String.replace(~r/[^a-z0-9]+/, "-")
+    |> String.trim("-")
+    |> String.slice(0, 32)
+    |> case do
+      value when byte_size(value) >= 2 -> value
+      value -> value <> "-site"
+    end
+  end
+
+  defp normalize_host(host) do
+    host |> String.split(":") |> hd() |> Domain.normalize()
+  end
+
+  defp dns_txt_values(hostname) do
+    hostname
+    |> String.to_charlist()
+    |> :inet_res.lookup(:in, :txt)
+    |> Enum.map(&IO.iodata_to_binary/1)
+  rescue
+    _error -> []
+  end
+
+  defp uploads_dir, do: Application.fetch_env!(:gesttalt, :uploads_dir)
+  defp token, do: :crypto.strong_rand_bytes(24) |> Base.url_encode64(padding: false)
+  defp now, do: DateTime.utc_now() |> DateTime.truncate(:second)
+
+  defp key_for(attrs, key),
+    do: if(Enum.any?(Map.keys(attrs), &is_binary/1), do: Atom.to_string(key), else: key)
+end

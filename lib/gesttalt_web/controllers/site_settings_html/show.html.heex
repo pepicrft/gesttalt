@@ -1,0 +1,73 @@
+<Layouts.app flash={@flash} current_scope={@current_scope} admin>
+  <div id="admin-settings">
+    <header id="page-heading">
+      <p data-part="eyebrow">Publication</p><h1 data-part="title">Settings</h1><p data-part="description">
+        Personalize the publication and map verified domains to this account.
+      </p>
+    </header>
+    <.form
+      :let={form}
+      for={@site_changeset}
+      action={~p"/admin/settings"}
+      method="put"
+      class="panel"
+      data-part="publication-form"
+    >
+      <div class="field" data-part="field">
+        <label for={form[:name].id}>Name</label><input
+          id={form[:name].id}
+          name={form[:name].name}
+          value={form[:name].value}
+        />
+      </div>
+      <div class="field" data-part="field">
+        <label for={form[:tagline].id}>Tagline</label><input
+          id={form[:tagline].id}
+          name={form[:tagline].name}
+          value={form[:tagline].value}
+        />
+      </div>
+      <button class="button button--primary">Save publication</button>
+    </.form>
+    <section id="settings-list">
+      <h2 data-part="title">Domains</h2>
+      <article :for={domain <- @domains} id={"domain-row-#{domain.id}"} data-part="row">
+        <div data-part="content">
+          <strong>{domain.hostname}</strong><span data-part="status" data-status={domain.status}>{domain.status}</span><p
+            :if={domain.status == :pending}
+            data-part="description"
+          >
+            Add a TXT record at <code>_gesttalt.{domain.hostname}</code>
+            with <code>gesttalt-domain={domain.verification_token}</code>.
+          </p>
+        </div><div data-part="actions">
+          <form
+            :if={domain.status == :pending}
+            action={~p"/admin/domains/#{domain}/verify"}
+            method="post"
+          >
+            <input type="hidden" name="_csrf_token" value={get_csrf_token()} /><button class="button">Verify</button>
+          </form><form
+            :if={domain.kind == :custom}
+            action={~p"/admin/domains/#{domain}"}
+            method="post"
+          >
+            <input type="hidden" name="_method" value="delete" /><input
+              type="hidden"
+              name="_csrf_token"
+              value={get_csrf_token()}
+            /><button class="link-button">Remove</button>
+          </form>
+        </div>
+      </article>
+      <form action={~p"/admin/domains"} method="post" class="inline-form" data-part="add-form">
+        <input type="hidden" name="_csrf_token" value={get_csrf_token()} /><label for="hostname">Custom domain</label><input
+          id="hostname"
+          name="domain[hostname]"
+          placeholder="notes.example.com"
+          required
+        /><button class="button">Add domain</button>
+      </form>
+    </section>
+  </div>
+</Layouts.app>

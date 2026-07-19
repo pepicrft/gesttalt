@@ -1,0 +1,27 @@
+#admin-settings {
+  & > [data-part="publication-form"] {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  & [data-part="status"] {
+    background: #e8e6e0;
+    border: 1px solid #cfcbc3;
+    color: #4e4a44;
+    font-size: var(--font-size);
+    font-weight: 700;
+    padding: 0.08rem 0.35rem;
+
+    &[data-status="active"] {
+      background: #e7f3e8;
+      border-color: #a7c9aa;
+      color: #285e2d;
+    }
+
+    &[data-status="pending"] {
+      background: #f5f0dc;
+      border-color: #d5c888;
+      color: #695c20;
+    }
+  }
+}

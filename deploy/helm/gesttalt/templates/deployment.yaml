@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gesttalt.fullname" . }}
+  labels:
+    {{- include "gesttalt.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "gesttalt.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/caddy: {{ include (print $.Template.BasePath "/caddy-config.yaml") . | sha256sum }}
+      labels:
+        {{- include "gesttalt.selectorLabels" . | nindent 8 }}
+    spec:
+      securityContext:
+        fsGroup: 65534
+        fsGroupChangePolicy: OnRootMismatch
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: web
+          image: {{ include "gesttalt.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: phoenix
+              containerPort: 4000
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secrets.envSecretName }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: phoenix
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: phoenix
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: media
+              mountPath: /app/uploads
+        - name: caddy
+          image: {{ .Values.caddy.image | quote }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+            - name: https
+              containerPort: 443
+          readinessProbe:
+            tcpSocket:
+              port: https
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: caddy-config
+              mountPath: /etc/caddy
+              readOnly: true
+            - name: caddy-data
+              mountPath: /data
+      volumes:
+        - name: media
+          persistentVolumeClaim:
+            claimName: {{ include "gesttalt.fullname" . }}-media
+        - name: caddy-data
+          persistentVolumeClaim:
+            claimName: {{ include "gesttalt.fullname" . }}-caddy
+        - name: caddy-config
+          configMap:
+            name: {{ include "gesttalt.fullname" . }}-caddy

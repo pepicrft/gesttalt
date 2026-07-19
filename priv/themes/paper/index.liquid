@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ site.name }}</title>
+    <meta name="description" content="{{ site.tagline }}">
+    <link rel="alternate" type="application/atom+xml" title="{{ site.name }} feed" href="/blog/feed.xml">
+    <style>{{ stylesheet }}</style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <div class="site-identity">
+          <a class="site-title" href="/">{{ site.name }}</a>
+          <span class="site-tagline">{{ site.tagline }}</span>
+        </div>
+        <nav>
+          <a href="/">Writing</a>
+          {% for page in pages %}<a href="{{ page.url }}">{{ page.title }}</a>{% endfor %}
+        </nav>
+      </div>
+    </header>
+    <main class="container page">
+      <p class="section-label">Recent writing</p>
+      <section class="posts-list">
+        {% for post in posts %}
+        <article class="post-row">
+          <time datetime="{{ post.published_at }}">{{ post.published_on }}</time>
+          <div class="post-copy">
+            <a class="post-link" href="{{ post.url }}">{{ post.title }}</a>
+            <p>{{ post.excerpt }}</p>
+          </div>
+        </article>
+        {% endfor %}
+      </section>
+    </main>
+    <footer class="site-footer"><div class="container">Published with <a href="https://gesttalt.org">gesttalt</a>.</div></footer>
+  </body>
+</html>

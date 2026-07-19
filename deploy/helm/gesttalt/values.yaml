@@ -1,0 +1,98 @@
+fullnameOverride: ""
+replicaCount: 1
+
+image:
+  repository: ghcr.io/pepicrft/gesttalt
+  tag: main
+  digest: ""
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+env:
+  GESTTALT_PHX_SERVER: "true"
+  GESTTALT_HOST: gesttalt.org
+  GESTTALT_UPLOADS_DIR: /app/uploads
+  GESTTALT_STRIPE_MONTHLY_PRICE_EUROS: "5"
+  GESTTALT_STRIPE_AUTOMATIC_TAX: "false"
+
+secrets:
+  envSecretName: gesttalt-app-env
+
+service:
+  type: LoadBalancer
+  annotations: {}
+  httpPort: 80
+  httpsPort: 443
+
+caddy:
+  image: caddy:2.10.0-alpine
+  email: hello@gesttalt.org
+  persistence:
+    storageClass: ""
+    size: 2Gi
+
+media:
+  persistence:
+    storageClass: ""
+    size: 20Gi
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 768Mi
+
+postgres:
+  clusterName: gesttalt-postgres
+  waitImage: postgres:18-alpine
+  user: gesttalt
+  database: gesttalt_prod
+  appSecretName: gesttalt-postgres-app
+  instances: 1
+  storage:
+    storageClass: ""
+    size: 20Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 2Gi
+  nodeSelector: {}
+  tolerations: []
+
+migrationJob:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 300
+
+externalSecrets:
+  enabled: false
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: default
+  appEnv:
+    itemKey: gesttalt
+    fields:
+      GESTTALT_SECRET_KEY_BASE: SECRET_KEY_BASE
+      GESTTALT_STRIPE_SECRET_KEY: STRIPE_SECRET_KEY
+      GESTTALT_STRIPE_PRICE_ID: STRIPE_PRICE_ID
+      GESTTALT_STRIPE_WEBHOOK_SECRET: STRIPE_WEBHOOK_SECRET
+      GESTTALT_AGENT_AUTH_PRIVATE_KEY_PEM: AGENT_AUTH_PRIVATE_KEY_PEM
+      GESTTALT_SEED_EMAIL: SEED_EMAIL
+      GESTTALT_SEED_PASSWORD: SEED_PASSWORD
+      GESTTALT_SEED_SITE_NAME: SEED_SITE_NAME
+      GESTTALT_SEED_DOMAIN: SEED_DOMAIN
+  postgres:
+    itemKey: gesttalt
+    passwordField: POSTGRES_PASSWORD
+  imagePullSecret:
+    enabled: false
+    name: ghcr-pull-secret
+    registry: ghcr.io
+    itemKey: gesttalt
+    usernameField: GHCR_PULL_USERNAME
+    passwordField: GHCR_PULL_TOKEN

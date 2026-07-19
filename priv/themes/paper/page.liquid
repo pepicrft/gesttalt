@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page.title }} · {{ site.name }}</title>
+    <meta name="description" content="{{ page.excerpt }}">
+    <style>{{ stylesheet }}</style>
+  </head>
+  <body>
+    <header class="site-header"><div class="container header-inner"><div class="site-identity"><a class="site-title" href="/">{{ site.name }}</a><span class="site-tagline">{{ site.tagline }}</span></div><nav><a href="/">Writing</a>{% for item in pages %}<a href="{{ item.url }}">{{ item.title }}</a>{% endfor %}</nav></div></header>
+    <main class="container page"><article><header class="article-header"><h1>{{ page.title }}</h1><p class="lede">{{ page.excerpt }}</p></header><div class="prose">{{ page.body_html }}</div></article></main>
+    <footer class="site-footer"><div class="container">Published with <a href="https://gesttalt.org">gesttalt</a>.</div></footer>
+  </body>
+</html>

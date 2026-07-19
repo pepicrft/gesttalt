@@ -1,0 +1,77 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <div id="legal-notice">
+    <.legal_document
+      eyebrow={dgettext("legal", "Provider information")}
+      title={dgettext("legal", "Legal notice")}
+      description={
+        dgettext(
+          "legal",
+          "Information about the person responsible for operating Gesttalt and how to contact them."
+        )
+      }
+    >
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Individual service provider")}</h2>
+        <dl data-part="facts">
+          <dt>{dgettext("legal", "Name")}</dt><dd>Pedro Piñera</dd>
+          <dt>{dgettext("legal", "Trading as")}</dt><dd>Gesttalt</dd>
+          <dt>{dgettext("legal", "Legal form")}</dt><dd>
+            {dgettext("legal", "Sole proprietor, not a separate legal entity")}
+          </dd>
+          <dt>{dgettext("legal", "Serviceable address")}</dt><dd data-state="missing">
+            {dgettext(
+              "legal",
+              "A separate serviceable business address will be added before launch"
+            )}
+          </dd>
+        </dl>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Contact")}</h2>
+        <dl data-part="facts">
+          <dt>{dgettext("legal", "Email")}</dt><dd>
+            <a href="mailto:hola@pepicrft.me">hola@pepicrft.me</a>
+          </dd>
+        </dl>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Tax information")}</h2>
+        <dl data-part="facts">
+          <dt>{dgettext("legal", "Value-added tax identification number")}</dt><dd data-state="missing">
+            {dgettext(
+              "legal",
+              "To be added only if one has been issued"
+            )}
+          </dd>
+        </dl>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Digital service contacts")}</h2>
+        <p>
+          {dgettext(
+            "legal",
+            "Customers, authorities, the European Commission, and the European Board for Digital Services may contact hola@pepicrft.me. Communication is possible in German and English."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Responsible for editorial content")}</h2>
+        <p>
+          {dgettext(
+            "legal",
+            "Pedro Piñera is responsible for editorial content. The address is the serviceable address stated above."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Consumer dispute resolution")}</h2>
+        <p data-state="missing">
+          {dgettext(
+            "legal",
+            "The operator's participation status will be confirmed before launch. The former European online dispute-resolution platform is not used because it has been discontinued."
+          )}
+        </p>
+      </section>
+    </.legal_document>
+  </div>
+</Layouts.app>

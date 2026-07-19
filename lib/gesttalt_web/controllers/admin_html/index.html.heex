@@ -1,0 +1,47 @@
+<Layouts.app flash={@flash} current_scope={@current_scope} admin>
+  <div id="admin-content">
+    <header id="page-heading" data-layout="split">
+      <div data-part="heading-copy">
+        <p data-part="eyebrow">Publishing desk</p><h1 data-part="title">Content</h1><p data-part="description">
+          Posts and pages for <strong>{@site.name}</strong>.
+        </p>
+      </div><a data-part="action" class="button button--primary" href={~p"/admin/posts/new"}>New document</a>
+    </header>
+    <section data-part="list" aria-label="Content">
+      <div :if={@posts == []} data-part="empty">
+        <h2>No content yet</h2><p>
+          Your first draft can start with a title and a few honest lines.
+        </p>
+      </div>
+      <article :for={post <- @posts} id={"content-row-#{post.id}"} data-part="row">
+        <div data-part="content">
+          <div data-part="metadata">
+            <span data-part="status" data-status={post.status}>{post.status}</span><span>{post.kind}</span><time datetime={
+              post.updated_at
+            }>{Calendar.strftime(post.updated_at, "%d %b %Y, %H:%M")}</time>
+          </div><h2 data-part="title">
+            <a href={~p"/admin/posts/#{post}/edit"}>{post.title}</a>
+          </h2><p data-part="path">
+            /{if(post.kind == :post, do: "blog/", else: "")}{post.slug}
+          </p>
+        </div><div data-part="actions">
+          <a :if={Gesttalt.Publishing.Post.published?(post)} href={public_url(@site, post)}>View</a><a href={
+            ~p"/admin/posts/#{post}/edit"
+          }>Edit</a><form
+            :if={post.status == :draft}
+            action={~p"/admin/posts/#{post}/publish"}
+            method="post"
+          >
+            <input type="hidden" name="_csrf_token" value={get_csrf_token()} /><button class="link-button">Publish</button>
+          </form><form
+            :if={post.status == :published}
+            action={~p"/admin/posts/#{post}/unpublish"}
+            method="post"
+          >
+            <input type="hidden" name="_csrf_token" value={get_csrf_token()} /><button class="link-button">Unpublish</button>
+          </form>
+        </div>
+      </article>
+    </section>
+  </div>
+</Layouts.app>

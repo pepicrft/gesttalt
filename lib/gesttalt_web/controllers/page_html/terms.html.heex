@@ -1,0 +1,116 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <div id="terms-of-service">
+    <.legal_document
+      eyebrow={dgettext("legal", "Using Gesttalt")}
+      title={dgettext("legal", "Terms of service")}
+      description={
+        dgettext(
+          "legal",
+          "These terms describe the publishing service, subscriptions, customer responsibilities, and how content is handled."
+        )
+      }
+    >
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Contracting party and scope")}</h2>
+        <p data-state="missing">
+          {dgettext(
+            "legal",
+            "Gesttalt is operated by Pedro Piñera as a sole proprietor. The serviceable address and effective date of these terms will be inserted before launch. These terms will apply to Gesttalt accounts and paid publishing subscriptions."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Accounts")}</h2>
+        <p>
+          {dgettext(
+            "legal",
+            "Account holders must provide accurate information, keep their credentials secure, and promptly report suspected misuse. Paid consumer accounts are intended for people who are at least 18 years old."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Publishing service")}</h2>
+        <p>
+          {dgettext(
+            "legal",
+            "Gesttalt provides tools to create and publish posts and pages, store images, use custom domains, edit Liquid themes, and publish through supported programmatic interfaces. Exact plan limits and support commitments will be shown before an order is placed."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Price, renewal, and payment")}</h2>
+        <p data-state="missing">
+          {dgettext(
+            "legal",
+            "Text publishing from the web, an application, or an agent on a Gesttalt subdomain is free. The Publisher plan is expected to cost €5 per month and unlock custom domains, media uploads, and custom themes. The final gross price, value-added tax treatment, billing date, renewal terms, payment provider, failed-payment handling, and cancellation effective date remain to be confirmed."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Your content and themes")}</h2>
+        <p>
+          {dgettext(
+            "legal",
+            "You retain ownership of the content and themes you upload. You grant Gesttalt the limited rights needed to store, process, back up, and publicly deliver them at your direction. You must have the rights needed to publish all submitted text, images, code, and other material."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Domains and legal responsibilities")}</h2>
+        <p>
+          {dgettext(
+            "legal",
+            "You are responsible for controlling connected domains and for the legal notices, privacy information, and other disclosures required for your own publication. Gesttalt may pause a domain connection when control cannot be verified or its configuration creates a security risk."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Content restrictions and moderation")}</h2>
+        <p>
+          {dgettext(
+            "legal",
+            "Do not publish illegal material, infringe intellectual-property or privacy rights, impersonate others, distribute malicious software, facilitate fraud, or use the service to threaten or exploit people. Gesttalt may review reports and restrict content or accounts where required by law or these terms."
+          )}
+        </p>
+        <p>
+          {dgettext(
+            "legal",
+            "Affected account holders will receive a clear reason for a restriction where the law permits it. The final policy will state whether any automated moderation is used and describe the available review process."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Cancellation, withdrawal, and export")}</h2>
+        <p>
+          {dgettext("legal", "Customers may cancel an ongoing subscription through the")}
+          <a href={~p"/cancel"}>{dgettext("legal", "cancellation page")}</a>. {dgettext(
+            "legal",
+            "Consumers may separately exercise a statutory right of withdrawal through the"
+          )}
+          <a href={~p"/withdrawal"}>{dgettext("legal", "withdrawal page")}</a>. {dgettext(
+            "legal",
+            "The final terms will state how long content remains available for export after cancellation."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Availability and liability")}</h2>
+        <p data-state="missing">
+          {dgettext(
+            "legal",
+            "Maintenance, support, backups, statutory defect rights, liability, force-majeure events, and service discontinuation clauses require final legal review. Nothing in these terms will exclude rights or liability that cannot legally be excluded."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Changes and governing law")}</h2>
+        <p data-state="missing">
+          {dgettext(
+            "legal",
+            "The notice period and grounds for changing these terms will be finalized with counsel. German law is expected to apply without depriving consumers of mandatory protections available where they live."
+          )}
+        </p>
+      </section>
+    </.legal_document>
+  </div>
+</Layouts.app>

@@ -1,0 +1,50 @@
+<Layouts.app flash={@flash} current_scope={@current_scope} admin>
+  <div id="admin-media">
+    <header id="page-heading">
+      <p data-part="eyebrow">Library</p><h1 data-part="title">Media</h1><p data-part="description">
+        Upload images up to 10 megabytes, then copy the Markdown reference into a post or page.
+      </p>
+    </header>
+    <form
+      action={~p"/admin/media"}
+      method="post"
+      enctype="multipart/form-data"
+      class="panel"
+      data-part="upload-form"
+    >
+      <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+      <div class="field" data-part="field">
+        <label for="image-file">Image</label><input
+          id="image-file"
+          type="file"
+          name="image[file]"
+          accept="image/jpeg,image/png,image/gif,image/webp"
+          required
+        />
+      </div>
+      <div class="field" data-part="field">
+        <label for="image-alt">Alternative text</label><input
+          id="image-alt"
+          name="image[alt_text]"
+        />
+      </div>
+      <button class="button button--primary">Upload image</button>
+    </form>
+    <section data-part="media-grid">
+      <article :for={image <- @images} id={"media-card-#{image.id}"} data-part="media-card">
+        <img data-part="image" src={Gesttalt.Sites.image_url(image)} alt={image.alt_text || ""} />
+        <div data-part="content">
+          <strong>{image.filename}</strong><code data-part="reference">![{image.alt_text || ""}]({Gesttalt.Sites.image_url(
+            image
+          )})</code><form action={~p"/admin/media/#{image}"} method="post">
+            <input type="hidden" name="_method" value="delete" /><input
+              type="hidden"
+              name="_csrf_token"
+              value={get_csrf_token()}
+            /><button class="link-button">Delete</button>
+          </form>
+        </div>
+      </article>
+    </section>
+  </div>
+</Layouts.app>

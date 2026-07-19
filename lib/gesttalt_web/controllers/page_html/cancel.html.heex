@@ -1,0 +1,44 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <div id="subscription-cancellation">
+    <.legal_document
+      eyebrow={dgettext("legal", "Ongoing subscriptions")}
+      title={dgettext("legal", "Cancel a subscription")}
+      description={
+        dgettext(
+          "legal",
+          "Cancellation ends future renewal of an ongoing subscription. It does not replace the statutory right to withdraw from a recent consumer contract."
+        )
+      }
+    >
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Electronic cancellation")}</h2>
+        <p data-state="missing">
+          {dgettext(
+            "legal",
+            "A direct cancellation form and confirmation page will be activated before paid consumer subscriptions are offered. It will remain available without requiring access to the customer dashboard and will issue an immediate electronic confirmation."
+          )}
+        </p>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Information the form will request")}</h2>
+        <ul>
+          <li>{dgettext("legal", "Your name and account email.")}</li>
+          <li>{dgettext("legal", "The subscription or contract to cancel.")}</li>
+          <li>{dgettext("legal", "The requested cancellation date.")}</li>
+          <li>{dgettext("legal", "The email address where confirmation should be sent.")}</li>
+        </ul>
+      </section>
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Current account access")}</h2>
+        <p>
+          {dgettext("legal", "Existing account holders can")}
+          <a href={~p"/users/log-in"}>{dgettext("legal", "log in")}</a>
+          {dgettext(
+            "legal",
+            "to review their billing status. Dashboard access will not be the only cancellation method once subscriptions are available."
+          )}
+        </p>
+      </section>
+    </.legal_document>
+  </div>
+</Layouts.app>

@@ -1,0 +1,74 @@
+#admin-billing {
+  & > [data-part="configuration-notice"] {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    margin-bottom: var(--space-3);
+    padding: var(--space-2);
+  }
+
+  & > [data-part="billing-card"] {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+
+    & [data-part="eyebrow"] {
+      color: var(--blue);
+      font-size: var(--font-size);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin: 0 0 0.5rem;
+    }
+
+    & [data-part="price"] {
+      font-size: var(--font-size);
+      font-weight: 700;
+      margin: 0.5rem 0;
+
+      & > [data-part="interval"] {
+        color: var(--muted);
+        font-size: var(--font-size);
+        font-weight: 400;
+      }
+    }
+  }
+
+  & > [data-part="plans"] {
+    border-left: 1px solid var(--line);
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin-top: var(--space-4);
+
+    & > [data-part="plan-option"] {
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      padding: var(--space-3);
+
+      & > [data-part="eyebrow"] {
+        color: var(--blue);
+        font-weight: 700;
+        margin: 0 0 var(--space-1);
+      }
+
+      & > h2 {
+        margin: 0;
+      }
+
+      & > ul {
+        margin-bottom: 0;
+        padding-left: var(--space-3);
+      }
+    }
+  }
+
+  @media (max-width: 760px) {
+    & > [data-part="billing-card"] {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    & > [data-part="plans"] {
+      grid-template-columns: 1fr;
+    }
+  }
+}

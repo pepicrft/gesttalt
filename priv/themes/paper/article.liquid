@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ post.title }} · {{ site.name }}</title>
+    <meta name="description" content="{{ post.excerpt }}">
+    <style>{{ stylesheet }}</style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <div class="site-identity"><a class="site-title" href="/">{{ site.name }}</a><span class="site-tagline">{{ site.tagline }}</span></div>
+        <nav><a href="/">Writing</a>{% for page in pages %}<a href="{{ page.url }}">{{ page.title }}</a>{% endfor %}</nav>
+      </div>
+    </header>
+    <main class="container page">
+      <article>
+        <header class="article-header"><p class="section-label">{{ post.published_on }} · {{ post.reading_time }} min read</p><h1>{{ post.title }}</h1><p class="lede">{{ post.excerpt }}</p></header>
+        <div class="prose">{{ post.body_html }}</div>
+      </article>
+    </main>
+    <footer class="site-footer"><div class="container"><a href="/">All writing</a></div></footer>
+  </body>
+</html>

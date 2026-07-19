@@ -1,0 +1,56 @@
+fullnameOverride: gesttalt
+
+imagePullSecrets:
+  - name: ghcr-pull-secret
+
+service:
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: "gesttalt.org,*.gesttalt.org"
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+    load-balancer.hetzner.cloud/location: fsn1
+    load-balancer.hetzner.cloud/uses-proxyprotocol: "false"
+
+caddy:
+  persistence:
+    storageClass: hcloud-volumes
+
+media:
+  persistence:
+    storageClass: hcloud-volumes
+    size: 50Gi
+
+postgres:
+  storage:
+    storageClass: hcloud-volumes
+    size: 50Gi
+  nodeSelector:
+    node.cluster.x-k8s.io/pool: stateful
+  tolerations:
+    - key: node.cluster.x-k8s.io/pool
+      operator: Equal
+      value: stateful
+      effect: NoSchedule
+
+externalSecrets:
+  enabled: true
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: salibu-production
+  appEnv:
+    itemKey: kubernetes
+    fields:
+      GESTTALT_SECRET_KEY_BASE: GESTTALT_SECRET_KEY_BASE
+      GESTTALT_STRIPE_SECRET_KEY: GESTTALT_STRIPE_SECRET_KEY
+      GESTTALT_STRIPE_PRICE_ID: GESTTALT_STRIPE_PRICE_ID
+      GESTTALT_STRIPE_WEBHOOK_SECRET: GESTTALT_STRIPE_WEBHOOK_SECRET
+      GESTTALT_AGENT_AUTH_PRIVATE_KEY_PEM: GESTTALT_AGENT_AUTH_PRIVATE_KEY_PEM
+      GESTTALT_SEED_EMAIL: GESTTALT_SEED_EMAIL
+      GESTTALT_SEED_PASSWORD: GESTTALT_SEED_PASSWORD
+      GESTTALT_SEED_SITE_NAME: GESTTALT_SEED_SITE_NAME
+      GESTTALT_SEED_DOMAIN: GESTTALT_SEED_DOMAIN
+  postgres:
+    itemKey: kubernetes
+    passwordField: GESTTALT_POSTGRES_PASSWORD
+  imagePullSecret:
+    enabled: true
+    itemKey: kubernetes

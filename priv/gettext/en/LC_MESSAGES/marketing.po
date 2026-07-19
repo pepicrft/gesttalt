@@ -1,0 +1,52 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/gesttalt_web/controllers/page_controller.ex:6
+#, elixir-autogen, elixir-format
+msgid "A simple blogging platform for the agentic world"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/home.html.heex:6
+#, elixir-autogen, elixir-format
+msgid "A simple blogging platform for the agentic world."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/home.html.heex:18
+#, elixir-autogen, elixir-format
+msgid "Explore the publishing interfaces →"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/home.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "Independent publishing"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:8
+#, elixir-autogen, elixir-format
+msgid "Publish from the web, an application, an automation, or an agent."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/home.html.heex:15
+#, elixir-autogen, elixir-format
+msgid "Start publishing"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/home.html.heex:9
+#, elixir-autogen, elixir-format
+msgid "Your words, your address, everywhere. Publish from the web, an application, an automation, or an agent."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/home.html.heex:24
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Publish text for free from the web, an application, or an agent. Upgrade for €5 per month when you need a custom domain, images, or custom themes."
+msgstr ""

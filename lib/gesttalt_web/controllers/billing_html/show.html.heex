@@ -1,0 +1,79 @@
+<Layouts.app flash={@flash} current_scope={@current_scope} admin>
+  <div id="admin-billing">
+    <header id="page-heading">
+      <p data-part="eyebrow">{dgettext("billing", "Account")}</p><h1 data-part="title">
+        {dgettext("billing", "Billing")}
+      </h1>
+      <p data-part="description">
+        {dgettext(
+          "billing",
+          "Writing stays free. Upgrade for the features that use more infrastructure or support a professional publication."
+        )}
+      </p>
+    </header>
+    <aside :if={!@billing_configured} data-part="configuration-notice">
+      {dgettext(
+        "billing",
+        "Stripe checkout is not configured in this environment. Add the secret key, recurring price identifier, and webhook signing secret to enable subscriptions."
+      )}
+    </aside>
+    <section class="panel" data-part="billing-card">
+      <div data-part="plan">
+        <p data-part="eyebrow">{dgettext("billing", "Current plan")}</p><h2>
+          {if @plan == :publisher,
+            do: dgettext("billing", "Publisher"),
+            else: dgettext("billing", "Free")}
+        </h2>
+        <p :if={@plan == :publisher} data-part="price">
+          €{@price}<span data-part="interval">{dgettext("billing", "per month")}</span>
+        </p><p :if={@plan == :free} data-part="price">€0</p>
+      </div>
+      <div data-part="actions">
+        <p>{dgettext("billing", "Status")}: <strong>{@site.subscription_status}</strong></p>
+        <p :if={@site.cancel_at_period_end && @site.subscription_ends_at}>
+          {dgettext("billing", "Access ends on %{date}.",
+            date: Calendar.strftime(@site.subscription_ends_at, "%d %B %Y")
+          )}
+        </p>
+        <form
+          :if={@plan == :free}
+          action={~p"/admin/billing/checkout"}
+          method="post"
+        >
+          <input type="hidden" name="_csrf_token" value={get_csrf_token()} /><button
+            class="button button--primary"
+            disabled={!@billing_configured}
+          >{dgettext(
+            "billing",
+            "Upgrade for €%{price} per month",
+            price: @price
+          )}</button>
+        </form>
+        <form :if={@site.stripe_customer_id} action={~p"/admin/billing/portal"} method="post">
+          <input type="hidden" name="_csrf_token" value={get_csrf_token()} /><button class="button">{dgettext(
+            "billing",
+            "Manage subscription"
+          )}</button>
+        </form>
+      </div>
+    </section>
+    <section data-part="plans" aria-label={dgettext("billing", "Plan comparison")}>
+      <article data-part="plan-option">
+        <p data-part="eyebrow">{dgettext("billing", "Free")}</p><h2>
+          {dgettext("billing", "Write and publish")}
+        </h2>
+        <ul>
+          <li :for={feature <- @free_features}>{feature}</li>
+        </ul>
+      </article>
+      <article data-part="plan-option">
+        <p data-part="eyebrow">{dgettext("billing", "€%{price} per month", price: @price)}</p><h2>
+          {dgettext("billing", "Publisher")}
+        </h2>
+        <ul>
+          <li :for={feature <- @publisher_features}>{feature}</li>
+        </ul>
+      </article>
+    </section>
+  </div>
+</Layouts.app>

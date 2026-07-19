@@ -1,0 +1,69 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <div id="developer-docs">
+    <header id="page-heading">
+      <p data-part="eyebrow">Developer guide</p><h1 data-part="title">Publish from anywhere</h1><p data-part="description">
+        Gesttalt exposes the same publication through an <a href="https://www.openapis.org/">OpenAPI</a>-described application programming interface and the <a href="https://modelcontextprotocol.io/">Model Context Protocol</a>.
+      </p>
+    </header>
+    <div data-part="layout">
+      <nav data-part="navigation">
+        <a href="#authentication">Authentication</a><a href="#clients">Clients</a><a href="#api">Application programming interface</a><a href="#mcp">Model Context Protocol</a><a href="#themes">Themes</a><a href="#migration">Migration</a>
+      </nav>
+      <article data-part="content">
+        <section id="authentication" data-part="section">
+          <h2 data-part="title">Authentication</h2><p>
+            Gesttalt uses the <a href="https://oauth.net/2/">OAuth 2.0 authorization framework</a>. Authorization Code with
+            <a href="https://oauth.net/2/pkce/">Proof Key for Code Exchange</a>
+            is recommended for mobile and desktop applications.
+          </p><dl>
+            <dt>Authorization</dt><dd><code>/oauth2/authorize</code></dd><dt>Token</dt><dd>
+              <code>/oauth2/token</code>
+            </dd><dt>Discovery</dt><dd><code>/.well-known/oauth-authorization-server</code></dd>
+          </dl>
+        </section>
+        <section id="clients" data-part="section">
+          <h2 data-part="title">Dynamic client registration</h2><p>
+            Standards-aware applications can register at <code>/oauth2/register</code>. You can also create and revoke clients in the dashboard.
+          </p>
+        </section>
+        <section id="api" data-part="section">
+          <h2 data-part="title">Application programming interface</h2><p>
+            Read the machine-readable <a href={~p"/api/openapi"}>OpenAPI document</a>
+            or use the <a href={~p"/api-docs"}>interactive reference</a>. Scopes separate content and media, while theme sessions stay behind the Model Context Protocol authorization scope.
+          </p>
+        </section>
+        <section id="mcp" data-part="section">
+          <h2 data-part="title">Model Context Protocol</h2><p>
+            Connect compatible tools to <code>/mcp</code>
+            with the <code>mcp</code>
+            authorization scope. Tools can list, create, update, and publish content or themes.
+          </p>
+        </section>
+        <section id="themes" data-part="section">
+          <h2 data-part="title">Live theme editing</h2><p>
+            Theme editing happens entirely through the <a href="https://modelcontextprotocol.io/">Model Context Protocol</a>. Ask your agent to call <code>create_theme_editing_session</code>. It receives an isolated copy of the active theme, the standard variable contract, and a preview address you can open beside the conversation.
+          </p><p>
+            Calls to <code>update_theme_editing_session</code>
+            accept partial variable changes, preserve omitted values, change only that in-process draft, and reload every connected preview. The variables cover semantic colors, font families and scales, spacing, radii, sizes, and shadows. They adapt the
+            <a href="https://theme-ui.com/theme-spec">Theme UI (user interface) theme specification</a>
+            to stable Cascading Style Sheets custom properties.
+          </p><p>
+            Prefer variables for visual decisions and the stylesheet for component rules. The three Liquid templates define route-specific document structure:
+            <code>index_template</code>
+            for the home page, <code>article_template</code>
+            for blog posts, and <code>page_template</code>
+            for standalone pages. When the result is ready,
+            <code>publish_theme_editing_session</code>
+            makes it active. <code>discard_theme_editing_session</code>
+            closes the session without changing the publication.
+          </p>
+        </section>
+        <section id="migration" data-part="section">
+          <h2 data-part="title">Migrate from Zola</h2><pre><code>mix gesttalt.import_zola /path/to/website --email you@example.com</code></pre><p>
+            The importer preserves titles, slugs, descriptions, publication dates, and Markdown bodies from the existing content folder.
+          </p>
+        </section>
+      </article>
+    </div>
+  </div>
+</Layouts.app>

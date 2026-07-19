@@ -1,0 +1,58 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <main id="agent-claim">
+    <div data-part="container">
+      <header data-part="header">
+        <p data-part="eyebrow">{dgettext("agent_auth", "Agent publishing")}</p>
+        <h1>
+          <%= if @confirmed do %>
+            {dgettext("agent_auth", "Access confirmed")}
+          <% else %>
+            {dgettext("agent_auth", "Confirm agent access")}
+          <% end %>
+        </h1>
+        <p>
+          <%= if @confirmed do %>
+            {dgettext(
+              "agent_auth",
+              "Your agent can now finish registration and publish to your Gesttalt site. You may close this page."
+            )}
+          <% else %>
+            {dgettext(
+              "agent_auth",
+              "Enter the six-digit code shown by your agent. Gesttalt will bind its publishing access to your signed-in account."
+            )}
+          <% end %>
+        </p>
+      </header>
+
+      <%= unless @confirmed do %>
+        <.form for={%{}} action={~p"/agent/identity/claim"} data-part="form">
+          <input type="hidden" name="claim_attempt_token" value={@claim_attempt_token} />
+          <label for="agent-claim-user-code">{dgettext("agent_auth", "Confirmation code")}</label>
+          <input
+            id="agent-claim-user-code"
+            name="user_code"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            pattern="[0-9]{6}"
+            maxlength="6"
+            placeholder="000000"
+            required
+            autofocus
+          />
+          <button type="submit" class="btn btn-primary">
+            {dgettext("agent_auth", "Confirm access")}
+          </button>
+        </.form>
+      <% end %>
+
+      <p data-part="security-note">
+        {dgettext(
+          "agent_auth",
+          "Only confirm a code you requested. The agent receives publishing access, never your password."
+        )}
+      </p>
+    </div>
+  </main>
+</Layouts.app>

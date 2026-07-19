@@ -1,0 +1,50 @@
+.button,
+.btn {
+  appearance: none;
+  background: #fff;
+  border: 1px solid #aaa59d;
+  border-radius: 2px;
+  color: var(--ink);
+  display: inline-block;
+  font-size: var(--font-size);
+  font-weight: 400;
+  line-height: 1.5;
+  padding: 0.35rem 0.55rem;
+  text-decoration: none;
+
+  &:hover {
+    background: var(--surface);
+    color: var(--ink);
+  }
+}
+
+.button--primary,
+.btn-primary {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+
+  &:hover {
+    background: var(--blue-dark);
+    color: #fff;
+  }
+}
+
+.button--small {
+  padding: 0.3rem 0.5rem;
+}
+
+.button--danger {
+  border-color: #caa;
+  color: var(--red);
+}
+
+.link-button {
+  background: none;
+  border: 0;
+  color: var(--blue);
+  font: inherit;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}

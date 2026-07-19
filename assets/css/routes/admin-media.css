@@ -1,0 +1,48 @@
+#admin-media {
+  & > [data-part="upload-form"] {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  & > [data-part="media-grid"] {
+    display: grid;
+    gap: var(--space-2);
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: var(--space-4);
+
+    & > [data-part="media-card"] {
+      background: #fff;
+      border: 1px solid var(--line);
+
+      & > [data-part="image"] {
+        aspect-ratio: 4 / 3;
+        display: block;
+        object-fit: cover;
+        width: 100%;
+      }
+
+      & > [data-part="content"] {
+        display: grid;
+        gap: 0.5rem;
+        padding: 0.8rem;
+
+        & > [data-part="reference"] {
+          display: block;
+          font-size: var(--font-size);
+        }
+      }
+    }
+  }
+
+  @media (max-width: 760px) {
+    & > [data-part="media-grid"] {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    & > [data-part="media-grid"] {
+      grid-template-columns: 1fr;
+    }
+  }
+}
