@@ -72,6 +72,13 @@ networkPolicy:
 
 postgres:
   clusterName: gesttalt-postgres
+  certificateAuthoritySecretName: ""
+  trustBundleResources:
+    requests:
+      cpu: 5m
+      memory: 8Mi
+    limits:
+      memory: 32Mi
   waitImage: postgres:18-alpine@sha256:9a8afca54e7861fd90fab5fdf4c42477a6b1cb7d293595148e674e0a3181de15
   user: gesttalt
   database: gesttalt_prod

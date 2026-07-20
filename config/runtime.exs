@@ -38,8 +38,24 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
+  database_certificate_authority_file =
+    System.get_env("GESTTALT_DATABASE_CERTIFICATE_AUTHORITY_FILE") ||
+      raise "environment variable GESTTALT_DATABASE_CERTIFICATE_AUTHORITY_FILE is missing"
+
+  database_host =
+    database_url
+    |> URI.parse()
+    |> Map.fetch!(:host)
+
+  database_transport_security_options = [
+    verify: :verify_peer,
+    cacertfile: database_certificate_authority_file,
+    server_name_indication: String.to_charlist(database_host),
+    customize_hostname_check: [match_fun: :public_key.pkix_verify_hostname_match_fun(:https)]
+  ]
+
   config :gesttalt, Gesttalt.Repo,
-    ssl: true,
+    ssl: database_transport_security_options,
     url: database_url,
     pool_size: String.to_integer(System.get_env("GESTTALT_POOL_SIZE") || "10"),
     # For machines with several cores, consider starting multiple pools of `pool_size`

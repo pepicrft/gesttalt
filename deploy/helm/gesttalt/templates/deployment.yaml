@@ -32,6 +32,32 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+        # Preserve the image's public certificate authorities while adding the
+        # private authority used by the in-cluster PostgreSQL service. This also
+        # keeps images built before the explicit Repo option compatible.
+        - name: prepare-database-trust
+          image: {{ include "gesttalt.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -ec
+            - cp /etc/ssl/certs/ca-certificates.crt /combined/ca-certificates.crt && cat /database-certificate-authority/ca.crt >> /combined/ca-certificates.crt
+          resources:
+            {{- toYaml .Values.postgres.trustBundleResources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: false
+            runAsUser: 0
+          volumeMounts:
+            - name: database-certificate-authority
+              mountPath: /database-certificate-authority
+              readOnly: true
+            - name: database-trust
+              mountPath: /combined
         # The upstream image grants the Caddy executable permission to bind low
         # ports. Copying it without that file capability lets the non-root
         # container execute it under the no-privilege-escalation policy. The
@@ -91,6 +117,8 @@ spec:
           env:
             - name: ERL_CRASH_DUMP
               value: /tmp/erl_crash.dump
+            - name: GESTTALT_DATABASE_CERTIFICATE_AUTHORITY_FILE
+              value: /etc/database-certificate-authority/ca.crt
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
@@ -126,6 +154,13 @@ spec:
               mountPath: /app/uploads
             - name: tmp
               mountPath: /tmp
+            - name: database-certificate-authority
+              mountPath: /etc/database-certificate-authority
+              readOnly: true
+            - name: database-trust
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              subPath: ca-certificates.crt
+              readOnly: true
         - name: caddy
           image: {{ .Values.caddy.image | quote }}
           imagePullPolicy: IfNotPresent
@@ -192,6 +227,16 @@ spec:
         - name: caddy-bin
           emptyDir:
             sizeLimit: 64Mi
+        - name: database-certificate-authority
+          secret:
+            secretName: {{ default (printf "%s-ca" .Values.postgres.clusterName) .Values.postgres.certificateAuthoritySecretName }}
+            defaultMode: 0444
+            items:
+              - key: ca.crt
+                path: ca.crt
+        - name: database-trust
+          emptyDir:
+            sizeLimit: 8Mi
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

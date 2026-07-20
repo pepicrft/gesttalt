@@ -28,6 +28,29 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+        - name: prepare-database-trust
+          image: {{ include "gesttalt.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -ec
+            - cp /etc/ssl/certs/ca-certificates.crt /combined/ca-certificates.crt && cat /database-certificate-authority/ca.crt >> /combined/ca-certificates.crt
+          resources:
+            {{- toYaml .Values.postgres.trustBundleResources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: false
+            runAsUser: 0
+          volumeMounts:
+            - name: database-certificate-authority
+              mountPath: /database-certificate-authority
+              readOnly: true
+            - name: database-trust
+              mountPath: /combined
         - name: wait-for-postgres
           image: {{ .Values.postgres.waitImage | quote }}
           command:
@@ -54,6 +77,8 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: [/app/bin/gesttalt, eval, Gesttalt.Release.migrate_and_seed]
           env:
+            - name: GESTTALT_DATABASE_CERTIFICATE_AUTHORITY_FILE
+              value: /etc/database-certificate-authority/ca.crt
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
@@ -71,3 +96,22 @@ spec:
             runAsNonRoot: true
             runAsUser: 65534
             runAsGroup: 65534
+          volumeMounts:
+            - name: database-certificate-authority
+              mountPath: /etc/database-certificate-authority
+              readOnly: true
+            - name: database-trust
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              subPath: ca-certificates.crt
+              readOnly: true
+      volumes:
+        - name: database-certificate-authority
+          secret:
+            secretName: {{ default (printf "%s-ca" .Values.postgres.clusterName) .Values.postgres.certificateAuthoritySecretName }}
+            defaultMode: 0444
+            items:
+              - key: ca.crt
+                path: ca.crt
+        - name: database-trust
+          emptyDir:
+            sizeLimit: 8Mi
