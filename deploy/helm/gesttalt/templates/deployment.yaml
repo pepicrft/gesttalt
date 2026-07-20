@@ -6,8 +6,9 @@ metadata:
     {{- include "gesttalt.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 3
   strategy:
-    type: Recreate
+    {{- toYaml .Values.strategy | nindent 4 }}
   selector:
     matchLabels:
       {{- include "gesttalt.selectorLabels" . | nindent 6 }}
@@ -18,14 +19,41 @@ spec:
       labels:
         {{- include "gesttalt.selectorLabels" . | nindent 8 }}
     spec:
+      automountServiceAccountToken: false
       enableServiceLinks: false
+      terminationGracePeriodSeconds: 30
       securityContext:
         fsGroup: 65534
         fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      initContainers:
+        - name: migrate-caddy-data-ownership
+          image: {{ .Values.caddy.permissionsImage | quote }}
+          command:
+            - chown
+            - -R
+            - "65534:65534"
+            - /data
+          resources:
+            {{- toYaml .Values.caddy.permissionsResources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - CHOWN
+            readOnlyRootFilesystem: true
+            runAsNonRoot: false
+            runAsUser: 0
+          volumeMounts:
+            - name: caddy-data
+              mountPath: /data
       containers:
         - name: web
           image: {{ include "gesttalt.image" . | quote }}
@@ -34,6 +62,8 @@ spec:
             - name: phoenix
               containerPort: 4000
           env:
+            - name: ERL_CRASH_DUMP
+              value: /tmp/erl_crash.dump
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
@@ -55,17 +85,31 @@ spec:
             periodSeconds: 15
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
           volumeMounts:
             - name: media
               mountPath: /app/uploads
+            - name: tmp
+              mountPath: /tmp
         - name: caddy
           image: {{ .Values.caddy.image | quote }}
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
-              containerPort: 80
+              containerPort: {{ .Values.caddy.httpPort }}
             - name: https
-              containerPort: 443
+              containerPort: {{ .Values.caddy.httpsPort }}
+          env:
+            - name: XDG_CONFIG_HOME
+              value: /data/config
           readinessProbe:
             tcpSocket:
               port: https
@@ -78,12 +122,23 @@ spec:
             limits:
               cpu: 500m
               memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
           volumeMounts:
             - name: caddy-config
               mountPath: /etc/caddy
               readOnly: true
             - name: caddy-data
               mountPath: /data
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: media
           persistentVolumeClaim:
@@ -94,3 +149,14 @@ spec:
         - name: caddy-config
           configMap:
             name: {{ include "gesttalt.fullname" . }}-caddy
+        - name: tmp
+          emptyDir:
+            sizeLimit: 128Mi
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

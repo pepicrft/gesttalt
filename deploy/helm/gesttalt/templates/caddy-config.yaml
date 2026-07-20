@@ -13,11 +13,11 @@ data:
       }
     }
 
-    http:// {
+    http://:{{ .Values.caddy.httpPort }} {
       redir https://{host}{uri} permanent
     }
 
-    https:// {
+    https://:{{ .Values.caddy.httpsPort }} {
       tls {
         on_demand
       }

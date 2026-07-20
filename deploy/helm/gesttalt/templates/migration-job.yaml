@@ -16,8 +16,13 @@ spec:
       labels:
         {{- include "gesttalt.selectorLabels" . | nindent 8 }}
     spec:
+      automountServiceAccountToken: false
       enableServiceLinks: false
       restartPolicy: OnFailure
+      securityContext:
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -36,6 +41,13 @@ spec:
               value: {{ .Values.postgres.user | quote }}
             - name: PGDATABASE
               value: {{ .Values.postgres.database | quote }}
+          resources:
+            {{- toYaml .Values.migrationJob.waitResources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
       containers:
         - name: migrate
           image: {{ include "gesttalt.image" . | quote }}
@@ -49,3 +61,13 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ .Values.secrets.envSecretName }}
+          resources:
+            {{- toYaml .Values.migrationJob.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534

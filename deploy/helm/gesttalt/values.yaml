@@ -1,6 +1,12 @@
 fullnameOverride: ""
 replicaCount: 1
 
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 0
+
 image:
   repository: ghcr.io/pepicrft/gesttalt
   tag: main
@@ -26,11 +32,20 @@ service:
   httpsPort: 443
 
 caddy:
-  image: caddy:2.10.0-alpine
+  image: caddy:2.10.0-alpine@sha256:ae4458638da8e1a91aafffb231c5f8778e964bca650c8a8cb23a7e8ac557aa3c
+  permissionsImage: busybox:1.37.0@sha256:9532d8c39891ca2ecde4d30d7710e01fb739c87a8b9299685c63704296b16028
   email: hello@gesttalt.org
+  httpPort: 8080
+  httpsPort: 8443
   persistence:
     storageClass: ""
     size: 2Gi
+  permissionsResources:
+    requests:
+      cpu: 5m
+      memory: 8Mi
+    limits:
+      memory: 32Mi
 
 media:
   persistence:
@@ -45,9 +60,19 @@ resources:
     cpu: "1"
     memory: 768Mi
 
+nodeSelector: {}
+tolerations: []
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+networkPolicy:
+  enabled: true
+
 postgres:
   clusterName: gesttalt-postgres
-  waitImage: postgres:18-alpine
+  waitImage: postgres:18-alpine@sha256:9a8afca54e7861fd90fab5fdf4c42477a6b1cb7d293595148e674e0a3181de15
   user: gesttalt
   database: gesttalt_prod
   appSecretName: gesttalt-postgres-app
@@ -64,10 +89,40 @@ postgres:
       memory: 2Gi
   nodeSelector: {}
   tolerations: []
+  backup:
+    enabled: false
+    pluginName: barman-cloud.cloudnative-pg.io
+    objectStoreName: gesttalt-postgres-backups
+    endpointURL: ""
+    bucketName: ""
+    secretName: gesttalt-postgres-backups
+    retentionPolicy: 30d
+    schedule: "0 15 2 * * *"
+    immediate: true
+    reclaimPolicy: Retain
+    sidecarResources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
 
 migrationJob:
   backoffLimit: 2
   ttlSecondsAfterFinished: 300
+  waitResources:
+    requests:
+      cpu: 10m
+      memory: 16Mi
+    limits:
+      memory: 64Mi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
 
 externalSecrets:
   enabled: false

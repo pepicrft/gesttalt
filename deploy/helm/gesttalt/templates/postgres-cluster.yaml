@@ -6,6 +6,10 @@ metadata:
     {{- include "gesttalt.labels" . | nindent 4 }}
 spec:
   instances: {{ .Values.postgres.instances }}
+  inheritedMetadata:
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9187"
   bootstrap:
     initdb:
       database: {{ .Values.postgres.database | quote }}
@@ -27,3 +31,10 @@ spec:
     tolerations:
       {{- toYaml . | nindent 6 }}
     {{- end }}
+  {{- if .Values.postgres.backup.enabled }}
+  plugins:
+    - name: {{ .Values.postgres.backup.pluginName | quote }}
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: {{ .Values.postgres.backup.objectStoreName | quote }}
+  {{- end }}
