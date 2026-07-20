@@ -32,6 +32,29 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+        # The upstream image grants the Caddy executable permission to bind low
+        # ports. Copying it without that file capability lets the non-root
+        # container execute it under the no-privilege-escalation policy. The
+        # application only listens on the unprivileged ports below.
+        - name: prepare-caddy-binary
+          image: {{ .Values.caddy.image | quote }}
+          command:
+            - /bin/sh
+            - -ec
+            - cp /usr/bin/caddy /caddy-bin/caddy && chmod 0555 /caddy-bin/caddy
+          resources:
+            {{- toYaml .Values.caddy.permissionsResources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: false
+            runAsUser: 0
+          volumeMounts:
+            - name: caddy-bin
+              mountPath: /caddy-bin
         - name: migrate-caddy-data-ownership
           image: {{ .Values.caddy.permissionsImage | quote }}
           command:
@@ -48,6 +71,10 @@ spec:
                 - ALL
               add:
                 - CHOWN
+                # Existing Caddy directories can be private to their previous
+                # owner, so the migration needs the capability below to
+                # traverse them.
+                - DAC_OVERRIDE
             readOnlyRootFilesystem: true
             runAsNonRoot: false
             runAsUser: 0
@@ -102,6 +129,13 @@ spec:
         - name: caddy
           image: {{ .Values.caddy.image | quote }}
           imagePullPolicy: IfNotPresent
+          command:
+            - /caddy-bin/caddy
+            - run
+            - --config
+            - /etc/caddy/Caddyfile
+            - --adapter
+            - caddyfile
           ports:
             - name: http
               containerPort: {{ .Values.caddy.httpPort }}
@@ -139,6 +173,9 @@ spec:
               mountPath: /data
             - name: tmp
               mountPath: /tmp
+            - name: caddy-bin
+              mountPath: /caddy-bin
+              readOnly: true
       volumes:
         - name: media
           persistentVolumeClaim:
@@ -152,6 +189,9 @@ spec:
         - name: tmp
           emptyDir:
             sizeLimit: 128Mi
+        - name: caddy-bin
+          emptyDir:
+            sizeLimit: 64Mi
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
