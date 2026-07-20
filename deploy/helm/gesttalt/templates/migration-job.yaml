@@ -16,6 +16,7 @@ spec:
       labels:
         {{- include "gesttalt.selectorLabels" . | nindent 8 }}
     spec:
+      enableServiceLinks: false
       restartPolicy: OnFailure
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
