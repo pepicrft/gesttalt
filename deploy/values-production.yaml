@@ -38,20 +38,13 @@ externalSecrets:
     # Legacy store alias for the Pepicrft cluster, not a Salibu-owned cluster.
     name: salibu-production
   appEnv:
-    itemKey: kubernetes
+    itemKey: gesttalt
     fields:
-      GESTTALT_SECRET_KEY_BASE: GESTTALT_SECRET_KEY_BASE
-      GESTTALT_STRIPE_SECRET_KEY: GESTTALT_STRIPE_SECRET_KEY
-      GESTTALT_STRIPE_PRICE_ID: GESTTALT_STRIPE_PRICE_ID
-      GESTTALT_STRIPE_WEBHOOK_SECRET: GESTTALT_STRIPE_WEBHOOK_SECRET
-      GESTTALT_AGENT_AUTH_PRIVATE_KEY_PEM: GESTTALT_AGENT_AUTH_PRIVATE_KEY_PEM
-      GESTTALT_SEED_EMAIL: GESTTALT_SEED_EMAIL
-      GESTTALT_SEED_PASSWORD: GESTTALT_SEED_PASSWORD
-      GESTTALT_SEED_SITE_NAME: GESTTALT_SEED_SITE_NAME
-      GESTTALT_SEED_DOMAIN: GESTTALT_SEED_DOMAIN
+      GESTTALT_SECRET_KEY_BASE: SECRET_KEY_BASE
+      GESTTALT_AGENT_AUTH_PRIVATE_KEY_PEM: AGENT_AUTH_PRIVATE_KEY_PEM
   postgres:
-    itemKey: kubernetes
-    passwordField: GESTTALT_POSTGRES_PASSWORD
+    itemKey: gesttalt
+    passwordField: POSTGRES_PASSWORD
   imagePullSecret:
     enabled: true
     itemKey: kubernetes

@@ -116,13 +116,17 @@ The continuous integration workflow verifies that extraction is clean and that e
 
 The cluster entry point is `infra/k8s/workload-apps/gesttalt-production/gesttalt-helmrelease.yaml`. Flux reconciles that release into the `gesttalt` namespace through the production cluster configuration. Image automation watches `ghcr.io/pepicrft/gesttalt:main`, pins the latest digest in the production values, and commits that update back to the repository.
 
-Before the first reconciliation, populate the external secret-store entries referenced by the chart for:
+Before the first reconciliation, populate these required external secret-store
+entries:
 
-- the Phoenix secret key base;
-- the PostgreSQL application and owner passwords;
-- the Stripe secret key, price identifier, and webhook signing secret;
-- the Auth.md identity-assertion signing private key;
-- the bootstrap account email and password;
-- the GitHub Container Registry pull credentials.
+- `/gesttalt/SECRET_KEY_BASE` for Phoenix session and token signing;
+- `/gesttalt/POSTGRES_PASSWORD` for the PostgreSQL application owner;
+- `/gesttalt/AGENT_AUTH_PRIVATE_KEY_PEM` for Auth.md identity assertions;
+- `/kubernetes/GHCR_PULL_USERNAME` and `/kubernetes/GHCR_PULL_TOKEN` for the
+  GitHub Container Registry pull credentials.
+
+Stripe and bootstrap account values are optional. Add their field mappings to
+`deploy/values-production.yaml` only when the corresponding external values
+have been configured.
 
 Merging this project does not change Domain Name System records or create those secret values. Once they exist and the image has been published, Flux performs database creation, migrations, rollout, and subsequent image updates.
