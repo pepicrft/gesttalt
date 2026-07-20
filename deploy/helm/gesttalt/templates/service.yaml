@@ -10,6 +10,7 @@ metadata:
   {{- end }}
 spec:
   type: {{ .Values.service.type }}
+  externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
   selector:
     {{- include "gesttalt.selectorLabels" . | nindent 4 }}
   ports:

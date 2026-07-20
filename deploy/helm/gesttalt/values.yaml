@@ -20,6 +20,7 @@ secrets:
 
 service:
   type: LoadBalancer
+  externalTrafficPolicy: Cluster
   annotations: {}
   httpPort: 80
   httpsPort: 443

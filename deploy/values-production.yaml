@@ -4,6 +4,7 @@ imagePullSecrets:
   - name: ghcr-pull-secret
 
 service:
+  externalTrafficPolicy: Local
   annotations:
     external-dns.alpha.kubernetes.io/hostname: "gesttalt.org,*.gesttalt.org"
     external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
