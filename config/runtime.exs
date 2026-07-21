@@ -100,8 +100,8 @@ if config_env() == :prod do
 
   config :gesttalt, Gesttalt.Mailer,
     adapter: Swoosh.Adapters.SMTP,
-    relay: System.get_env("GESTTALT_SMTP_RELAY", "smtp-relay.smtp-relay.svc.cluster.local"),
-    port: String.to_integer(System.get_env("GESTTALT_SMTP_PORT", "25")),
+    relay: System.get_env("GESTTALT_SMTP_RELAY", "smtp-relay.pepicrft.me"),
+    port: String.to_integer(System.get_env("GESTTALT_SMTP_PORT", "587")),
     auth: :never,
     tls: :never,
     retries: 2,
