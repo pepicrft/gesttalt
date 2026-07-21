@@ -21,7 +21,7 @@ defmodule GesttaltWeb.UserRegistrationController do
         conn
         |> put_flash(
           :info,
-          "An email was sent to #{user.email}, please access it to confirm your account."
+          "We sent a confirmation link to #{user.email}. It expires in 15 minutes."
         )
         |> redirect(to: ~p"/users/log-in")
 

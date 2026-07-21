@@ -48,7 +48,7 @@ defmodule GesttaltWeb.UserSessionController do
 
       {:error, :not_found} ->
         conn
-        |> put_flash(:error, "The link is invalid or it has expired.")
+        |> put_flash(:error, "The link is invalid or has expired. Request a new link below.")
         |> render(:new, form: Phoenix.Component.to_form(%{}, as: "user"))
     end
   end
@@ -96,7 +96,7 @@ defmodule GesttaltWeb.UserSessionController do
       |> render(:confirm)
     else
       conn
-      |> put_flash(:error, "Magic link is invalid or it has expired.")
+      |> put_flash(:error, "Magic link is invalid or has expired. Request a new link below.")
       |> redirect(to: ~p"/users/log-in")
     end
   end

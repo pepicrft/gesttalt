@@ -32,8 +32,8 @@ defmodule GesttaltWeb.UserRegistrationControllerTest do
       refute get_session(conn, :user_token)
       assert redirected_to(conn) == ~p"/users/log-in"
 
-      assert conn.assigns.flash["info"] =~
-               ~r/An email was sent to .*, please access it to confirm your account/
+      assert conn.assigns.flash["info"] ==
+               "We sent a confirmation link to #{email}. It expires in 15 minutes."
     end
 
     test "render errors for invalid data", %{conn: conn} do

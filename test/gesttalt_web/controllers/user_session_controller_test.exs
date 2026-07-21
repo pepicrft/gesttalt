@@ -15,7 +15,8 @@ defmodule GesttaltWeb.UserSessionControllerTest do
       assert response =~ "Log in"
       assert response =~ ~p"/users/register"
       assert response =~ "Keep me signed in"
-      refute response =~ "Log in with email"
+      assert response =~ "Email me a login link"
+      assert response =~ "or use your password"
     end
 
     test "renders login page with email filled in (sudo mode)", %{conn: conn, user: user} do
@@ -39,7 +40,7 @@ defmodule GesttaltWeb.UserSessionControllerTest do
       assert response =~ "Log in"
       assert response =~ ~p"/users/register"
       assert response =~ "Keep me signed in"
-      refute response =~ "Log in only this time"
+      assert response =~ "Email me a login link"
     end
   end
 
@@ -73,7 +74,7 @@ defmodule GesttaltWeb.UserSessionControllerTest do
       assert redirected_to(conn) == ~p"/users/log-in"
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
-               "Magic link is invalid or it has expired."
+               "Magic link is invalid or has expired. Request a new link below."
     end
   end
 
@@ -202,7 +203,8 @@ defmodule GesttaltWeb.UserSessionControllerTest do
           "user" => %{"token" => "invalid"}
         })
 
-      assert html_response(conn, 200) =~ "The link is invalid or it has expired."
+      assert html_response(conn, 200) =~
+               "The link is invalid or has expired. Request a new link below."
     end
   end
 

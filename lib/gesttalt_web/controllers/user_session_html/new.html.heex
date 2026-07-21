@@ -28,6 +28,31 @@
       <% end %>
 
       <.form
+        for={@form}
+        as={:user}
+        id="magic_link_form"
+        action={~p"/users/log-in"}
+        data-part="form"
+      >
+        <.input
+          id="magic_link_form_email"
+          name="user[email]"
+          value={@form[:email].value}
+          type="email"
+          label="Email"
+          autocomplete="username"
+          spellcheck="false"
+          required
+          phx-mounted={JS.focus()}
+        />
+        <.button phx-disable-with="Sending link..." class="btn btn-primary w-full">
+          Email me a login link
+        </.button>
+      </.form>
+
+      <p data-part="divider">or use your password</p>
+
+      <.form
         :let={f}
         for={@form}
         as={:user}
@@ -43,7 +68,6 @@
           autocomplete="username"
           spellcheck="false"
           required
-          phx-mounted={JS.focus()}
         />
         <.input
           field={f[:password]}
