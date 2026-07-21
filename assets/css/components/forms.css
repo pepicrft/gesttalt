@@ -65,7 +65,8 @@ textarea {
 }
 
 .inline-form {
-  align-items: end;
+  /* The button and the input have different paddings, so stretch the row to match their heights. */
+  align-items: stretch;
   display: grid;
   gap: 0.7rem;
   grid-template-columns: 1fr auto;
