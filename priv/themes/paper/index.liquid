@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ site.name }}</title>
     <meta name="description" content="{{ site.tagline }}">
-    <link rel="alternate" type="application/atom+xml" title="{{ site.name }} feed" href="/blog/feed.xml">
+    <link rel="alternate" type="application/rss+xml" title="{{ site.name }} Really Simple Syndication feed" href="/blog/feed.xml">
+    <link rel="alternate" type="application/atom+xml" title="{{ site.name }} Atom feed" href="/blog/atom.xml">
     <style>{{ stylesheet }}</style>
   </head>
   <body>
@@ -35,6 +36,6 @@
         {% endfor %}
       </section>
     </main>
-    <footer class="site-footer"><div class="container">Published with <a href="https://gesttalt.org">gesttalt</a>.</div></footer>
+    <footer class="site-footer"><div class="container">Published with <a href="https://gesttalt.org">gesttalt</a>. <a href="/blog/feed.xml">Really Simple Syndication</a> · <a href="/blog/atom.xml">Atom</a></div></footer>
   </body>
 </html>
