@@ -17,8 +17,8 @@
         <div data-part="content">
           <div data-part="metadata">
             <span data-part="status" data-status={post.status}>{post.status}</span><span>{post.kind}</span><time datetime={
-              post.updated_at
-            }>{Calendar.strftime(post.updated_at, "%d %b %Y, %H:%M")}</time>
+              post.published_at || post.updated_at
+            }>{Calendar.strftime(post.published_at || post.updated_at, "%d %b %Y, %H:%M")}</time>
           </div><h2 data-part="title">
             <a href={~p"/admin/posts/#{post}/edit"}>{post.title}</a>
           </h2><p data-part="path">
