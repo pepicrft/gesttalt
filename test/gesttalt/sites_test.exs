@@ -31,6 +31,88 @@ defmodule Gesttalt.SitesTest do
     refute Sites.get_site_by_host(domain.hostname)
   end
 
+  test "requires ownership and routing before activating a custom domain", %{site: site} do
+    assert {:ok, domain} = Sites.add_custom_domain(site, %{"hostname" => "writing.example.com"})
+
+    records = %{
+      {"_gesttalt.writing.example.com", :txt} => [
+        "gesttalt-domain=#{domain.verification_token}"
+      ],
+      {"writing.example.com", :cname} => ["domains.gesttalt.test"],
+      {"writing.example.com", :a} => [{192, 0, 2, 10}],
+      {"domains.gesttalt.test", :a} => [{192, 0, 2, 10}]
+    }
+
+    lookup = fn hostname, type -> Map.get(records, {hostname, type}, []) end
+
+    assert {:ok, verified_domain} = Sites.verify_domain(site, domain.id, lookup)
+    assert verified_domain.status == :active
+    assert verified_domain.verified_at
+    assert Sites.get_site_by_host(domain.hostname).id == site.id
+  end
+
+  test "rejects a custom domain that proves ownership but routes elsewhere", %{site: site} do
+    assert {:ok, domain} = Sites.add_custom_domain(site, %{"hostname" => "writing.example.com"})
+
+    records = %{
+      {"_gesttalt.writing.example.com", :txt} => [
+        "gesttalt-domain=#{domain.verification_token}"
+      ],
+      {"writing.example.com", :a} => [{192, 0, 2, 10}],
+      {"domains.gesttalt.test", :a} => [{192, 0, 2, 20}]
+    }
+
+    lookup = fn hostname, type -> Map.get(records, {hostname, type}, []) end
+
+    assert {:error, :routing_record_not_found} = Sites.verify_domain(site, domain.id, lookup)
+    refute Sites.get_site_by_host(domain.hostname)
+  end
+
+  test "rejects a custom domain with an additional address that routes elsewhere", %{site: site} do
+    assert {:ok, domain} = Sites.add_custom_domain(site, %{"hostname" => "writing.example.com"})
+
+    records = %{
+      {"_gesttalt.writing.example.com", :txt} => [
+        "gesttalt-domain=#{domain.verification_token}"
+      ],
+      {"writing.example.com", :a} => [{192, 0, 2, 10}, {192, 0, 2, 20}],
+      {"domains.gesttalt.test", :a} => [{192, 0, 2, 10}]
+    }
+
+    lookup = fn hostname, type -> Map.get(records, {hostname, type}, []) end
+
+    assert {:error, :routing_record_not_found} = Sites.verify_domain(site, domain.id, lookup)
+    refute Sites.get_site_by_host(domain.hostname)
+  end
+
+  test "accepts a custom domain routed to the platform address", %{site: site} do
+    assert {:ok, domain} = Sites.add_custom_domain(site, %{"hostname" => "example.com"})
+
+    records = %{
+      {"_gesttalt.example.com", :txt} => ["gesttalt-domain=#{domain.verification_token}"],
+      {"example.com", :a} => [{192, 0, 2, 10}],
+      {"domains.gesttalt.test", :a} => [{192, 0, 2, 10}]
+    }
+
+    lookup = fn hostname, type -> Map.get(records, {hostname, type}, []) end
+
+    assert {:ok, verified_domain} = Sites.verify_domain(site, domain.id, lookup)
+    assert verified_domain.status == :active
+  end
+
+  test "rejects a routed custom domain without proof of ownership", %{site: site} do
+    assert {:ok, domain} = Sites.add_custom_domain(site, %{"hostname" => "example.com"})
+
+    records = %{
+      {"example.com", :cname} => ["domains.gesttalt.test"]
+    }
+
+    lookup = fn hostname, type -> Map.get(records, {hostname, type}, []) end
+
+    assert {:error, :verification_record_not_found} = Sites.verify_domain(site, domain.id, lookup)
+    refute Sites.get_site_by_host(domain.hostname)
+  end
+
   test "does not expose another publication through the tenant boundary", %{site: site} do
     another_user = AccountsFixtures.user_fixture()
     {:ok, another_site} = Sites.ensure_site_for_user(another_user)

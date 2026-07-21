@@ -101,6 +101,7 @@ if config_env() == :prod do
   config :gesttalt,
     dns_cluster_query: System.get_env("GESTTALT_DNS_CLUSTER_QUERY"),
     platform_host: host,
+    custom_domain_target: System.get_env("GESTTALT_CUSTOM_DOMAIN_TARGET", "domains.#{host}"),
     media_storage: media_storage,
     agent_auth: [
       claim_ttl_seconds: 600,

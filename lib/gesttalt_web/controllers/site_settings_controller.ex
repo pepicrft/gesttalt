@@ -12,6 +12,8 @@ defmodule GesttaltWeb.SiteSettingsController do
       page_title: "Publication settings",
       site: site,
       domains: Sites.list_domains(site),
+      custom_domain_target: Sites.custom_domain_target(),
+      custom_domain_ipv4_addresses: Sites.custom_domain_ipv4_addresses(),
       site_changeset: Site.changeset(site, %{}),
       domain_changeset: Domain.changeset(%Domain{}, %{})
     )
@@ -27,6 +29,8 @@ defmodule GesttaltWeb.SiteSettingsController do
           page_title: "Publication settings",
           site: current_site(conn),
           domains: Sites.list_domains(current_site(conn)),
+          custom_domain_target: Sites.custom_domain_target(),
+          custom_domain_ipv4_addresses: Sites.custom_domain_ipv4_addresses(),
           site_changeset: changeset,
           domain_changeset: Domain.changeset(%Domain{}, %{})
         )
@@ -39,7 +43,7 @@ defmodule GesttaltWeb.SiteSettingsController do
     with :ok <- Plans.authorize(site, :custom_domains),
          {:ok, _domain} <- Sites.add_custom_domain(site, attrs) do
       conn
-      |> put_flash(:info, "Domain added. Add the verification record shown below.")
+      |> put_flash(:info, "Domain added. Add the ownership and routing records shown below.")
       |> redirect(to: ~p"/admin/settings")
     else
       {:error, :subscription_required} ->
@@ -61,12 +65,17 @@ defmodule GesttaltWeb.SiteSettingsController do
     case Sites.verify_domain(current_site(conn), id) do
       {:ok, _domain} ->
         conn
-        |> put_flash(:info, "Domain verified and activated.")
+        |> put_flash(:info, "Domain ownership and routing verified. The domain is active.")
         |> redirect(to: ~p"/admin/settings")
 
       {:error, :verification_record_not_found} ->
         conn
         |> put_flash(:error, "The verification record was not found yet.")
+        |> redirect(to: ~p"/admin/settings")
+
+      {:error, :routing_record_not_found} ->
+        conn
+        |> put_flash(:error, "The domain does not point to Gesttalt yet.")
         |> redirect(to: ~p"/admin/settings")
 
       {:error, reason} ->

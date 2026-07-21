@@ -13,6 +13,12 @@ defmodule Gesttalt.Sites do
 
   def platform_host, do: Application.get_env(:gesttalt, :platform_host, @platform_host)
 
+  def custom_domain_target,
+    do: Application.get_env(:gesttalt, :custom_domain_target, "domains.#{platform_host()}")
+
+  def custom_domain_ipv4_addresses,
+    do: dns_records(custom_domain_target(), :a) |> Enum.map(&format_ipv4_address/1)
+
   def list_sites, do: Repo.all(from site in Site, order_by: [asc: site.name])
 
   def get_site!(id), do: Site |> Repo.get!(id) |> Repo.preload([:domains, :theme])
@@ -143,16 +149,21 @@ defmodule Gesttalt.Sites do
     |> Repo.insert()
   end
 
-  def verify_domain(%Site{} = site, id) do
+  def verify_domain(%Site{} = site, id, dns_lookup \\ &dns_records/2) do
     domain = Repo.get_by!(Domain, id: id, site_id: site.id)
     expected = "gesttalt-domain=#{domain.verification_token}"
 
-    if expected in dns_txt_values("_gesttalt.#{domain.hostname}") do
-      domain
-      |> Domain.changeset(%{status: :active, verified_at: now()})
-      |> Repo.update()
-    else
-      {:error, :verification_record_not_found}
+    cond do
+      expected not in dns_lookup.("_gesttalt.#{domain.hostname}", :txt) ->
+        {:error, :verification_record_not_found}
+
+      not domain_routes_to?(domain.hostname, custom_domain_target(), dns_lookup) ->
+        {:error, :routing_record_not_found}
+
+      true ->
+        domain
+        |> Domain.changeset(%{status: :active, verified_at: now()})
+        |> Repo.update()
     end
   end
 
@@ -310,14 +321,39 @@ defmodule Gesttalt.Sites do
     host |> String.split(":") |> hd() |> Domain.normalize()
   end
 
-  defp dns_txt_values(hostname) do
+  defp dns_records(hostname, type) do
     hostname
     |> String.to_charlist()
-    |> :inet_res.lookup(:in, :txt)
-    |> Enum.map(&IO.iodata_to_binary/1)
+    |> :inet_res.lookup(:in, type)
+    |> Enum.map(&normalize_dns_record(type, &1))
   rescue
     _error -> []
   end
+
+  defp normalize_dns_record(:txt, record),
+    do: record |> IO.iodata_to_binary() |> String.trim_trailing(".")
+
+  defp normalize_dns_record(_type, record), do: record
+
+  defp domain_routes_to?(hostname, target, dns_lookup) do
+    address_records_route_to?(hostname, Domain.normalize(target), dns_lookup)
+  end
+
+  defp address_records_route_to?(hostname, target, dns_lookup) do
+    address_pairs =
+      Enum.map([:a, :aaaa], fn type ->
+        {MapSet.new(dns_lookup.(hostname, type)), MapSet.new(dns_lookup.(target, type))}
+      end)
+
+    Enum.any?(address_pairs, fn {domain_addresses, _target_addresses} ->
+      MapSet.size(domain_addresses) > 0
+    end) and
+      Enum.all?(address_pairs, fn {domain_addresses, target_addresses} ->
+        MapSet.size(domain_addresses) == 0 or MapSet.subset?(domain_addresses, target_addresses)
+      end)
+  end
+
+  defp format_ipv4_address({a, b, c, d}), do: Enum.join([a, b, c, d], ".")
 
   defp token, do: :crypto.strong_rand_bytes(24) |> Base.url_encode64(padding: false)
   defp now, do: DateTime.utc_now() |> DateTime.truncate(:second)
