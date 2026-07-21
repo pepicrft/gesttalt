@@ -11,7 +11,12 @@ defmodule Gesttalt.MixProject do
       aliases: aliases(),
       deps: deps(),
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      releases: [
+        gesttalt: [
+          applications: [opentelemetry_exporter: :permanent, opentelemetry: :temporary]
+        ]
+      ]
     ]
   end
 
@@ -53,6 +58,12 @@ defmodule Gesttalt.MixProject do
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
+      {:opentelemetry_exporter, "~> 1.10"},
+      {:opentelemetry, "~> 1.7"},
+      {:opentelemetry_bandit, "~> 0.3.0"},
+      {:opentelemetry_ecto, "~> 1.2"},
+      {:opentelemetry_phoenix, "~> 2.0"},
+      {:otel_metric_exporter, "~> 0.4.4"},
       {:gettext, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:mdex, "~> 0.13"},

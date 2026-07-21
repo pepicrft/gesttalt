@@ -2,6 +2,10 @@ fullnameOverride: gesttalt
 
 env:
   GESTTALT_MEDIA_STORAGE: s3
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://observability-alloy.observability.svc.cluster.local:4318
+  OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+  OTEL_RESOURCE_ATTRIBUTES: service.namespace=gesttalt,deployment.environment.name=production,k8s.namespace.name=gesttalt
+  OTEL_SERVICE_NAME: gesttalt
 
 imagePullSecrets:
   - name: ghcr-pull-secret
