@@ -24,12 +24,18 @@
             do: dgettext("billing", "Publisher"),
             else: dgettext("billing", "Free")}
         </h2>
-        <p :if={@plan == :publisher} data-part="price">
+        <p :if={@plan == :publisher and !@comped} data-part="price">
           €{@price}<span data-part="interval">{dgettext("billing", "per month")}</span>
-        </p><p :if={@plan == :free} data-part="price">€0</p>
+        </p><p :if={@plan == :free or @comped} data-part="price">€0</p>
       </div>
       <div data-part="actions">
         <p>{dgettext("billing", "Status")}: <strong>{@site.subscription_status}</strong></p>
+        <p :if={@comped}>
+          {dgettext(
+            "billing",
+            "Publisher features are complimentary on this publication. There is nothing to pay."
+          )}
+        </p>
         <p :if={@site.cancel_at_period_end && @site.subscription_ends_at}>
           {dgettext("billing", "Access ends on %{date}.",
             date: Calendar.strftime(@site.subscription_ends_at, "%d %B %Y")

@@ -49,6 +49,17 @@ defmodule Gesttalt.SitesTest do
     assert {:error, :enoent} = Gesttalt.MediaStorage.get(image.storage_key)
   end
 
+  test "grants and revokes the complimentary Publisher plan by handle", %{site: site} do
+    assert {:ok, comped} = Sites.comp_site(site.handle)
+    assert comped.subscription_status == :comped
+    assert Gesttalt.Plans.available?(comped, :custom_domains)
+
+    assert {:ok, free} = Sites.uncomp_site(site.handle)
+    assert free.subscription_status == :inactive
+    assert {:error, :not_comped} = Sites.uncomp_site(site.handle)
+    assert {:error, :not_found} = Sites.comp_site("no-such-publication")
+  end
+
   defp upload_fixture(filename, contents) do
     path = Path.join(System.tmp_dir!(), "gesttalt-#{Ecto.UUID.generate()}-#{filename}")
     File.write!(path, contents)

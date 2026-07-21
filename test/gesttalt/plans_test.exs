@@ -24,6 +24,16 @@ defmodule Gesttalt.PlansTest do
     end
   end
 
+  test "complimentary publications get the Publisher features without paying" do
+    site = %Site{subscription_status: :comped}
+
+    assert Plans.tier(site) == :publisher
+    assert Plans.comped?(site)
+    assert Plans.available?(site, :custom_domains)
+    assert Plans.available?(site, :media_uploads)
+    assert Plans.available?(site, :custom_themes)
+  end
+
   test "ended subscriptions return to the free plan" do
     for status <- [:inactive, :canceled] do
       site = %Site{subscription_status: status}

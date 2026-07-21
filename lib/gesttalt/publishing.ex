@@ -7,11 +7,11 @@ defmodule Gesttalt.Publishing do
   alias Gesttalt.Repo
   alias Gesttalt.Sites.Site
 
-  @doc "Lists every post for a site, newest first."
+  @doc "Lists every post for a site, newest first by the date the desk shows."
   def list_posts(%Site{id: site_id}) do
     Post
     |> where([post], post.site_id == ^site_id)
-    |> order_by([post], desc: post.inserted_at)
+    |> order_by([post], desc: coalesce(post.published_at, post.updated_at))
     |> Repo.all()
   end
 
