@@ -31,15 +31,39 @@
     </.form>
     <section id="settings-list">
       <h2 data-part="title">Domains</h2>
-      <article :for={domain <- @domains} id={"domain-row-#{domain.id}"} data-part="row">
+      <article
+        :for={domain <- @domains}
+        id={"domain-row-#{domain.id}"}
+        data-part="row"
+        data-domain-status={domain.status}
+      >
         <div data-part="content">
           <strong>{domain.hostname}</strong><span data-part="status" data-status={domain.status}>{domain.status}</span><p
             :if={domain.status == :pending}
             data-part="description"
           >
-            Add a TXT record at <code>_gesttalt.{domain.hostname}</code>
-            with <code>gesttalt-domain={domain.verification_token}</code>.
-          </p>
+            Add both records below, wait for them to propagate, then verify the domain.
+          </p><ol :if={domain.status == :pending} data-part="domain-setup">
+            <li>
+              <strong>Verify ownership</strong><p>
+                Add a
+                <a href="https://developers.cloudflare.com/dns/manage-dns-records/reference/dns-record-types/#txt">Text (TXT) record</a>
+                at <code>_gesttalt.{domain.hostname}</code>
+                with <code>gesttalt-domain={domain.verification_token}</code>.
+              </p>
+            </li><li>
+              <strong>Route traffic</strong><p>
+                Point <code>{domain.hostname}</code>
+                to <code>{@custom_domain_target}</code>
+                with a <a href="https://developers.cloudflare.com/dns/manage-dns-records/reference/dns-record-types/#cname">Canonical Name (CNAME) record</a>.
+                Disable proxying until setup finishes.
+              </p><p :if={@custom_domain_ipv4_addresses != []}>
+                If your provider does not allow that record on a root domain, use an
+                <a href="https://developers.cloudflare.com/dns/manage-dns-records/reference/dns-record-types/#a-and-aaaa">Address (A) record</a>
+                for each of these addresses: <code>{Enum.join(@custom_domain_ipv4_addresses, ", ")}</code>.
+              </p>
+            </li>
+          </ol>
         </div><div data-part="actions">
           <form
             :if={domain.status == :pending}
