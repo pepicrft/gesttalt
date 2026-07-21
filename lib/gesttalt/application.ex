@@ -7,6 +7,8 @@ defmodule Gesttalt.Application do
 
   @impl true
   def start(_type, _args) do
+    setup_observability()
+
     children = [
       GesttaltWeb.Telemetry,
       Gesttalt.Repo,
@@ -25,6 +27,15 @@ defmodule Gesttalt.Application do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Gesttalt.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp setup_observability do
+    if Application.get_env(:gesttalt, :observability_enabled, false) do
+      :ok = Logger.add_handlers(:gesttalt)
+      :ok = OpentelemetryBandit.setup(public_endpoint: true)
+      :ok = OpentelemetryPhoenix.setup(adapter: :bandit)
+      :ok = OpentelemetryEcto.setup([:gesttalt, :repo])
+    end
   end
 
   # Tell Phoenix to update the endpoint configuration

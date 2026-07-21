@@ -22,5 +22,26 @@ config :gesttalt, GesttaltWeb.Endpoint,
 # Do not print debug messages in production
 config :logger, level: :info
 
+config :gesttalt, :logger, [
+  {:handler, :gesttalt_opentelemetry, OtelMetricExporter.LogHandler,
+   %{
+     config: %{
+       metadata: [:application, :domain, :line, :mfa, :pid],
+       metadata_map: %{request_id: "http.request.id"}
+     }
+   }}
+]
+
+config :opentelemetry,
+  span_processor: :batch
+
+config :opentelemetry_exporter,
+  otlp_protocol: :http_protobuf,
+  otlp_compression: :gzip
+
+config :otel_metric_exporter,
+  otlp_protocol: :http_protobuf,
+  otlp_compression: :gzip
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.

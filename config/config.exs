@@ -31,6 +31,7 @@ config :gesttalt, :scopes,
 config :gesttalt,
   ecto_repos: [Gesttalt.Repo],
   generators: [timestamp_type: :utc_datetime],
+  observability_enabled: false,
   platform_host: "gesttalt.org",
   seed_demo: false,
   media_storage: [
@@ -47,6 +48,10 @@ config :gesttalt,
 
 config :gesttalt, Gesttalt.Mailer, adapter: Swoosh.Adapters.Local
 config :swoosh, :api_client, Swoosh.ApiClient.Req
+
+# Exporting stays disabled unless a production runtime provides an OpenTelemetry
+# Protocol endpoint. This keeps local development and tests self-contained.
+config :opentelemetry, traces_exporter: :none
 
 # Configure the endpoint
 config :gesttalt, GesttaltWeb.Endpoint,

@@ -29,6 +29,18 @@ runtime_port =
 config :gesttalt, GesttaltWeb.Endpoint, http: [port: runtime_port]
 
 if config_env() == :prod do
+  case System.get_env("OTEL_EXPORTER_OTLP_ENDPOINT") do
+    endpoint when is_binary(endpoint) and endpoint != "" ->
+      config :gesttalt, observability_enabled: true
+      config :opentelemetry, traces_exporter: :otlp
+      config :opentelemetry_exporter, otlp_endpoint: endpoint
+      config :otel_metric_exporter, otlp_endpoint: endpoint
+
+    _endpoint ->
+      config :gesttalt, observability_enabled: false
+      config :opentelemetry, traces_exporter: :none
+  end
+
   database_url =
     System.get_env("GESTTALT_DATABASE_URL") ||
       raise """
