@@ -78,7 +78,7 @@ Production signs those identity assertions with a dedicated Rivest-Shamir-Adlema
 
 ## Custom domains
 
-Every publication receives a `{handle}.gesttalt.org` domain. A custom origin can be added under Settings. The owner proves control with the displayed Domain Name System text record and points the hostname to `domains.gesttalt.org` with a canonical name or address record. Verification activates the hostname only after both records resolve. Caddy asks the application whether a hostname is active before obtaining an on-demand Transport Layer Security certificate, so an unverified or misrouted hostname is never served.
+Every publication receives a `{handle}.gesttalt.org` domain. A custom origin can be added under Settings. The owner proves control with the displayed Domain Name System text record and points the hostname to `domains.gesttalt.org` with a canonical name record. Verification activates the hostname only after both records resolve. Caddy asks the application whether a hostname is active before obtaining an on-demand Transport Layer Security certificate, so an unverified or misrouted hostname is never served.
 
 Keep the routing record unproxied while completing verification. The request host selects the account and publication; content queries never accept a tenant identifier from the browser.
 

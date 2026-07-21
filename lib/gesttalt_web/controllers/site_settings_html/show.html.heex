@@ -57,10 +57,6 @@
                 to <code>{@custom_domain_target}</code>
                 with a <a href="https://developers.cloudflare.com/dns/manage-dns-records/reference/dns-record-types/#cname">Canonical Name (CNAME) record</a>.
                 Disable proxying until setup finishes.
-              </p><p :if={@custom_domain_ipv4_addresses != []}>
-                If your provider does not allow that record on a root domain, use an
-                <a href="https://developers.cloudflare.com/dns/manage-dns-records/reference/dns-record-types/#a-and-aaaa">Address (A) record</a>
-                for each of these addresses: <code>{Enum.join(@custom_domain_ipv4_addresses, ", ")}</code>.
               </p>
             </li>
           </ol>

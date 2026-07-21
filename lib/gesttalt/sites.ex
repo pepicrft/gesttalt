@@ -16,9 +16,6 @@ defmodule Gesttalt.Sites do
   def custom_domain_target,
     do: Application.get_env(:gesttalt, :custom_domain_target, "domains.#{platform_host()}")
 
-  def custom_domain_ipv4_addresses,
-    do: dns_records(custom_domain_target(), :a) |> Enum.map(&format_ipv4_address/1)
-
   def list_sites, do: Repo.all(from site in Site, order_by: [asc: site.name])
 
   def get_site!(id), do: Site |> Repo.get!(id) |> Repo.preload([:domains, :theme])
@@ -352,8 +349,6 @@ defmodule Gesttalt.Sites do
         MapSet.size(domain_addresses) == 0 or MapSet.subset?(domain_addresses, target_addresses)
       end)
   end
-
-  defp format_ipv4_address({a, b, c, d}), do: Enum.join([a, b, c, d], ".")
 
   defp token, do: :crypto.strong_rand_bytes(24) |> Base.url_encode64(padding: false)
   defp now, do: DateTime.utc_now() |> DateTime.truncate(:second)

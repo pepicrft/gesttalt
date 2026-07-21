@@ -22,5 +22,6 @@ defmodule GesttaltWeb.SiteSettingsControllerTest do
     assert response =~ "Canonical Name (CNAME) record"
     assert response =~ "domains.gesttalt.test"
     assert response =~ "Disable proxying until setup finishes"
+    refute response =~ "Address (A) record"
   end
 end

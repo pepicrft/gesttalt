@@ -13,7 +13,6 @@ defmodule GesttaltWeb.SiteSettingsController do
       site: site,
       domains: Sites.list_domains(site),
       custom_domain_target: Sites.custom_domain_target(),
-      custom_domain_ipv4_addresses: Sites.custom_domain_ipv4_addresses(),
       site_changeset: Site.changeset(site, %{}),
       domain_changeset: Domain.changeset(%Domain{}, %{})
     )
@@ -30,7 +29,6 @@ defmodule GesttaltWeb.SiteSettingsController do
           site: current_site(conn),
           domains: Sites.list_domains(current_site(conn)),
           custom_domain_target: Sites.custom_domain_target(),
-          custom_domain_ipv4_addresses: Sites.custom_domain_ipv4_addresses(),
           site_changeset: changeset,
           domain_changeset: Domain.changeset(%Domain{}, %{})
         )
