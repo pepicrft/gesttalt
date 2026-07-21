@@ -12,6 +12,7 @@ defmodule GesttaltWeb.BillingController do
       page_title: dgettext("billing", "Billing"),
       site: site,
       plan: Plans.tier(site),
+      comped: Plans.comped?(site),
       price: Billing.monthly_price_euros(),
       billing_configured: Billing.configured?(),
       free_features: [

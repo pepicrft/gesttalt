@@ -3,12 +3,16 @@ defmodule Gesttalt.Plans do
 
   alias Gesttalt.Sites.Site
 
-  @paid_statuses [:trialing, :active, :past_due]
+  # :comped grants every Publisher feature without a Stripe subscription. It is set from an
+  # operator console, never from a webhook, so Stripe events can not take it away.
+  @paid_statuses [:trialing, :active, :past_due, :comped]
   @publisher_features [:custom_domains, :media_uploads, :custom_themes]
 
   def tier(%Site{} = site), do: if(publisher?(site), do: :publisher, else: :free)
 
   def publisher?(%Site{subscription_status: status}), do: status in @paid_statuses
+
+  def comped?(%Site{subscription_status: status}), do: status == :comped
 
   def available?(%Site{} = site, feature) when feature in @publisher_features,
     do: publisher?(site)
