@@ -17,6 +17,7 @@ imagePullSecrets: []
 env:
   GESTTALT_PHX_SERVER: "true"
   GESTTALT_HOST: gesttalt.org
+  GESTTALT_MEDIA_STORAGE: local
   GESTTALT_SMTP_RELAY: smtp-relay.pepicrft.me
   GESTTALT_SMTP_PORT: "587"
   GESTTALT_UPLOADS_DIR: /app/uploads
@@ -50,7 +51,13 @@ caddy:
       memory: 32Mi
 
 media:
+  objectStorage:
+    enabled: false
+    bucketName: ""
+    secretName: gesttalt-media
+    reclaimPolicy: Retain
   persistence:
+    enabled: true
     storageClass: ""
     size: 20Gi
 

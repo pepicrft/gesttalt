@@ -53,11 +53,17 @@ defmodule GesttaltWeb.ThemePreviewController do
     with_session(conn, session_id, fn _session, site ->
       image = Sites.get_image!(site, image_id)
 
-      conn
-      |> put_resp_content_type(image.content_type)
-      |> put_resp_header("cache-control", "private, no-store")
-      |> put_resp_header("referrer-policy", "no-referrer")
-      |> send_file(200, Sites.image_path(image))
+      case Sites.fetch_image(image) do
+        {:ok, body} ->
+          conn
+          |> put_resp_content_type(image.content_type)
+          |> put_resp_header("cache-control", "private, no-store")
+          |> put_resp_header("referrer-policy", "no-referrer")
+          |> send_resp(200, body)
+
+        {:error, _reason} ->
+          not_found(conn)
+      end
     end)
   end
 

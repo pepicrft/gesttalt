@@ -75,11 +75,33 @@ if config_env() == :prod do
       """
 
   host = System.get_env("GESTTALT_HOST") || "gesttalt.org"
+  uploads_dir = System.get_env("GESTTALT_UPLOADS_DIR", "/app/uploads")
+
+  media_storage =
+    case System.get_env("GESTTALT_MEDIA_STORAGE", "local") do
+      "s3" ->
+        [
+          adapter: Gesttalt.MediaStorage.S3,
+          endpoint:
+            System.get_env("AWS_ENDPOINT_URL_S3") || System.fetch_env!("AWS_ENDPOINT_URL"),
+          region: System.fetch_env!("AWS_REGION"),
+          bucket: System.fetch_env!("BUCKET_NAME"),
+          access_key_id: System.fetch_env!("AWS_ACCESS_KEY_ID"),
+          secret_access_key: System.fetch_env!("AWS_SECRET_ACCESS_KEY"),
+          legacy_uploads_dir: uploads_dir
+        ]
+
+      "local" ->
+        [adapter: Gesttalt.MediaStorage.Local, uploads_dir: uploads_dir]
+
+      storage ->
+        raise "unsupported GESTTALT_MEDIA_STORAGE value: #{inspect(storage)}"
+    end
 
   config :gesttalt,
     dns_cluster_query: System.get_env("GESTTALT_DNS_CLUSTER_QUERY"),
     platform_host: host,
-    uploads_dir: System.get_env("GESTTALT_UPLOADS_DIR", "/app/uploads"),
+    media_storage: media_storage,
     agent_auth: [
       claim_ttl_seconds: 600,
       poll_interval_seconds: 5,

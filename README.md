@@ -98,7 +98,7 @@ GESTTALT_STRIPE_AUTOMATIC_TAX=false
 
 Register `https://gesttalt.org/webhooks/stripe` as the webhook destination for completed checkout sessions and created, updated, or deleted subscriptions. Enable the Stripe customer portal so subscribers can manage their payment method and subscription. Automatic tax collection remains disabled until the business registration and tax treatment have been confirmed.
 
-Uploaded images in the supported web formats are limited to ten megabytes and stored on the media persistent volume.
+Uploaded images in the supported web formats are limited to ten megabytes. Development uses local storage, while production stores media under account-and-site-scoped keys in a private Hetzner Object Storage bucket and streams it through tenant-aware application routes.
 
 ## Localization
 
@@ -112,7 +112,7 @@ The continuous integration workflow verifies that extraction is clean and that e
 
 ## Cluster deployment
 
-`deploy/helm/gesttalt` packages Phoenix, Caddy, PostgreSQL through CloudNativePG, migration jobs, persistent media, and External Secrets. The production values live in `deploy/values-production.yaml`.
+`deploy/helm/gesttalt` packages Phoenix, Caddy, PostgreSQL through CloudNativePG, migration jobs, object-backed media, and External Secrets. The production values live in `deploy/values-production.yaml`.
 
 The cluster entry point is `infra/k8s/workload-apps/gesttalt-production/gesttalt-helmrelease.yaml`. Flux reconciles that release into the `gesttalt` namespace through the production cluster configuration. Image automation watches `ghcr.io/pepicrft/gesttalt:main`, pins the latest digest in the production values, and commits that update back to the repository.
 

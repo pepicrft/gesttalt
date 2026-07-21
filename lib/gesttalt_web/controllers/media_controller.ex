@@ -31,6 +31,21 @@ defmodule GesttaltWeb.MediaController do
     end
   end
 
+  def show(conn, %{"id" => id}) do
+    image = Sites.get_image!(current_site(conn), id)
+
+    case Sites.fetch_image(image) do
+      {:ok, body} ->
+        conn
+        |> put_resp_content_type(image.content_type)
+        |> put_resp_header("cache-control", "private, max-age=3600")
+        |> send_resp(200, body)
+
+      {:error, _reason} ->
+        send_resp(conn, :not_found, "Media not found")
+    end
+  end
+
   def delete(conn, %{"id" => id}) do
     {:ok, _image} = Sites.delete_image(current_site(conn), id)
     conn |> put_flash(:info, "Image deleted.") |> redirect(to: ~p"/admin/media")

@@ -32,7 +32,11 @@
     </form>
     <section data-part="media-grid">
       <article :for={image <- @images} id={"media-card-#{image.id}"} data-part="media-card">
-        <img data-part="image" src={Gesttalt.Sites.image_url(image)} alt={image.alt_text || ""} />
+        <img
+          data-part="image"
+          src={~p"/admin/media/#{image}/#{image.filename}"}
+          alt={image.alt_text || ""}
+        />
         <div data-part="content">
           <strong>{image.filename}</strong><code data-part="reference">![{image.alt_text || ""}]({Gesttalt.Sites.image_url(
             image

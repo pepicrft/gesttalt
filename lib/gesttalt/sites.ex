@@ -5,6 +5,7 @@ defmodule Gesttalt.Sites do
 
   alias Ecto.Multi
   alias Gesttalt.Accounts.User
+  alias Gesttalt.MediaStorage
   alias Gesttalt.Repo
   alias Gesttalt.Sites.{Domain, Image, Site, Theme, ThemeDefaults}
 
@@ -150,9 +151,7 @@ defmodule Gesttalt.Sites do
   def store_image(%Site{} = site, %Plug.Upload{} = upload, alt_text \\ nil) do
     content_type = upload.content_type || MIME.from_path(upload.filename)
     extension = upload.filename |> Path.extname() |> String.downcase()
-    storage_key = "#{site.id}/#{Ecto.UUID.generate()}#{extension}"
-    destination = Path.join(uploads_dir(), storage_key)
-    File.mkdir_p!(Path.dirname(destination))
+    storage_key = account_storage_key(site, "#{Ecto.UUID.generate()}#{extension}")
 
     attrs = %{
       site_id: site.id,
@@ -166,12 +165,13 @@ defmodule Gesttalt.Sites do
     changeset = Image.changeset(%Image{}, attrs)
 
     if changeset.valid? do
-      with :ok <- File.cp(upload.path, destination),
+      with {:ok, body} <- File.read(upload.path),
+           :ok <- MediaStorage.put(storage_key, body, content_type),
            {:ok, image} <- Repo.insert(changeset) do
         {:ok, image}
       else
         {:error, reason} ->
-          File.rm(destination)
+          MediaStorage.delete(storage_key)
           {:error, reason}
       end
     else
@@ -183,13 +183,67 @@ defmodule Gesttalt.Sites do
     image = get_image!(site, id)
 
     with {:ok, image} <- Repo.delete(image) do
-      File.rm(Path.join(uploads_dir(), image.storage_key))
+      MediaStorage.delete(image.storage_key)
       {:ok, image}
     end
   end
 
-  def image_path(%Image{storage_key: storage_key}), do: Path.join(uploads_dir(), storage_key)
+  def fetch_image(%Image{} = image) do
+    case MediaStorage.get(image.storage_key) do
+      {:ok, body} -> {:ok, body}
+      {:error, :not_found} -> restore_legacy_image(image)
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  def migrate_legacy_images do
+    if MediaStorage.object_storage?() do
+      Image
+      |> Repo.all()
+      |> Repo.preload(:site)
+      |> Enum.reduce(%{migrated: 0, skipped: 0, failed: []}, &migrate_legacy_image/2)
+    else
+      %{migrated: 0, skipped: 0, failed: []}
+    end
+  end
+
   def image_url(%Image{id: id, filename: filename}), do: "/media/#{id}/#{URI.encode(filename)}"
+
+  defp restore_legacy_image(%Image{} = image) do
+    with {:ok, body} <- MediaStorage.read_legacy(image),
+         :ok <- MediaStorage.put(image.storage_key, body, image.content_type) do
+      _ = MediaStorage.delete_legacy(image.storage_key)
+      {:ok, body}
+    end
+  end
+
+  defp migrate_legacy_image(%Image{} = image) do
+    original_key = image.storage_key
+    target_key = account_storage_key(image.site, Path.basename(original_key))
+
+    with {:ok, body} <- MediaStorage.read_legacy(original_key),
+         :ok <- MediaStorage.put(target_key, body, image.content_type),
+         {:ok, image} <- image |> Ecto.Changeset.change(storage_key: target_key) |> Repo.update() do
+      _ = MediaStorage.delete_legacy(original_key)
+      {:ok, image}
+    else
+      {:error, reason} = error ->
+        if reason != :not_found, do: MediaStorage.delete(target_key)
+        error
+    end
+  end
+
+  defp migrate_legacy_image(image, result) do
+    case migrate_legacy_image(image) do
+      {:ok, _image} -> Map.update!(result, :migrated, &(&1 + 1))
+      {:error, :not_found} -> Map.update!(result, :skipped, &(&1 + 1))
+      {:error, reason} -> Map.update!(result, :failed, &[{image.id, reason} | &1])
+    end
+  end
+
+  defp account_storage_key(%Site{} = site, object_name) do
+    "accounts/#{site.user_id}/sites/#{site.id}/#{object_name}"
+  end
 
   defp preload_site(nil), do: nil
   defp preload_site(site), do: Repo.preload(site, [:domains, :theme])
@@ -236,7 +290,6 @@ defmodule Gesttalt.Sites do
     _error -> []
   end
 
-  defp uploads_dir, do: Application.fetch_env!(:gesttalt, :uploads_dir)
   defp token, do: :crypto.strong_rand_bytes(24) |> Base.url_encode64(padding: false)
   defp now, do: DateTime.utc_now() |> DateTime.truncate(:second)
 

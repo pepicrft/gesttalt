@@ -1,5 +1,8 @@
 fullnameOverride: gesttalt
 
+env:
+  GESTTALT_MEDIA_STORAGE: s3
+
 imagePullSecrets:
   - name: ghcr-pull-secret
 
@@ -16,6 +19,9 @@ caddy:
     storageClass: hcloud-volumes
 
 media:
+  objectStorage:
+    enabled: true
+    bucketName: pepicrft-gesttalt-media
   persistence:
     storageClass: hcloud-volumes
     size: 50Gi

@@ -1,5 +1,5 @@
 defmodule Gesttalt.Sites.Image do
-  @moduledoc "Metadata for an image stored on Gesttalt's persistent media volume."
+  @moduledoc "Metadata for an image stored in Gesttalt's media object storage."
 
   use Ecto.Schema
   import Ecto.Changeset

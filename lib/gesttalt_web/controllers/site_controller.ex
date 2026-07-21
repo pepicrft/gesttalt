@@ -37,11 +37,25 @@ defmodule GesttaltWeb.SiteController do
 
   def media(%{assigns: %{current_site: site}} = conn, %{"id" => id}) do
     image = Sites.get_image!(site, id)
+    send_media(conn, image, "public, max-age=31536000, immutable")
+  end
 
-    conn
-    |> put_resp_content_type(image.content_type)
-    |> put_resp_header("cache-control", "public, max-age=31536000, immutable")
-    |> send_file(200, Sites.image_path(image))
+  defp send_media(conn, image, cache_control) do
+    case Sites.fetch_image(image) do
+      {:ok, body} ->
+        conn
+        |> put_resp_content_type(image.content_type)
+        |> put_resp_header("cache-control", cache_control)
+        |> send_resp(200, body)
+
+      {:error, :not_found} ->
+        send_resp(conn, :not_found, "Media not found")
+
+      {:error, reason} ->
+        conn
+        |> put_status(:service_unavailable)
+        |> text("Media could not be loaded: #{inspect(reason)}")
+    end
   end
 
   defp render_theme(conn, render) do

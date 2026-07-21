@@ -24,7 +24,10 @@ config :gesttalt, Gesttalt.Repo,
 
 config :gesttalt,
   platform_host: "gesttalt.test",
-  uploads_dir: Path.join(System.tmp_dir!(), "gesttalt-test-uploads"),
+  media_storage: [
+    adapter: Gesttalt.MediaStorage.Local,
+    uploads_dir: Path.join(System.tmp_dir!(), "gesttalt-test-uploads")
+  ],
   stripe: []
 
 config :gesttalt, Gesttalt.Mailer, adapter: Swoosh.Adapters.Test

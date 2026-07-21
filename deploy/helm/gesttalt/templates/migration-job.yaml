@@ -86,6 +86,10 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ .Values.secrets.envSecretName }}
+            {{- if .Values.media.objectStorage.enabled }}
+            - secretRef:
+                name: {{ .Values.media.objectStorage.secretName }}
+            {{- end }}
           resources:
             {{- toYaml .Values.migrationJob.resources | nindent 12 }}
           securityContext:
@@ -97,6 +101,10 @@ spec:
             runAsUser: 65534
             runAsGroup: 65534
           volumeMounts:
+            {{- if .Values.media.persistence.enabled }}
+            - name: media
+              mountPath: /app/uploads
+            {{- end }}
             - name: database-certificate-authority
               mountPath: /etc/database-certificate-authority
               readOnly: true
@@ -105,6 +113,11 @@ spec:
               subPath: ca-certificates.crt
               readOnly: true
       volumes:
+        {{- if .Values.media.persistence.enabled }}
+        - name: media
+          persistentVolumeClaim:
+            claimName: {{ include "gesttalt.fullname" . }}-media
+        {{- end }}
         - name: database-certificate-authority
           secret:
             secretName: {{ default (printf "%s-ca" .Values.postgres.clusterName) .Values.postgres.certificateAuthoritySecretName }}

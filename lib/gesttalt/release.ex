@@ -17,7 +17,11 @@ defmodule Gesttalt.Release do
     migrate()
 
     for repo <- repos() do
-      {:ok, _, _} = Ecto.Migrator.with_repo(repo, fn _repo -> seed() end)
+      {:ok, _, _} =
+        Ecto.Migrator.with_repo(repo, fn _repo ->
+          seed()
+          migrate_legacy_media()
+        end)
     end
   end
 
@@ -29,6 +33,17 @@ defmodule Gesttalt.Release do
   defp seed do
     seed_script = Application.app_dir(:gesttalt, "priv/repo/seeds.exs")
     Code.eval_file(seed_script)
+  end
+
+  defp migrate_legacy_media do
+    {:ok, _applications} = Application.ensure_all_started(:req)
+    result = Gesttalt.Sites.migrate_legacy_images()
+
+    if result.failed == [] do
+      result
+    else
+      raise "legacy media migration failed: #{inspect(result.failed)}"
+    end
   end
 
   defp repos do

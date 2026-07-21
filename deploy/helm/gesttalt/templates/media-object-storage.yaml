@@ -1,0 +1,12 @@
+{{- if .Values.media.objectStorage.enabled }}
+apiVersion: objectstorage.pepicrft.me/v1alpha1
+kind: ObjectBucketClaim
+metadata:
+  name: {{ include "gesttalt.fullname" . }}-media
+  labels:
+    {{- include "gesttalt.labels" . | nindent 4 }}
+spec:
+  bucketName: {{ required "media.objectStorage.bucketName is required when object storage is enabled" .Values.media.objectStorage.bucketName | quote }}
+  secretName: {{ .Values.media.objectStorage.secretName | quote }}
+  reclaimPolicy: {{ .Values.media.objectStorage.reclaimPolicy }}
+{{- end }}

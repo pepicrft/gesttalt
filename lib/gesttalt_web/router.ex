@@ -98,6 +98,7 @@ defmodule GesttaltWeb.Router do
 
     get "/media", MediaController, :index
     post "/media", MediaController, :create
+    get "/media/:id/:filename", MediaController, :show
     delete "/media/:id", MediaController, :delete
 
     get "/theme", ThemeController, :edit

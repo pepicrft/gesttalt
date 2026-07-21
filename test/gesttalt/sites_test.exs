@@ -18,9 +18,10 @@ defmodule Gesttalt.SitesTest do
   end
 
   test "returns the same publication when setup is repeated", %{site: site, user: user} do
+    site_count = length(Sites.list_sites())
     assert {:ok, repeated_site} = Sites.ensure_site_for_user(user)
     assert repeated_site.id == site.id
-    assert length(Sites.list_sites()) == 1
+    assert length(Sites.list_sites()) == site_count
   end
 
   test "keeps a custom domain private until it has been verified", %{site: site} do
@@ -35,5 +36,24 @@ defmodule Gesttalt.SitesTest do
     {:ok, another_site} = Sites.ensure_site_for_user(another_user)
 
     refute Sites.get_site_by_host(hd(another_site.domains).hostname).id == site.id
+  end
+
+  test "stores media under the owning account and site", %{site: site, user: user} do
+    upload = upload_fixture("account-image.png", "account image")
+
+    assert {:ok, image} = Sites.store_image(site, upload, "Account image")
+
+    assert image.storage_key =~ "accounts/#{user.id}/sites/#{site.id}/"
+    assert {:ok, "account image"} = Sites.fetch_image(image)
+    assert {:ok, _image} = Sites.delete_image(site, image.id)
+    assert {:error, :enoent} = Gesttalt.MediaStorage.get(image.storage_key)
+  end
+
+  defp upload_fixture(filename, contents) do
+    path = Path.join(System.tmp_dir!(), "gesttalt-#{Ecto.UUID.generate()}-#{filename}")
+    File.write!(path, contents)
+    on_exit(fn -> File.rm(path) end)
+
+    %Plug.Upload{path: path, filename: filename, content_type: "image/png"}
   end
 end

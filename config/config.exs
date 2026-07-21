@@ -33,7 +33,10 @@ config :gesttalt,
   generators: [timestamp_type: :utc_datetime],
   platform_host: "gesttalt.org",
   seed_demo: false,
-  uploads_dir: Path.expand("../priv/uploads", __DIR__),
+  media_storage: [
+    adapter: Gesttalt.MediaStorage.Local,
+    uploads_dir: Path.expand("../priv/uploads", __DIR__)
+  ],
   agent_auth: [
     claim_ttl_seconds: 600,
     poll_interval_seconds: 5,

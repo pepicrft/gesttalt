@@ -1,3 +1,4 @@
+{{- if .Values.media.persistence.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -13,6 +14,7 @@ spec:
     requests:
       storage: {{ .Values.media.persistence.size }}
 ---
+{{- end }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
