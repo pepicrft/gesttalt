@@ -38,6 +38,31 @@ topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
+const flashSelector = "#flash-group > [data-auto-dismiss]"
+const scheduledFlashMessages = new WeakSet()
+
+const scheduleFlashDismissal = message => {
+  if (scheduledFlashMessages.has(message)) return
+
+  scheduledFlashMessages.add(message)
+  window.setTimeout(() => {
+    message.dataset.state = "dismissing"
+    window.setTimeout(() => message.remove(), 180)
+  }, 5000)
+}
+
+const scheduleFlashMessages = root => {
+  if (root.matches?.(flashSelector)) scheduleFlashDismissal(root)
+  root.querySelectorAll?.(flashSelector).forEach(scheduleFlashDismissal)
+}
+
+scheduleFlashMessages(document)
+new MutationObserver(mutations => {
+  mutations.forEach(mutation => {
+    mutation.addedNodes.forEach(node => scheduleFlashMessages(node))
+  })
+}).observe(document.body, {childList: true, subtree: true})
+
 // connect if there are any LiveViews on the page
 liveSocket.connect()
 

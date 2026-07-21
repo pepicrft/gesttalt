@@ -57,6 +57,7 @@ defmodule GesttaltWeb.Layouts do
       </div>
     </header>
     <main class={["shell", @admin && "dashboard"]}>{render_slot(@inner_block)}</main>
+    <.flash_group flash={@flash} />
     <footer id="app-footer">
       <div class="shell" data-part="inner">
         <p data-part="identity">
@@ -80,7 +81,6 @@ defmodule GesttaltWeb.Layouts do
         </nav>
       </div>
     </footer>
-    <.flash_group flash={@flash} />
     """
   end
 
@@ -94,6 +94,7 @@ defmodule GesttaltWeb.Layouts do
         :if={message = Phoenix.Flash.get(@flash, :info)}
         data-part="message"
         data-kind="info"
+        data-auto-dismiss
       >
         {message}
       </div>
@@ -101,6 +102,7 @@ defmodule GesttaltWeb.Layouts do
         :if={message = Phoenix.Flash.get(@flash, :error)}
         data-part="message"
         data-kind="error"
+        data-auto-dismiss
       >
         {message}
       </div>
