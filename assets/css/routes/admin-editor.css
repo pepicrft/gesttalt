@@ -1,4 +1,4 @@
-#admin-document-editor {
+#admin-post-editor {
   & > [data-part="form"] {
     display: grid;
     gap: var(--space-2);

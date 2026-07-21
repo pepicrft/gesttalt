@@ -7,7 +7,7 @@ defmodule Gesttalt.Publishing do
   alias Gesttalt.Repo
   alias Gesttalt.Sites.Site
 
-  @doc "Lists every document for a site, newest first."
+  @doc "Lists every post for a site, newest first."
   def list_posts(%Site{id: site_id}) do
     Post
     |> where([post], post.site_id == ^site_id)
@@ -25,13 +25,13 @@ defmodule Gesttalt.Publishing do
     published_query(site_id, :page) |> Repo.all()
   end
 
-  @doc "Fetches a site-owned document by its database identifier."
+  @doc "Fetches a site-owned post by its database identifier."
   def get_post!(%Site{id: site_id}, id), do: Repo.get_by!(Post, id: id, site_id: site_id)
 
-  @doc "Fetches a site-owned document without raising."
+  @doc "Fetches a site-owned post without raising."
   def get_post(%Site{id: site_id}, id), do: Repo.get_by(Post, id: id, site_id: site_id)
 
-  @doc "Fetches a public document by kind and slug."
+  @doc "Fetches a public post by kind and slug."
   def get_published_post_by_slug!(%Site{id: site_id}, kind, slug) when kind in [:post, :page] do
     now = now()
 
@@ -44,11 +44,11 @@ defmodule Gesttalt.Publishing do
     |> Repo.one!()
   end
 
-  @doc "Fetches a site-owned document by slug, including drafts."
+  @doc "Fetches a site-owned post by slug, including drafts."
   def get_post_by_slug(%Site{id: site_id}, slug),
     do: Repo.get_by(Post, site_id: site_id, slug: slug)
 
-  @doc "Creates a document owned by a site."
+  @doc "Creates a post owned by a site."
   def create_post(%Site{id: site_id}, attrs \\ %{}) do
     attrs = Map.put(attrs, key_for(attrs, :site_id), site_id)
 
@@ -57,21 +57,21 @@ defmodule Gesttalt.Publishing do
     |> Repo.insert()
   end
 
-  @doc "Updates a document."
+  @doc "Updates a post."
   def update_post(%Post{} = post, attrs) do
     post |> Post.changeset(attrs) |> Repo.update()
   end
 
-  @doc "Publishes a document immediately, unless it has a future publication time."
+  @doc "Publishes a post immediately, unless it has a future publication time."
   def publish_post(%Post{} = post), do: post |> Post.publish_changeset() |> Repo.update()
 
-  @doc "Moves a published document back to drafts."
+  @doc "Moves a published post back to drafts."
   def unpublish_post(%Post{} = post), do: post |> Post.unpublish_changeset() |> Repo.update()
 
-  @doc "Permanently deletes a document."
+  @doc "Permanently deletes a post."
   def delete_post(%Post{} = post), do: Repo.delete(post)
 
-  @doc "Returns a changeset for a document form."
+  @doc "Returns a changeset for a post form."
   def change_post(%Post{} = post, attrs \\ %{}), do: Post.changeset(post, attrs)
 
   defp published_query(site_id, kind) do

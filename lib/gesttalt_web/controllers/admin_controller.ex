@@ -11,7 +11,7 @@ defmodule GesttaltWeb.AdminController do
   end
 
   def new(conn, _params),
-    do: render_form(conn, Publishing.change_post(%Post{}), "New document", ~p"/admin/posts")
+    do: render_form(conn, Publishing.change_post(%Post{}), "New post", ~p"/admin/posts")
 
   def create(conn, %{"post" => attrs}) do
     case Publishing.create_post(current_site(conn), attrs) do
@@ -19,7 +19,7 @@ defmodule GesttaltWeb.AdminController do
         conn |> put_flash(:info, "Draft saved.") |> redirect(to: ~p"/admin/posts/#{post}/edit")
 
       {:error, changeset} ->
-        render_form(conn, changeset, "New document", ~p"/admin/posts")
+        render_form(conn, changeset, "New post", ~p"/admin/posts")
     end
   end
 
@@ -29,7 +29,7 @@ defmodule GesttaltWeb.AdminController do
     render_form(
       conn,
       Publishing.change_post(post),
-      "Edit document",
+      "Edit post",
       ~p"/admin/posts/#{post}",
       "put"
     )
@@ -41,27 +41,27 @@ defmodule GesttaltWeb.AdminController do
     case Publishing.update_post(post, attrs) do
       {:ok, updated_post} ->
         conn
-        |> put_flash(:info, "Document saved.")
+        |> put_flash(:info, "Post saved.")
         |> redirect(to: ~p"/admin/posts/#{updated_post}/edit")
 
       {:error, changeset} ->
-        render_form(conn, changeset, "Edit document", ~p"/admin/posts/#{post}", "put")
+        render_form(conn, changeset, "Edit post", ~p"/admin/posts/#{post}", "put")
     end
   end
 
   def publish(conn, %{"id" => id}) do
     current_site(conn) |> Publishing.get_post!(id) |> Publishing.publish_post()
-    conn |> put_flash(:info, "Document published.") |> redirect(to: ~p"/admin/")
+    conn |> put_flash(:info, "Post published.") |> redirect(to: ~p"/admin/")
   end
 
   def unpublish(conn, %{"id" => id}) do
     current_site(conn) |> Publishing.get_post!(id) |> Publishing.unpublish_post()
-    conn |> put_flash(:info, "Document moved to drafts.") |> redirect(to: ~p"/admin/")
+    conn |> put_flash(:info, "Post moved to drafts.") |> redirect(to: ~p"/admin/")
   end
 
   def delete(conn, %{"id" => id}) do
     current_site(conn) |> Publishing.get_post!(id) |> Publishing.delete_post()
-    conn |> put_flash(:info, "Document deleted.") |> redirect(to: ~p"/admin/")
+    conn |> put_flash(:info, "Post deleted.") |> redirect(to: ~p"/admin/")
   end
 
   defp render_form(conn, changeset, title, action, method \\ "post") do

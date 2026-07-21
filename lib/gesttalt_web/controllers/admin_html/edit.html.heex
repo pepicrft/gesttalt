@@ -1,10 +1,10 @@
 <Layouts.app flash={@flash} current_scope={@current_scope} admin>
-  <div id="admin-document-editor">
+  <div id="admin-post-editor">
     <header id="page-heading">
       <p data-part="eyebrow">Publishing desk</p>
       <h1 data-part="title">{@page_title}</h1>
       <p data-part="description">
-        Markdown is supported. The slug becomes the document's permanent address.
+        Markdown is supported. The slug becomes the post's permanent address.
       </p>
     </header>
 
@@ -98,13 +98,13 @@
       </div>
 
       <div class="form-actions" data-part="actions">
-        <button class="button button--primary" type="submit">Save document</button>
+        <button class="button button--primary" type="submit">Save post</button>
         <a class="button" href={~p"/admin/"}>Cancel</a>
       </div>
     </.form>
 
     <section :if={@post.id} data-part="danger-zone">
-      <h2>Delete document</h2>
+      <h2>Delete post</h2>
       <p>This cannot be undone.</p>
       <form action={~p"/admin/posts/#{@post}"} method="post">
         <input type="hidden" name="_method" value="delete" />
