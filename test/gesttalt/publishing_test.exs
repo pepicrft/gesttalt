@@ -17,6 +17,26 @@ defmodule Gesttalt.PublishingTest do
     assert Publishing.list_posts(site) == [post]
   end
 
+  test "lists documents from the most to the least recent publication date", %{site: site} do
+    older =
+      post_fixture(%{
+        site: site,
+        status: :published,
+        published_at: ~U[2018-01-28 12:00:00Z],
+        title: "Older"
+      })
+
+    newer =
+      post_fixture(%{
+        site: site,
+        status: :published,
+        published_at: ~U[2024-11-19 12:00:00Z],
+        title: "Newer"
+      })
+
+    assert Enum.map(Publishing.list_posts(site), & &1.id) == [newer.id, older.id]
+  end
+
   test "fetches documents through the tenant boundary", %{site: site} do
     post = post_fixture(%{site: site})
     other_site = site_fixture()
