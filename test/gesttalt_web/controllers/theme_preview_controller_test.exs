@@ -1,6 +1,8 @@
 defmodule GesttaltWeb.ThemePreviewControllerTest do
   use GesttaltWeb.ConnCase, async: true
 
+  import Phoenix.LiveViewTest
+
   alias Gesttalt.AccountsFixtures
   alias Gesttalt.PublishingFixtures
   alias Gesttalt.Sites
@@ -44,9 +46,13 @@ defmodule GesttaltWeb.ThemePreviewControllerTest do
     assert body =~ "Previewed post"
     assert body =~ "/theme-previews/#{session.id}/blog/#{post.slug}/"
     assert body =~ "/theme-previews/#{session.id}/#{page.slug}/"
-    assert body =~ "new EventSource"
-    assert body =~ "/theme-previews/#{session.id}/events"
-    assert body =~ ~s|changes.addEventListener("ready", reloadForRevision)|
+    assert body =~ "theme-preview-site"
+    assert body =~ "theme-preview-status"
+    assert body =~ ~s(id="theme-preview")
+    assert body =~ "Theme editing"
+    assert body =~ "Live preview · Revision 0"
+    assert body =~ "data-phx-session"
+    refute body =~ "EventSource"
     assert get_resp_header(conn, "cache-control") == ["private, no-store"]
     assert get_resp_header(conn, "referrer-policy") == ["no-referrer"]
     assert get_resp_header(conn, "x-robots-tag") == ["noindex, nofollow"]
@@ -67,7 +73,26 @@ defmodule GesttaltWeb.ThemePreviewControllerTest do
     assert page_body =~ "Previewed page"
   end
 
-  test "keeps automatic reload available while a draft cannot render", %{
+  test "refreshes the connected preview for each accepted edit", %{
+    conn: conn,
+    session: session,
+    site: site
+  } do
+    {:ok, view, _html} = live(conn, "/theme-previews/#{session.id}")
+
+    assert {:ok, _session} =
+             ThemeEditing.update(session.id, site, %{
+               stylesheet: "body { background: papayawhip; }"
+             })
+
+    html = render(view)
+    assert html =~ ~s(id="theme-preview")
+    assert html =~ "body { background: papayawhip; }"
+    assert html =~ "Live preview · Revision 1"
+    assert html =~ ~s(data-state="editing")
+  end
+
+  test "keeps live refresh available while a draft cannot render", %{
     conn: conn,
     session: session,
     site: site
@@ -79,7 +104,52 @@ defmodule GesttaltWeb.ThemePreviewControllerTest do
 
     assert body =~ "Theme preview could not be rendered"
     assert body =~ "Keep editing"
-    assert body =~ "new EventSource"
+    assert body =~ "data-phx-session"
+  end
+
+  test "shows the persisted theme after publishing", %{conn: conn, session: session, site: site} do
+    {:ok, view, _html} = live(conn, "/theme-previews/#{session.id}")
+
+    assert {:ok, _session} =
+             ThemeEditing.update(session.id, site, %{
+               stylesheet: "body { background: papayawhip; }"
+             })
+
+    assert {:ok, _theme} = ThemeEditing.publish(session.id, site)
+
+    html = render(view)
+    assert html =~ "body { background: papayawhip; }"
+    assert html =~ "Theme published"
+    assert html =~ "The previewed theme is now persisted."
+    assert html =~ ~s(data-state="published")
+  end
+
+  test "restores the published theme after discarding", %{
+    conn: conn,
+    session: session,
+    site: site
+  } do
+    original_stylesheet = Sites.get_theme!(site).stylesheet
+    {:ok, view, _html} = live(conn, "/theme-previews/#{session.id}")
+
+    assert {:ok, _session} =
+             ThemeEditing.update(session.id, site, %{
+               stylesheet: "body { background: papayawhip; }"
+             })
+
+    assert render(view) =~ "body { background: papayawhip; }"
+    assert :ok = ThemeEditing.discard(session.id, site)
+
+    html = render(view)
+
+    escaped_stylesheet =
+      original_stylesheet |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
+
+    assert html =~ escaped_stylesheet
+    refute html =~ "body { background: papayawhip; }"
+    assert html =~ "Changes discarded"
+    assert html =~ "Showing the published theme again."
+    assert html =~ ~s(data-state="discarded")
   end
 
   test "returns not found after a session closes", %{conn: conn, session: session, site: site} do

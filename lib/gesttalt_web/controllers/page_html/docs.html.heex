@@ -53,7 +53,7 @@
             Theme editing happens entirely through the <a href="https://modelcontextprotocol.io/">Model Context Protocol</a>. Ask your agent to call <code>create_theme_editing_session</code>. It receives an isolated copy of the active theme, the standard variable contract, and a preview address you can open beside the conversation.
           </p><p>
             Calls to <code>update_theme_editing_session</code>
-            accept partial variable changes, preserve omitted values, change only that in-process draft, and reload every connected preview. The variables cover semantic colors, font families and scales, spacing, radii, sizes, and shadows. They adapt the
+            accept partial variable changes, preserve omitted values, change only that in-process draft, and refresh every connected preview through Phoenix LiveView. The preview carries a visible editing sign until the session ends. The variables cover semantic colors, font families and scales, spacing, radii, sizes, and shadows. They adapt the
             <a href="https://theme-ui.com/theme-spec">Theme UI (user interface) theme specification</a>
             to stable Cascading Style Sheets custom properties.
           </p><p>
@@ -63,8 +63,9 @@
             for blog posts, and <code>page_template</code>
             for standalone pages. When the result is ready,
             <code>publish_theme_editing_session</code>
-            makes it active. <code>discard_theme_editing_session</code>
-            closes the session without changing the publication.
+            makes the previewed theme active and redraws the preview from the persisted theme.
+            <code>discard_theme_editing_session</code>
+            closes the session and redraws the same page with the previously published theme.
           </p>
         </section>
         <section id="migration" data-part="section">

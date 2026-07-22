@@ -43,7 +43,7 @@ defmodule Gesttalt.ThemeEditingTest do
     assert published_theme.name == "Conversation"
     assert Sites.get_theme!(site).stylesheet == "body { color: rebeccapurple; }"
     assert Sites.get_theme!(site).variables["colors"]["primary"] == "#d73a49"
-    assert_receive :theme_editing_session_closed
+    assert_receive {:theme_editing_session_closed, :published}
     assert {:error, :not_found} = ThemeEditing.fetch(session.id)
   end
 
@@ -179,7 +179,7 @@ defmodule Gesttalt.ThemeEditingTest do
     monitor = Process.monitor(session_process)
     send(session_process, :expire)
 
-    assert_receive :theme_editing_session_closed
+    assert_receive {:theme_editing_session_closed, :expired}
     assert_receive {:DOWN, ^monitor, :process, ^session_process, :normal}
     assert {:error, :not_found} = ThemeEditing.fetch(session.id)
   end

@@ -109,14 +109,14 @@ defmodule Gesttalt.ThemeEditing.Session do
           status: :publishing
         } = state
       ) do
-    close(state, :ok)
+    close(state, :ok, :published)
   end
 
   def handle_call({:finish_publish, _site_id}, _from, state),
     do: {:reply, {:error, :not_found}, state}
 
   def handle_call({:discard, site_id}, _from, %{site_id: site_id, status: :editing} = state) do
-    close(state, :ok)
+    close(state, :ok, :discarded)
   end
 
   def handle_call({:discard, site_id}, _from, %{site_id: site_id} = state),
@@ -142,12 +142,12 @@ defmodule Gesttalt.ThemeEditing.Session do
   end
 
   def handle_info(:expire, state) do
-    broadcast(state, :theme_editing_session_closed)
+    broadcast(state, {:theme_editing_session_closed, :expired})
     {:stop, :normal, state}
   end
 
-  defp close(state, reply) do
-    broadcast(state, :theme_editing_session_closed)
+  defp close(state, reply, reason) do
+    broadcast(state, {:theme_editing_session_closed, reason})
     {:stop, :normal, reply, state}
   end
 
