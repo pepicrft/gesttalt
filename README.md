@@ -1,6 +1,6 @@
 # Gesttalt
 
-Gesttalt is a simple blogging platform for the agentic world. It is built with Phoenix, PostgreSQL, Liquid themes, and vanilla Cascading Style Sheets. Each account owns a site, publishes posts and pages, stores images, and may connect a custom domain. The browser editor, [Hypertext Transfer Protocol](https://developer.mozilla.org/en-US/docs/Web/HTTP) application programming interface, and [Model Context Protocol](https://modelcontextprotocol.io/) server share the same tenant-scoped publishing model.
+Gesttalt is an agent-native blogging platform. An agent can securely register a user and manage the complete publication, while the user keeps ownership of the account, address, and consequential decisions. It is built with Phoenix, PostgreSQL, Liquid themes, and vanilla Cascading Style Sheets. The browser editor, [Hypertext Transfer Protocol](https://developer.mozilla.org/en-US/docs/Web/HTTP) application programming interface, and [Model Context Protocol](https://modelcontextprotocol.io/) server share the same tenant-scoped publishing model.
 
 ## Run locally
 
@@ -72,7 +72,9 @@ Interactive documentation is available at `/api-docs`; the [OpenAPI](https://www
 
 Dynamic clients, including public mobile clients, register through `POST /oauth2/register`. Account owners can also create and revoke their own clients under `/admin/oauth-clients`.
 
-Agents can discover a user-claimed registration flow at `/auth.md` and through the protected-resource metadata under `/.well-known`. An agent sends the user's email to `POST /agent/identity`, shows the returned six-digit code and verification address to the user, and polls the normal token endpoint. Gesttalt creates the account when necessary, the user signs in and confirms the code on Gesttalt, and the agent receives a one-hour publishing token plus a renewable service-signed identity assertion. The assertion never acts as a refresh token and no password is shared with the agent.
+Agents can discover the [auth.md protocol](https://workos.com/auth-md) at `/auth.md` and through the protected-resource metadata under `/.well-known`. An agent sends the user's email to `POST /agent/identity`, shows the returned six-digit code and verification address to the user, and polls the normal token endpoint. Gesttalt creates the account when necessary, the user signs in and confirms the code on Gesttalt, and the agent receives a one-hour publishing token plus a renewable service-signed identity assertion. A code can be renewed during the longer registration window. The assertion never acts as a refresh token and no password is shared with the agent.
+
+The Model Context Protocol server mirrors the dashboard. Its tools manage content, media, live theme sessions, publication settings, custom domains, connected applications, and hosted billing links. Read-only tools report current state, while tool annotations and server instructions tell agents to require an explicit user request before publishing, deleting, changing domains or credentials, or beginning billing.
 
 Production signs those identity assertions with a dedicated Rivest-Shamir-Adleman private key. Generate and store the Privacy-Enhanced Mail value as `GESTTALT_AGENT_AUTH_PRIVATE_KEY_PEM`; the chart reads it from `AGENT_AUTH_PRIVATE_KEY_PEM` in the external secret store. Development and test environments generate an ephemeral key at startup.
 

@@ -11,6 +11,11 @@ defmodule GesttaltWeb.WellKnownController do
     origin = GesttaltWeb.Endpoint.url()
 
     json(conn, %{
+      resource: origin,
+      resource_name: "Gesttalt publishing",
+      resource_logo_uri: origin <> "/images/logo.svg",
+      authorization_servers: [origin],
+      bearer_methods_supported: ["header"],
       issuer: origin,
       authorization_endpoint: origin <> "/oauth2/authorize",
       token_endpoint: origin <> "/oauth2/token",
@@ -26,6 +31,7 @@ defmodule GesttaltWeb.WellKnownController do
       response_types_supported: ["code"],
       code_challenge_methods_supported: ["S256"],
       scopes_supported: @scopes,
+      resource_documentation: origin <> "/docs",
       token_endpoint_auth_methods_supported: ["none", "client_secret_basic", "client_secret_post"],
       jwks_uri: origin <> "/.well-known/jwks.json",
       agent_auth: %{
@@ -43,6 +49,7 @@ defmodule GesttaltWeb.WellKnownController do
     json(conn, %{
       resource: origin,
       resource_name: "Gesttalt publishing",
+      resource_logo_uri: origin <> "/images/logo.svg",
       authorization_servers: [origin],
       bearer_methods_supported: ["header"],
       scopes_supported: @scopes,
@@ -56,6 +63,7 @@ defmodule GesttaltWeb.WellKnownController do
     json(conn, %{
       resource: origin <> "/mcp",
       resource_name: "Gesttalt Model Context Protocol publishing server",
+      resource_logo_uri: origin <> "/images/logo.svg",
       authorization_servers: [origin],
       bearer_methods_supported: ["header"],
       scopes_supported: @scopes,

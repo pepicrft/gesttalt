@@ -11,42 +11,42 @@
 msgid ""
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:6
-#, elixir-autogen, elixir-format
-msgid "A simple blogging platform for the agentic world"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/page_html/home.html.heex:6
-#, elixir-autogen, elixir-format
-msgid "A simple blogging platform for the agentic world."
-msgstr ""
-
-#: lib/gesttalt_web/controllers/page_html/home.html.heex:18
-#, elixir-autogen, elixir-format
-msgid "Explore the publishing interfaces →"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/page_html/home.html.heex:4
-#, elixir-autogen, elixir-format
-msgid "Independent publishing"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/page_controller.ex:8
-#, elixir-autogen, elixir-format
-msgid "Publish from the web, an application, an automation, or an agent."
-msgstr ""
-
 #: lib/gesttalt_web/controllers/page_html/home.html.heex:15
 #, elixir-autogen, elixir-format
 msgid "Start publishing"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_html/home.html.heex:9
+#: lib/gesttalt_web/controllers/page_html/home.html.heex:6
 #, elixir-autogen, elixir-format
-msgid "Your words, your address, everywhere. Publish from the web, an application, an automation, or an agent."
+msgid "A blog your agents can run. A publication you own."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/home.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "Agent-native publishing"
 msgstr ""
 
 #: lib/gesttalt_web/controllers/page_html/home.html.heex:24
 #, elixir-autogen, elixir-format
-msgid "Publish text for free from the web, an application, or an agent. Upgrade for €5 per month when you need a custom domain, images, or custom themes."
+msgid "Agents can manage your complete publication through one secure connection. Text publishing stays free. Upgrade for €5 per month when you need a custom domain, images, or custom themes."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/home.html.heex:9
+#, elixir-autogen, elixir-format
+msgid "Ask an agent to create your account, write and publish content, manage media and domains, or reshape the theme in a live preview. Gesttalt was designed for the whole conversation."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/home.html.heex:18
+#, elixir-autogen, elixir-format
+msgid "Connect an agent →"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:6
+#, elixir-autogen, elixir-format
+msgid "A blog your agents can run"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_controller.ex:8
+#, elixir-autogen, elixir-format
+msgid "Agent-native publishing for content, media, themes, domains, and the complete publication."
 msgstr ""

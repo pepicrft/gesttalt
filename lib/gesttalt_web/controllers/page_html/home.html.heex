@@ -1,54 +1,56 @@
 <Layouts.app flash={@flash} current_scope={@current_scope}>
   <div id="marketing-home">
     <section data-part="hero">
-      <p data-part="eyebrow">{dgettext("marketing", "Independent publishing")}</p>
+      <p data-part="eyebrow">{dgettext("marketing", "Agent-native publishing")}</p>
       <h1 data-part="title">
-        {dgettext("marketing", "A simple blogging platform for the agentic world.")}
+        {dgettext("marketing", "A blog your agents can run. A publication you own.")}
       </h1>
       <p data-part="description">
         {dgettext(
           "marketing",
-          "Your words, your address, everywhere. Publish from the web, an application, an automation, or an agent."
+          "Ask an agent to create your account, write and publish content, manage media and domains, or reshape the theme in a live preview. Gesttalt was designed for the whole conversation."
         )}
       </p>
       <div data-part="actions">
         <a class="button button--primary" href={~p"/users/register"}>{dgettext(
           "marketing",
           "Start publishing"
-        )}</a><a href={~p"/docs"}>{dgettext(
+        )}</a><a href={~p"/docs#agent-registration"}>{dgettext(
           "marketing",
-          "Explore the publishing interfaces →"
+          "Connect an agent →"
         )}</a>
       </div>
       <p data-part="plan-note">
         {dgettext(
           "marketing",
-          "Publish text for free from the web, an application, or an agent. Upgrade for €5 per month when you need a custom domain, images, or custom themes."
+          "Agents can manage your complete publication through one secure connection. Text publishing stays free. Upgrade for €5 per month when you need a custom domain, images, or custom themes."
         )}
       </p>
     </section>
     <section data-part="features">
       <article data-part="feature">
-        <span data-part="index">01</span><h2 data-part="title">Write without clutter</h2><p data-part="description">
-          Posts, standalone pages, images, feeds, and a focused editor. Nothing between an idea and the page.
+        <span data-part="index">01</span><h2 data-part="title">Start through a conversation</h2><p data-part="description">
+          An agent can register with your email, then hand you a short confirmation code. You sign in on Gesttalt and stay in control of the credential.
         </p>
       </article>
       <article data-part="feature">
-        <span data-part="index">02</span><h2 data-part="title">Bring your domain</h2><p data-part="description">
-          Use a Gesttalt subdomain or verify any domain you own. Requests are mapped to the right publication automatically.
+        <span data-part="index">02</span><h2 data-part="title">Manage the whole publication</h2><p data-part="description">
+          Create, schedule, publish, and delete content. Upload media, edit themes, connect domains and applications, and inspect billing without leaving the agent.
         </p>
       </article>
       <article data-part="feature">
-        <span data-part="index">03</span><h2 data-part="title">Publish from anywhere</h2><p data-part="description">
-          Connect a mobile app, an automation, or an agent through the <a href="https://oauth.net/2/">OAuth 2.0 authorization framework</a>, the application programming interface, or the <a href="https://modelcontextprotocol.io/">Model Context Protocol</a>.
+        <span data-part="index">03</span><h2 data-part="title">
+          Keep human approval in the loop
+        </h2><p data-part="description">
+          Secure registration binds the agent to your account without sharing a password. Publishing, deletion, domains, credentials, and billing remain explicit decisions.
         </p>
       </article>
     </section>
     <section data-part="manifesto">
       <p data-part="eyebrow">Themes are code</p><h2 data-part="title">
-        Standard design variables. Liquid route templates. A live conversational loop.
+        Design the publication in the same conversation that runs it.
       </h2><p data-part="description">
-        Describe the change to your agent, keep the live preview beside the conversation, and publish the isolated draft only when it feels right.
+        Standard design variables, Liquid route templates, and vanilla Cascading Style Sheets give agents a precise editing surface. Keep the live preview beside the conversation and publish the isolated draft only when it feels right.
       </p><a href={~p"/docs#themes"}>Read the theme guide →</a>
     </section>
   </div>

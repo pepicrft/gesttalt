@@ -5,6 +5,8 @@ defmodule Gesttalt.MCP do
 
   import Plug.Conn
 
+  alias Gesttalt.Billing
+  alias Gesttalt.OAuth.ClientsManager
   alias Gesttalt.Plans
   alias Gesttalt.Publishing
   alias Gesttalt.Publishing.PostJSON
@@ -62,7 +64,7 @@ defmodule Gesttalt.MCP do
       capabilities: %{tools: %{listChanged: false}},
       serverInfo: %{name: "gesttalt", title: "Gesttalt publishing", version: "1.0.0"},
       instructions:
-        "For theme work, create an editing session first. Prefer the standard variables for visual design changes, preserve the stylesheet when possible, and edit Liquid only for route-specific document structure. Never publish unless the user explicitly asks."
+        "This server can manage every publication feature exposed by the dashboard. Inspect the current state before changing it. For theme work, create an editing session first. Prefer the standard variables for visual design changes, preserve the stylesheet when possible, and edit Liquid only for route-specific document structure. Never publish, unpublish, delete, change domains or credentials, or begin billing unless the user explicitly asks."
     })
   end
 
@@ -74,10 +76,15 @@ defmodule Gesttalt.MCP do
          "id" => id,
          "params" => %{"name" => name} = params
        }) do
-    case call_tool(name, params["arguments"] || %{}, conn.assigns.current_site) do
+    case call_tool(
+           name,
+           params["arguments"] || %{},
+           conn.assigns.current_site,
+           conn.assigns.current_user
+         ) do
       {:ok, value} ->
         result(conn, id, %{
-          content: [%{type: "text", text: Jason.encode!(value)}],
+          content: [%{type: "text", text: JSON.encode!(value)}],
           structuredContent: %{result: value}
         })
 
@@ -92,23 +99,23 @@ defmodule Gesttalt.MCP do
   defp dispatch(conn, %{"id" => id}), do: error(conn, id, -32_601, "Method not found")
 
   defp dispatch(conn, _params),
-    do: send_resp(conn, 400, Jason.encode!(%{error: "invalid_request"}))
+    do: send_resp(conn, 400, JSON.encode!(%{error: "invalid_request"}))
 
-  defp call_tool("list_content", _arguments, site),
+  defp call_tool("list_content", _arguments, site, _user),
     do: {:ok, Enum.map(Publishing.list_posts(site), &PostJSON.render/1)}
 
-  defp call_tool("get_content", %{"id" => id}, site) do
+  defp call_tool("get_content", %{"id" => id}, site, _user) do
     case Publishing.get_post(site, id) do
       nil -> {:error, :not_found}
       post -> {:ok, PostJSON.render(post)}
     end
   end
 
-  defp call_tool("create_content", arguments, site) do
+  defp call_tool("create_content", arguments, site, _user) do
     with {:ok, post} <- Publishing.create_post(site, arguments), do: {:ok, PostJSON.render(post)}
   end
 
-  defp call_tool("update_content", %{"id" => id} = arguments, site) do
+  defp call_tool("update_content", %{"id" => id} = arguments, site, _user) do
     with post when not is_nil(post) <- Publishing.get_post(site, id),
          {:ok, post} <- Publishing.update_post(post, Map.delete(arguments, "id")) do
       {:ok, PostJSON.render(post)}
@@ -118,7 +125,7 @@ defmodule Gesttalt.MCP do
     end
   end
 
-  defp call_tool("publish_content", %{"id" => id}, site) do
+  defp call_tool("publish_content", %{"id" => id}, site, _user) do
     with post when not is_nil(post) <- Publishing.get_post(site, id),
          {:ok, post} <- Publishing.publish_post(post) do
       {:ok, PostJSON.render(post)}
@@ -128,53 +135,99 @@ defmodule Gesttalt.MCP do
     end
   end
 
-  defp call_tool(
-         "upload_media",
-         %{"filename" => filename, "content_base64" => encoded} = args,
-         site
-       ) do
-    with true <- Plans.available?(site, :media_uploads),
-         {:ok, content} <- Base.decode64(encoded),
-         path <- Path.join(System.tmp_dir!(), "gesttalt-mcp-#{Ecto.UUID.generate()}"),
-         :ok <- File.write(path, content),
-         upload <- %Plug.Upload{
-           path: path,
-           filename: filename,
-           content_type: args["content_type"]
-         },
-         {:ok, image} <- Sites.store_image(site, upload, args["alt_text"]) do
-      File.rm(path)
-
-      {:ok,
-       %{
-         id: image.id,
-         filename: image.filename,
-         url: Sites.image_url(image),
-         alt_text: image.alt_text
-       }}
+  defp call_tool("unpublish_content", %{"id" => id}, site, _user) do
+    with post when not is_nil(post) <- Publishing.get_post(site, id),
+         {:ok, post} <- Publishing.unpublish_post(post) do
+      {:ok, PostJSON.render(post)}
     else
-      false -> {:error, :subscription_required}
+      nil -> {:error, :not_found}
       error -> error
     end
   end
 
-  defp call_tool("create_theme_editing_session", _arguments, site) do
+  defp call_tool("delete_content", %{"id" => id}, site, _user) do
+    with post when not is_nil(post) <- Publishing.get_post(site, id),
+         {:ok, post} <- Publishing.delete_post(post) do
+      {:ok, %{id: post.id, deleted: true}}
+    else
+      nil -> {:error, :not_found}
+      error -> error
+    end
+  end
+
+  defp call_tool("list_media", _arguments, site, _user),
+    do: {:ok, Enum.map(Sites.list_images(site), &present_image/1)}
+
+  defp call_tool(
+         "upload_media",
+         %{"filename" => filename, "content_base64" => encoded} = args,
+         site,
+         _user
+       ) do
+    with true <- Plans.available?(site, :media_uploads),
+         {:ok, content} <- Base.decode64(encoded),
+         path <- Path.join(System.tmp_dir!(), "gesttalt-mcp-#{Ecto.UUID.generate()}"),
+         :ok <- File.write(path, content) do
+      try do
+        upload = %Plug.Upload{
+          path: path,
+          filename: filename,
+          content_type: args["content_type"]
+        }
+
+        with {:ok, image} <- Sites.store_image(site, upload, args["alt_text"]),
+             do: {:ok, present_image(image)}
+      after
+        File.rm(path)
+      end
+    else
+      false -> {:error, :subscription_required}
+      :error -> {:error, :invalid_base64}
+      error -> error
+    end
+  end
+
+  defp call_tool("delete_media", %{"id" => id}, site, _user) do
+    case Enum.find(Sites.list_images(site), &(&1.id == id)) do
+      nil ->
+        {:error, :not_found}
+
+      image ->
+        with {:ok, image} <- Sites.delete_image(site, image.id),
+             do: {:ok, %{id: image.id, filename: image.filename, deleted: true}}
+    end
+  end
+
+  defp call_tool("get_theme", _arguments, site, _user),
+    do: {:ok, site |> Sites.get_theme!() |> ThemeEditing.theme_attrs()}
+
+  defp call_tool("create_theme_editing_session", _arguments, site, _user) do
     with {:ok, session} <- ThemeEditing.create(site),
          do: {:ok, ThemeEditing.present(session)}
   end
 
-  defp call_tool("get_theme_editing_session", %{"session_id" => session_id}, site) do
+  defp call_tool("get_theme_editing_session", %{"session_id" => session_id}, site, _user) do
     with {:ok, session} <- ThemeEditing.fetch(session_id, site),
          do: {:ok, ThemeEditing.present(session)}
   end
 
-  defp call_tool("update_theme_editing_session", %{"session_id" => session_id} = arguments, site) do
+  defp call_tool(
+         "update_theme_editing_session",
+         %{"session_id" => session_id} = arguments,
+         site,
+         _user
+       ) do
     with {:ok, session} <-
            ThemeEditing.update(session_id, site, Map.delete(arguments, "session_id")),
          do: {:ok, ThemeEditing.present(session)}
   end
 
-  defp call_tool("publish_theme_editing_session", %{"session_id" => session_id}, site) do
+  defp call_tool(
+         "publish_theme_editing_session",
+         %{"session_id" => session_id},
+         site,
+         _user
+       ) do
     with {:ok, theme} <- ThemeEditing.publish(session_id, site) do
       {:ok,
        %{
@@ -185,12 +238,84 @@ defmodule Gesttalt.MCP do
     end
   end
 
-  defp call_tool("discard_theme_editing_session", %{"session_id" => session_id}, site) do
+  defp call_tool(
+         "discard_theme_editing_session",
+         %{"session_id" => session_id},
+         site,
+         _user
+       ) do
     with :ok <- ThemeEditing.discard(session_id, site),
          do: {:ok, %{session_id: session_id, discarded: true}}
   end
 
-  defp call_tool(_name, _arguments, _site), do: {:error, :unknown_tool}
+  defp call_tool("get_publication", _arguments, site, _user),
+    do: {:ok, present_publication(site)}
+
+  defp call_tool("update_publication", arguments, site, _user) do
+    with {:ok, site} <- Sites.update_site(site, arguments),
+         do: {:ok, present_publication(site)}
+  end
+
+  defp call_tool("list_domains", _arguments, site, _user),
+    do: {:ok, Enum.map(Sites.list_domains(site), &present_domain/1)}
+
+  defp call_tool("add_custom_domain", %{"hostname" => hostname}, site, _user) do
+    with :ok <- Plans.authorize(site, :custom_domains),
+         {:ok, domain} <- Sites.add_custom_domain(site, %{hostname: hostname}) do
+      {:ok, present_domain(domain)}
+    end
+  end
+
+  defp call_tool("verify_custom_domain", %{"id" => id}, site, _user) do
+    case Enum.find(Sites.list_domains(site), &(&1.id == id and &1.kind == :custom)) do
+      nil ->
+        {:error, :not_found}
+
+      domain ->
+        with {:ok, domain} <- Sites.verify_domain(site, domain.id),
+             do: {:ok, present_domain(domain)}
+    end
+  end
+
+  defp call_tool("remove_custom_domain", %{"id" => id}, site, _user) do
+    with {:ok, domain} <- Sites.delete_domain(site, id),
+         do: {:ok, %{id: domain.id, hostname: domain.hostname, deleted: true}}
+  end
+
+  defp call_tool("list_connected_applications", _arguments, _site, user),
+    do: {:ok, Enum.map(ClientsManager.list_clients(user), &present_client/1)}
+
+  defp call_tool("create_connected_application", arguments, _site, user) do
+    with {:ok, client} <- ClientsManager.create_client(user, arguments),
+         do: {:ok, present_client(client, include_secret: true)}
+  end
+
+  defp call_tool("delete_connected_application", %{"id" => id}, _site, user) do
+    with {:ok, client} <- ClientsManager.delete_client(user, id),
+         do: {:ok, %{id: client.id, name: client.name, deleted: true}}
+  end
+
+  defp call_tool("get_billing", _arguments, site, _user),
+    do: {:ok, present_billing(site)}
+
+  defp call_tool("create_billing_checkout", _arguments, site, user) do
+    with false <- Plans.publisher?(site),
+         true <- Billing.configured?(),
+         {:ok, checkout_url} <- Billing.checkout_url(site, user.email, billing_return_url()) do
+      {:ok, %{checkout_url: checkout_url, requires_user_interaction: true}}
+    else
+      true -> {:error, :publisher_plan_already_active}
+      false -> {:error, :billing_not_configured}
+      error -> error
+    end
+  end
+
+  defp call_tool("create_billing_portal", _arguments, site, _user) do
+    with {:ok, portal_url} <- Billing.portal_url(site, billing_return_url()),
+         do: {:ok, %{portal_url: portal_url, requires_user_interaction: true}}
+  end
+
+  defp call_tool(_name, _arguments, _site, _user), do: {:error, :unknown_tool}
 
   defp tools do
     [
@@ -212,12 +337,28 @@ defmodule Gesttalt.MCP do
         |> Map.put(:required, ["id"])
       ),
       tool("publish_content", "Publish a post or page", %{id: integer_schema()}),
-      tool("upload_media", "Upload an image for use in published content on a paid plan", %{
-        filename: string_schema(),
-        content_base64: string_schema(),
-        content_type: string_schema(),
-        alt_text: string_schema()
+      tool("unpublish_content", "Move a published post or page back to drafts", %{
+        id: integer_schema()
       }),
+      tool("delete_content", "Permanently delete a post or page", %{id: integer_schema()}),
+      tool("list_media", "List every image in the publication media library", %{}),
+      tool(
+        "upload_media",
+        "Upload an image for use in published content on a paid plan",
+        %{
+          properties: %{
+            filename: string_schema(),
+            content_base64: string_schema(),
+            content_type: string_schema(),
+            alt_text: string_schema()
+          },
+          required: ["filename", "content_base64"]
+        }
+      ),
+      tool("delete_media", "Permanently delete an image from the media library", %{
+        id: integer_schema()
+      }),
+      tool("get_theme", "Get the active publication theme", %{}),
       tool(
         "create_theme_editing_session",
         "Create one of up to five isolated drafts from the active theme and return its live preview address, standard variables, and variable contract",
@@ -245,6 +386,58 @@ defmodule Gesttalt.MCP do
         "discard_theme_editing_session",
         "Discard a theme draft without changing the active theme",
         session_schema()
+      ),
+      tool("get_publication", "Get publication identity, plan, and address settings", %{}),
+      tool(
+        "update_publication",
+        "Update the publication name or tagline",
+        %{
+          properties: %{name: string_schema(), tagline: string_schema()},
+          required: []
+        }
+      ),
+      tool("list_domains", "List platform and custom domains with setup instructions", %{}),
+      tool("add_custom_domain", "Add a custom domain on a paid plan", %{
+        hostname: string_schema()
+      }),
+      tool(
+        "verify_custom_domain",
+        "Check the ownership and routing records for a custom domain",
+        %{
+          id: integer_schema()
+        }
+      ),
+      tool("remove_custom_domain", "Remove a custom domain", %{id: integer_schema()}),
+      tool(
+        "list_connected_applications",
+        "List authorization clients created by the publication owner",
+        %{}
+      ),
+      tool(
+        "create_connected_application",
+        "Create an authorization client and return its secret once",
+        %{
+          properties: %{
+            name: string_schema(),
+            redirect_uris: %{type: "array", items: string_schema(), minItems: 1},
+            confidential: boolean_schema()
+          },
+          required: ["name", "redirect_uris"]
+        }
+      ),
+      tool("delete_connected_application", "Delete an authorization client", %{
+        id: string_schema()
+      }),
+      tool("get_billing", "Get the current plan, subscription state, and price", %{}),
+      tool(
+        "create_billing_checkout",
+        "Create a hosted checkout address for the user to open and confirm",
+        %{}
+      ),
+      tool(
+        "create_billing_portal",
+        "Create a hosted billing portal address for the user to open",
+        %{}
       )
     ]
   end
@@ -276,14 +469,38 @@ defmodule Gesttalt.MCP do
     do: name |> String.replace("_", " ") |> String.capitalize()
 
   defp tool_annotations(name) do
-    read_only = name in ["list_content", "get_content", "get_theme_editing_session"]
+    read_only =
+      name in [
+        "list_content",
+        "get_content",
+        "list_media",
+        "get_theme",
+        "get_theme_editing_session",
+        "get_publication",
+        "list_domains",
+        "list_connected_applications",
+        "get_billing"
+      ]
+
+    destructive =
+      name in [
+        "delete_content",
+        "delete_media",
+        "publish_theme_editing_session",
+        "discard_theme_editing_session",
+        "remove_custom_domain",
+        "delete_connected_application"
+      ]
+
+    open_world =
+      name in ["verify_custom_domain", "create_billing_checkout", "create_billing_portal"]
 
     %{
       title: tool_title(name),
       readOnlyHint: read_only,
-      destructiveHint: name in ["publish_theme_editing_session", "discard_theme_editing_session"],
+      destructiveHint: destructive,
       idempotentHint: read_only,
-      openWorldHint: false
+      openWorldHint: open_world
     }
   end
 
@@ -293,9 +510,11 @@ defmodule Gesttalt.MCP do
         title: string_schema(),
         slug: string_schema(),
         excerpt: string_schema(),
+        tags: %{type: "array", items: string_schema()},
         body: string_schema(),
         kind: %{type: "string", enum: ["post", "page"]},
-        status: %{type: "string", enum: ["draft", "published"]}
+        status: %{type: "string", enum: ["draft", "published"]},
+        published_at: %{type: "string", format: "date-time"}
       },
       required: required
     }
@@ -314,6 +533,80 @@ defmodule Gesttalt.MCP do
 
   defp string_schema, do: %{type: "string"}
   defp integer_schema, do: %{type: "integer"}
+  defp boolean_schema, do: %{type: "boolean"}
+
+  defp present_image(image),
+    do: %{
+      id: image.id,
+      filename: image.filename,
+      content_type: image.content_type,
+      byte_size: image.byte_size,
+      alt_text: image.alt_text,
+      url: Sites.image_url(image),
+      markdown: "![#{image.alt_text || ""}](#{Sites.image_url(image)})"
+    }
+
+  defp present_publication(site),
+    do: %{
+      id: site.id,
+      name: site.name,
+      handle: site.handle,
+      tagline: site.tagline,
+      plan: Plans.tier(site),
+      domains: Enum.map(Sites.list_domains(site), &present_domain/1)
+    }
+
+  defp present_domain(domain) do
+    setup =
+      if domain.kind == :custom and domain.status == :pending do
+        %{
+          ownership_record: %{
+            type: "TXT",
+            name: "_gesttalt.#{domain.hostname}",
+            value: "gesttalt-domain=#{domain.verification_token}"
+          },
+          routing_record: %{
+            type: "CNAME",
+            name: domain.hostname,
+            value: Sites.custom_domain_target()
+          }
+        }
+      end
+
+    %{
+      id: domain.id,
+      hostname: domain.hostname,
+      kind: domain.kind,
+      status: domain.status,
+      verified_at: domain.verified_at,
+      setup: setup
+    }
+  end
+
+  defp present_client(client, opts \\ []) do
+    data = %{
+      id: client.id,
+      name: client.name,
+      redirect_uris: client.redirect_uris,
+      confidential: client.confidential,
+      inserted_at: client.inserted_at
+    }
+
+    if Keyword.get(opts, :include_secret), do: Map.put(data, :secret, client.secret), else: data
+  end
+
+  defp present_billing(site),
+    do: %{
+      plan: Plans.tier(site),
+      subscription_status: site.subscription_status,
+      complimentary: Plans.comped?(site),
+      cancel_at_period_end: site.cancel_at_period_end,
+      subscription_ends_at: site.subscription_ends_at,
+      monthly_price_euros: Billing.monthly_price_euros(),
+      billing_configured: Billing.configured?()
+    }
+
+  defp billing_return_url, do: GesttaltWeb.Endpoint.url() <> "/admin/billing"
 
   defp result(conn, id, value), do: respond(conn, %{jsonrpc: "2.0", id: id, result: value})
 
@@ -321,7 +614,7 @@ defmodule Gesttalt.MCP do
     do: respond(conn, %{jsonrpc: "2.0", id: id, error: %{code: code, message: message}})
 
   defp respond(conn, body),
-    do: conn |> put_resp_content_type("application/json") |> send_resp(200, Jason.encode!(body))
+    do: conn |> put_resp_content_type("application/json") |> send_resp(200, JSON.encode!(body))
 
   defp requested_protocol_version(conn) do
     case get_req_header(conn, "mcp-protocol-version") do
@@ -337,7 +630,7 @@ defmodule Gesttalt.MCP do
     |> put_resp_content_type("application/json")
     |> send_resp(
       400,
-      Jason.encode!(%{
+      JSON.encode!(%{
         jsonrpc: "2.0",
         id: nil,
         error: %{

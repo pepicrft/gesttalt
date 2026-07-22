@@ -59,7 +59,7 @@ defmodule GesttaltWeb.OAuthAuth do
       ~s(Bearer resource_metadata="#{metadata}", error="#{error}", scope="#{scope}")
     )
     |> put_resp_content_type("application/json")
-    |> send_resp(401, Jason.encode!(%{error: error}))
+    |> send_resp(401, JSON.encode!(%{error: error}))
     |> halt()
   end
 end

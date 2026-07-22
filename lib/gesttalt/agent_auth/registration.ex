@@ -15,6 +15,7 @@ defmodule Gesttalt.AgentAuth.Registration do
     field :claim_attempt_token_hash, :binary
     field :user_code_hash, :binary
     field :expires_at, :utc_datetime
+    field :claim_attempt_expires_at, :utc_datetime
     field :last_polled_at, :utc_datetime
     field :claimed_at, :utc_datetime
     field :registration_ip, :string
@@ -36,6 +37,7 @@ defmodule Gesttalt.AgentAuth.Registration do
       :claim_attempt_token_hash,
       :user_code_hash,
       :expires_at,
+      :claim_attempt_expires_at,
       :registration_ip
     ])
     |> validate_required([
@@ -46,7 +48,8 @@ defmodule Gesttalt.AgentAuth.Registration do
       :claim_token_hash,
       :claim_attempt_token_hash,
       :user_code_hash,
-      :expires_at
+      :expires_at,
+      :claim_attempt_expires_at
     ])
     |> unique_constraint(:public_id)
     |> unique_constraint(:claim_token_hash)
@@ -60,5 +63,22 @@ defmodule Gesttalt.AgentAuth.Registration do
   end
 
   def poll_changeset(registration, now), do: change(registration, last_polled_at: now)
+
+  def renew_claim_changeset(registration, attrs) do
+    registration
+    |> cast(attrs, [
+      :claim_attempt_token_hash,
+      :user_code_hash,
+      :claim_attempt_expires_at,
+      :last_polled_at
+    ])
+    |> validate_required([
+      :claim_attempt_token_hash,
+      :user_code_hash,
+      :claim_attempt_expires_at
+    ])
+    |> unique_constraint(:claim_attempt_token_hash)
+  end
+
   def expire_changeset(registration), do: change(registration, status: :expired)
 end

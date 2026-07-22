@@ -116,7 +116,8 @@ if config_env() == :prod do
     custom_domain_target: System.get_env("GESTTALT_CUSTOM_DOMAIN_TARGET", "domains.#{host}"),
     media_storage: media_storage,
     agent_auth: [
-      claim_ttl_seconds: 600,
+      registration_ttl_seconds: 86_400,
+      claim_attempt_ttl_seconds: 600,
       poll_interval_seconds: 5,
       assertion_ttl_seconds: 86_400,
       private_key_pem: System.get_env("GESTTALT_AGENT_AUTH_PRIVATE_KEY_PEM"),

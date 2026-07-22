@@ -55,7 +55,7 @@ defmodule Gesttalt.Billing do
   def process_webhook(raw_body, signature) do
     with {:ok, config} <- config(),
          :ok <- verify_signature(raw_body, signature, config[:webhook_secret]),
-         {:ok, event} <- Jason.decode(raw_body) do
+         {:ok, event} <- JSON.decode(raw_body) do
       apply_event(event)
     end
   end

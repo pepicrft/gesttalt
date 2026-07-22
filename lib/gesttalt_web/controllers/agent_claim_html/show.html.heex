@@ -26,7 +26,7 @@
       </header>
 
       <%= unless @confirmed do %>
-        <.form for={%{}} action={~p"/agent/identity/claim"} data-part="form">
+        <.form for={%{}} action={~p"/agent/identity/claim/confirm"} data-part="form">
           <input type="hidden" name="claim_attempt_token" value={@claim_attempt_token} />
           <label for="agent-claim-user-code">{dgettext("agent_auth", "Confirmation code")}</label>
           <input

@@ -65,7 +65,6 @@ defmodule Gesttalt.MixProject do
       {:opentelemetry_phoenix, "~> 2.0"},
       {:otel_metric_exporter, "~> 0.4.4"},
       {:gettext, "~> 1.0"},
-      {:jason, "~> 1.2"},
       {:mdex, "~> 0.13"},
       {:solid, "~> 1.3"},
       {:req, "~> 0.5"},

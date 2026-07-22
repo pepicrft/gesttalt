@@ -66,6 +66,7 @@ defmodule GesttaltWeb.Router do
     get "/.well-known/mcp/server-card.json", WellKnownController, :mcp_server_card
     get "/auth.md", AuthMarkdownController, :show
     post "/agent/identity", AgentIdentityController, :create
+    post "/agent/identity/claim", AgentIdentityController, :claim
   end
 
   scope "/oauth2", GesttaltWeb.OAuth do
@@ -168,7 +169,7 @@ defmodule GesttaltWeb.Router do
 
   scope "/", GesttaltWeb do
     pipe_through [:browser, :require_authenticated_user]
-    post "/agent/identity/claim", AgentClaimController, :update
+    post "/agent/identity/claim/confirm", AgentClaimController, :update
     get "/users/settings", UserSettingsController, :edit
     put "/users/settings", UserSettingsController, :update
     get "/users/settings/confirm-email/:token", UserSettingsController, :confirm_email

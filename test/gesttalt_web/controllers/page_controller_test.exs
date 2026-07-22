@@ -5,7 +5,8 @@ defmodule GesttaltWeb.PageControllerTest do
     conn = conn |> Map.put(:host, "gesttalt.test") |> get(~p"/")
     html = html_response(conn, 200)
 
-    assert html =~ "A simple blogging platform for the agentic world."
+    assert html =~ "A blog your agents can run. A publication you own."
+    assert html =~ "Manage the whole publication"
     assert html =~ ~s(href="/legal-notice")
     assert html =~ ~s(href="/privacy")
     assert html =~ ~s(href="/terms")
@@ -13,6 +14,14 @@ defmodule GesttaltWeb.PageControllerTest do
     assert html =~ ~s(href="/cancel")
     assert html =~ ~s(href="/report-illegal-content")
     assert html =~ ~s(href="/sitemap.xml")
+  end
+
+  test "GET /docs describes agent registration and dashboard tool parity", %{conn: conn} do
+    html = conn |> get(~p"/docs") |> html_response(200)
+
+    assert html =~ ~s(id="agent-registration")
+    assert html =~ "/.well-known/oauth-protected-resource/mcp"
+    assert html =~ "every publication action available in the dashboard"
   end
 
   test "GET public legal pages", %{conn: conn} do

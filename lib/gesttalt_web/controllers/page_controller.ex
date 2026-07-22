@@ -3,11 +3,11 @@ defmodule GesttaltWeb.PageController do
 
   def home(conn, _params) do
     render(conn, :home,
-      page_title: dgettext("marketing", "A simple blogging platform for the agentic world"),
+      page_title: dgettext("marketing", "A blog your agents can run"),
       meta_description:
         dgettext(
           "marketing",
-          "Publish from the web, an application, an automation, or an agent."
+          "Agent-native publishing for content, media, themes, domains, and the complete publication."
         )
     )
   end

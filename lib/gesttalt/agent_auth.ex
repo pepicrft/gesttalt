@@ -53,7 +53,8 @@ defmodule Gesttalt.AgentAuth do
       claim_token_hash: digest(claim_token),
       claim_attempt_token_hash: digest(claim_attempt_token),
       user_code_hash: digest(user_code),
-      expires_at: DateTime.add(now(), claim_ttl(), :second),
+      expires_at: DateTime.add(now(), registration_ttl(), :second),
+      claim_attempt_expires_at: DateTime.add(now(), claim_attempt_ttl(), :second),
       registration_ip: registration_ip
     }
 
@@ -79,9 +80,49 @@ defmodule Gesttalt.AgentAuth do
     Registration
     |> Repo.get_by(claim_attempt_token_hash: digest(claim_attempt_token))
     |> normalize_registration()
+    |> ensure_current_claim_attempt()
   end
 
   def get_claim_attempt(_claim_attempt_token), do: {:error, :invalid_claim_token}
+
+  def renew_service_claim(claim_token, email)
+      when is_binary(claim_token) and is_binary(email) do
+    email = email |> String.trim() |> String.downcase()
+
+    Repo.transaction(fn ->
+      with {:ok, registration} <- locked_claim_token(claim_token),
+           :ok <- ensure_pending(registration),
+           :ok <- ensure_claim_email(registration, email),
+           claim_attempt_token <- secret("cla_"),
+           user_code <- user_code(),
+           {:ok, registration} <-
+             registration
+             |> Registration.renew_claim_changeset(%{
+               claim_attempt_token_hash: digest(claim_attempt_token),
+               user_code_hash: digest(user_code),
+               claim_attempt_expires_at: DateTime.add(now(), claim_attempt_ttl(), :second),
+               last_polled_at: nil
+             })
+             |> Repo.update(),
+           {:ok, _event} <- record_event(registration, "claim.requested", %{"email" => email}),
+           {:ok, _event} <- record_event(registration, "user_code.minted") do
+        %{
+          registration: registration,
+          claim_attempt_token: claim_attempt_token,
+          user_code: user_code
+        }
+      else
+        {:error, :expired_token} -> Repo.rollback(:claim_expired)
+        {:error, reason} -> Repo.rollback(reason)
+      end
+    end)
+    |> case do
+      {:ok, result} -> {:ok, result}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  def renew_service_claim(_claim_token, _email), do: {:error, :invalid_request}
 
   def ensure_claim_user(%Registration{} = registration) do
     case Gesttalt.Accounts.get_user_by_email(registration.claim_email) do
@@ -356,7 +397,7 @@ defmodule Gesttalt.AgentAuth do
     {_, public} = key |> JOSE.JWK.to_public() |> JOSE.JWK.to_map()
 
     public
-    |> Jason.encode!()
+    |> JSON.encode!()
     |> digest()
     |> Base.url_encode64(padding: false)
     |> binary_part(0, 16)
@@ -368,6 +409,7 @@ defmodule Gesttalt.AgentAuth do
     |> lock("FOR UPDATE")
     |> Repo.one()
     |> normalize_registration()
+    |> ensure_current_claim_attempt()
   end
 
   defp locked_claim_token(token) do
@@ -397,12 +439,25 @@ defmodule Gesttalt.AgentAuth do
 
   defp normalize_registration(%Registration{}), do: {:error, :expired_token}
 
+  defp ensure_current_claim_attempt({:ok, %Registration{status: :claimed} = registration}),
+    do: {:ok, registration}
+
+  defp ensure_current_claim_attempt({:ok, %Registration{} = registration}) do
+    if claim_attempt_expired?(registration),
+      do: {:error, :expired_token},
+      else: {:ok, registration}
+  end
+
+  defp ensure_current_claim_attempt(error), do: error
+
   defp allow_claim_exchange(%Registration{status: :claimed}), do: :ok
 
   defp allow_claim_exchange(%Registration{status: :pending} = registration) do
-    if polled_too_quickly?(registration),
-      do: {:error, :slow_down},
-      else: {:pending, registration}
+    cond do
+      claim_attempt_expired?(registration) -> {:error, :expired_token}
+      polled_too_quickly?(registration) -> {:error, :slow_down}
+      true -> {:pending, registration}
+    end
   end
 
   defp polled_too_quickly?(%Registration{last_polled_at: nil}), do: false
@@ -413,6 +468,9 @@ defmodule Gesttalt.AgentAuth do
 
   defp ensure_pending(%Registration{status: :pending}), do: :ok
   defp ensure_pending(%Registration{status: :claimed}), do: {:error, :already_claimed}
+
+  defp ensure_claim_email(%Registration{claim_email: email}, email), do: :ok
+  defp ensure_claim_email(_registration, _email), do: {:error, :invalid_claim_token}
 
   defp ensure_same_user(%Registration{claim_email: email}, %User{email: email}), do: :ok
   defp ensure_same_user(_registration, _user), do: {:error, :account_mismatch}
@@ -466,8 +524,13 @@ defmodule Gesttalt.AgentAuth do
   defp validate_resource(""), do: :ok
 
   defp validate_resource(resource) do
-    if resource == issuer(), do: :ok, else: {:error, :invalid_target}
+    if resource in [issuer(), issuer() <> "/mcp"], do: :ok, else: {:error, :invalid_target}
   end
+
+  defp claim_attempt_expired?(%Registration{claim_attempt_expires_at: nil}), do: false
+
+  defp claim_attempt_expired?(%Registration{claim_attempt_expires_at: expires_at}),
+    do: not DateTime.after?(expires_at, now())
 
   defp record_event(registration, name, metadata \\ %{}) do
     registration |> Event.changeset(name, metadata) |> Repo.insert()
@@ -495,7 +558,8 @@ defmodule Gesttalt.AgentAuth do
   end
 
   defp config, do: Application.get_env(:gesttalt, :agent_auth, [])
-  defp claim_ttl, do: config()[:claim_ttl_seconds] || 600
+  defp registration_ttl, do: config()[:registration_ttl_seconds] || 86_400
+  defp claim_attempt_ttl, do: config()[:claim_attempt_ttl_seconds] || 600
   defp assertion_ttl, do: config()[:assertion_ttl_seconds] || 86_400
   defp issuer, do: GesttaltWeb.Endpoint.url()
   defp now, do: DateTime.utc_now() |> DateTime.truncate(:second)

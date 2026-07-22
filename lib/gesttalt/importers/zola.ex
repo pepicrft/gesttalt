@@ -62,7 +62,7 @@ defmodule Gesttalt.Importers.Zola do
   end
 
   defp parse_value("\"" <> _rest = value) do
-    case Jason.decode(value) do
+    case JSON.decode(value) do
       {:ok, decoded} -> decoded
       _ -> String.trim(value, "\"")
     end

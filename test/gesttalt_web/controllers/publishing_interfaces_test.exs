@@ -45,7 +45,7 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
       |> put_req_header("content-type", "application/json")
       |> post(
         ~p"/oauth2/register",
-        Jason.encode!(%{
+        JSON.encode!(%{
           client_name: "Mobile writer",
           redirect_uris: ["gesttalt-mobile://oauth/callback"],
           grant_types: ["authorization_code", "refresh_token"],
@@ -65,7 +65,7 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
       |> put_req_header("content-type", "application/json")
       |> post(
         ~p"/oauth2/register",
-        Jason.encode!(%{
+        JSON.encode!(%{
           client_name: "Claude",
           redirect_uris: ["https://claude.ai/api/mcp/auth_callback"]
         })
@@ -94,7 +94,7 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
       |> put_req_header("content-type", "application/json")
       |> post(
         ~p"/oauth2/register",
-        Jason.encode!(%{
+        JSON.encode!(%{
           client_name: "Confidential writer",
           redirect_uris: ["https://writer.example/oauth/callback"],
           grant_types: ["authorization_code", "refresh_token"],
@@ -149,7 +149,7 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
       |> recycle()
       |> put_req_header("authorization", "Bearer #{token}")
       |> put_req_header("content-type", "application/json")
-      |> post(~p"/api/posts", Jason.encode!(%{title: "Free draft", body: "Not yet"}))
+      |> post(~p"/api/posts", JSON.encode!(%{title: "Free draft", body: "Not yet"}))
       |> json_response(201)
 
     assert write_response["title"] == "Free draft"
@@ -160,16 +160,33 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
       conn
       |> put_req_header("authorization", "Bearer #{token}")
       |> put_req_header("content-type", "application/json")
-      |> post(~p"/mcp", Jason.encode!(%{jsonrpc: "2.0", id: 1, method: "tools/list"}))
+      |> post(~p"/mcp", JSON.encode!(%{jsonrpc: "2.0", id: 1, method: "tools/list"}))
       |> json_response(200)
 
     names = Enum.map(response["result"]["tools"], & &1["name"])
     assert "create_content" in names
     assert "publish_content" in names
+    assert "unpublish_content" in names
+    assert "delete_content" in names
+    assert "list_media" in names
+    assert "delete_media" in names
+    assert "get_theme" in names
     assert "create_theme_editing_session" in names
     assert "update_theme_editing_session" in names
     assert "publish_theme_editing_session" in names
     assert "discard_theme_editing_session" in names
+    assert "get_publication" in names
+    assert "update_publication" in names
+    assert "list_domains" in names
+    assert "add_custom_domain" in names
+    assert "verify_custom_domain" in names
+    assert "remove_custom_domain" in names
+    assert "list_connected_applications" in names
+    assert "create_connected_application" in names
+    assert "delete_connected_application" in names
+    assert "get_billing" in names
+    assert "create_billing_checkout" in names
+    assert "create_billing_portal" in names
     refute "publish_theme" in names
 
     update_tool =
@@ -183,6 +200,86 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
       Enum.find(response["result"]["tools"], &(&1["name"] == "publish_theme_editing_session"))
 
     assert publish_tool["annotations"]["destructiveHint"]
+  end
+
+  test "manages dashboard publication features through tools", %{
+    conn: conn,
+    site: site,
+    token: token
+  } do
+    publication = call_tool(conn, token, 1, "get_publication")
+    assert publication["id"] == site.id
+    assert publication["plan"] == "publisher"
+
+    updated =
+      call_tool(conn, token, 2, "update_publication", %{
+        name: "Agent managed publication",
+        tagline: "Managed through conversation."
+      })
+
+    assert updated["name"] == "Agent managed publication"
+    assert updated["tagline"] == "Managed through conversation."
+
+    created =
+      call_tool(conn, token, 3, "create_content", %{
+        title: "A complete agent workflow",
+        body: "Created through the tool server.",
+        tags: ["agents", "publishing"],
+        status: "published"
+      })
+
+    assert created["tags"] == ["agents", "publishing"]
+    assert created["status"] == "published"
+
+    unpublished = call_tool(conn, token, 4, "unpublish_content", %{id: created["id"]})
+    assert unpublished["status"] == "draft"
+    assert call_tool(conn, token, 5, "delete_content", %{id: created["id"]})["deleted"]
+    refute Publishing.get_post(site, created["id"])
+
+    image =
+      call_tool(conn, token, 6, "upload_media", %{
+        filename: "agent-image.png",
+        content_base64: Base.encode64("image contents"),
+        content_type: "image/png",
+        alt_text: "Uploaded by an agent"
+      })
+
+    assert image["markdown"] =~ "Uploaded by an agent"
+    assert Enum.any?(call_tool(conn, token, 7, "list_media"), &(&1["id"] == image["id"]))
+    assert call_tool(conn, token, 8, "delete_media", %{id: image["id"]})["deleted"]
+
+    theme = call_tool(conn, token, 9, "get_theme")
+    assert theme["name"] == "Paper"
+    assert theme["variables"]["colors"]["primary"]
+
+    domain =
+      call_tool(conn, token, 10, "add_custom_domain", %{hostname: "agent.example.com"})
+
+    assert domain["setup"]["ownership_record"]["name"] == "_gesttalt.agent.example.com"
+    assert Enum.any?(call_tool(conn, token, 11, "list_domains"), &(&1["id"] == domain["id"]))
+    assert call_tool(conn, token, 12, "remove_custom_domain", %{id: domain["id"]})["deleted"]
+
+    client =
+      call_tool(conn, token, 13, "create_connected_application", %{
+        name: "Agent-created client",
+        redirect_uris: ["https://agent.example/callback"],
+        confidential: true
+      })
+
+    assert client["secret"]
+
+    assert Enum.any?(
+             call_tool(conn, token, 14, "list_connected_applications"),
+             &(&1["id"] == client["id"])
+           )
+
+    assert call_tool(conn, token, 15, "delete_connected_application", %{id: client["id"]})[
+             "deleted"
+           ]
+
+    billing = call_tool(conn, token, 16, "get_billing")
+    assert billing["plan"] == "publisher"
+    assert billing["monthly_price_euros"] == 5
   end
 
   test "supports the streamable transport lifecycle used by agents", %{conn: conn, token: token} do
@@ -289,7 +386,7 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
       |> put_req_header("content-type", "application/json")
       |> post(
         ~p"/mcp",
-        Jason.encode!(%{
+        JSON.encode!(%{
           jsonrpc: "2.0",
           id: id,
           method: "tools/call",
@@ -300,6 +397,6 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
 
     [content] = response["result"]["content"]
     refute response["result"]["isError"]
-    Jason.decode!(content["text"])
+    JSON.decode!(content["text"])
   end
 end

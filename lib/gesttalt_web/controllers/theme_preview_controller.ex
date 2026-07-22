@@ -154,7 +154,7 @@ defmodule GesttaltWeb.ThemePreviewController do
     <script>
       (() => {
         let revision = #{session.revision};
-        const changes = new EventSource(#{Jason.encode!(ThemeEditing.preview_path(session.id) <> "/events")});
+        const changes = new EventSource(#{JSON.encode!(ThemeEditing.preview_path(session.id) <> "/events")});
         const reloadForRevision = event => {
           const nextRevision = Number(event.data);
           if (nextRevision > revision) window.location.reload();

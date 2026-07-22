@@ -10,6 +10,7 @@ defmodule Gesttalt.Publishing.PostJSON do
       title: post.title,
       slug: post.slug,
       excerpt: post.excerpt,
+      tags: post.tags,
       body: post.body,
       kind: post.kind,
       status: post.status,

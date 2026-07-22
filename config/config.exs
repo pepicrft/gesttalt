@@ -39,7 +39,8 @@ config :gesttalt,
     uploads_dir: Path.expand("../priv/uploads", __DIR__)
   ],
   agent_auth: [
-    claim_ttl_seconds: 600,
+    registration_ttl_seconds: 86_400,
+    claim_attempt_ttl_seconds: 600,
     poll_interval_seconds: 5,
     assertion_ttl_seconds: 86_400,
     allow_ephemeral_signing_key: true
@@ -84,8 +85,8 @@ config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-# Use Jason for JSON parsing in Phoenix
-config :phoenix, :json_library, Jason
+# Use Elixir's built-in JSON module for parsing in Phoenix
+config :phoenix, :json_library, JSON
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

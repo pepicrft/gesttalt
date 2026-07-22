@@ -56,7 +56,7 @@ defmodule GesttaltWeb.AgentAuthTest do
       claim_page
       |> recycle()
       |> log_in_user(user)
-      |> post(~p"/agent/identity/claim", %{
+      |> post(~p"/agent/identity/claim/confirm", %{
         "claim_attempt_token" => query_value(claim_path, "claim_attempt_token"),
         "user_code" => registration["claim"]["user_code"]
       })
@@ -84,7 +84,7 @@ defmodule GesttaltWeb.AgentAuthTest do
       |> put_req_header("content-type", "application/json")
       |> post(
         ~p"/mcp",
-        Jason.encode!(%{
+        JSON.encode!(%{
           jsonrpc: "2.0",
           id: 1,
           method: "initialize",
@@ -113,7 +113,7 @@ defmodule GesttaltWeb.AgentAuthTest do
       |> post(~p"/oauth2/token", %{
         "grant_type" => @jwt_bearer_grant,
         "assertion" => token_response["identity_assertion"],
-        "resource" => GesttaltWeb.Endpoint.url()
+        "resource" => GesttaltWeb.Endpoint.url() <> "/mcp"
       })
       |> json_response(200)
 
@@ -135,7 +135,7 @@ defmodule GesttaltWeb.AgentAuthTest do
       |> recycle()
       |> put_req_header("authorization", "Bearer #{access_token}")
       |> put_req_header("content-type", "application/json")
-      |> post(~p"/mcp", Jason.encode!(%{jsonrpc: "2.0", id: 5, method: "tools/list"}))
+      |> post(~p"/mcp", JSON.encode!(%{jsonrpc: "2.0", id: 5, method: "tools/list"}))
 
     assert json_response(revoked_request, 401)["error"] == "invalid_token"
     assert Repo.exists?(from event in Event, where: event.name == "token.revoked")
@@ -157,6 +157,12 @@ defmodule GesttaltWeb.AgentAuthTest do
 
     assert metadata["agent_auth"]["skill"] == GesttaltWeb.Endpoint.url() <> "/auth.md"
     assert metadata["agent_auth"]["identity_types_supported"] == ["service_auth"]
+
+    assert metadata["agent_auth"]["claim_endpoint"] ==
+             GesttaltWeb.Endpoint.url() <> "/agent/identity/claim"
+
+    assert metadata["resource"] == GesttaltWeb.Endpoint.url()
+    assert metadata["resource_logo_uri"] == GesttaltWeb.Endpoint.url() <> "/images/logo.svg"
     assert @claim_grant in metadata["grant_types_supported"]
     assert @jwt_bearer_grant in metadata["grant_types_supported"]
 
@@ -178,7 +184,8 @@ defmodule GesttaltWeb.AgentAuthTest do
 
     auth_document = conn |> recycle() |> get(~p"/auth.md") |> response(200)
     assert auth_document =~ "POST #{GesttaltWeb.Endpoint.url()}/agent/identity"
-    assert auth_document =~ "create_content"
+    assert auth_document =~ "POST #{GesttaltWeb.Endpoint.url()}/agent/identity/claim"
+    assert auth_document =~ "complete agent management server"
 
     user = AccountsFixtures.user_fixture()
     {:ok, _site} = Sites.ensure_site_for_user(user)
@@ -190,9 +197,80 @@ defmodule GesttaltWeb.AgentAuthTest do
       |> put_req_header("authorization", "Bearer #{registration["access_token"]}")
       |> put_req_header("content-type", "application/json")
       |> put_req_header("mcp-protocol-version", "1900-01-01")
-      |> post(~p"/mcp", Jason.encode!(%{jsonrpc: "2.0", id: 1, method: "tools/list"}))
+      |> post(~p"/mcp", JSON.encode!(%{jsonrpc: "2.0", id: 1, method: "tools/list"}))
 
     assert json_response(unsupported, 400)["error"]["code"] == -32_600
+  end
+
+  test "renews the user-code ceremony without restarting registration", %{conn: conn} do
+    user = AccountsFixtures.user_fixture()
+    registration = register_agent(conn, user.email)
+    original_path = verification_path(registration)
+
+    renewed =
+      conn
+      |> recycle()
+      |> put_req_header("content-type", "application/json")
+      |> post(
+        ~p"/agent/identity/claim",
+        JSON.encode!(%{claim_token: registration["claim_token"], email: user.email})
+      )
+      |> json_response(200)
+
+    assert renewed["registration_id"] == registration["registration_id"]
+    assert renewed["status"] == "initiated"
+    assert renewed["claim_attempt_id"] =~ "cla_"
+    assert renewed["claim_attempt"]["user_code"] != registration["claim"]["user_code"]
+
+    old_claim = conn |> recycle() |> log_in_user(user) |> get(original_path)
+    assert html_response(old_claim, 404) =~ "invalid or has expired"
+
+    renewed_uri = URI.parse(renewed["claim_attempt"]["verification_uri"])
+    renewed_path = renewed_uri.path <> "?" <> renewed_uri.query
+
+    confirmation =
+      conn
+      |> recycle()
+      |> log_in_user(user)
+      |> post(~p"/agent/identity/claim/confirm", %{
+        "claim_attempt_token" => query_value(renewed_path, "claim_attempt_token"),
+        "user_code" => renewed["claim_attempt"]["user_code"]
+      })
+
+    assert html_response(confirmation, 200) =~ "Access confirmed"
+
+    token_response =
+      conn
+      |> recycle()
+      |> post(~p"/oauth2/token", %{
+        "grant_type" => @claim_grant,
+        "claim_token" => registration["claim_token"]
+      })
+      |> json_response(200)
+
+    assert token_response["access_token"]
+  end
+
+  test "returns protocol error codes for unsupported identity methods", %{conn: conn} do
+    anonymous =
+      conn
+      |> put_req_header("content-type", "application/json")
+      |> post(~p"/agent/identity", JSON.encode!(%{type: "anonymous"}))
+      |> json_response(400)
+
+    assert anonymous["error"] == "anonymous_not_enabled"
+
+    identity_assertion =
+      conn
+      |> recycle()
+      |> put_req_header("content-type", "application/json")
+      |> post(
+        ~p"/agent/identity",
+        JSON.encode!(%{type: "identity_assertion", assertion: "not-a-token"})
+      )
+      |> json_response(400)
+
+    assert identity_assertion["error"] == "issuer_not_enabled"
   end
 
   defp register_and_claim(conn, user) do
@@ -202,7 +280,7 @@ defmodule GesttaltWeb.AgentAuthTest do
     conn
     |> recycle()
     |> log_in_user(user)
-    |> post(~p"/agent/identity/claim", %{
+    |> post(~p"/agent/identity/claim/confirm", %{
       "claim_attempt_token" => query_value(claim_path, "claim_attempt_token"),
       "user_code" => registration["claim"]["user_code"]
     })
@@ -222,7 +300,7 @@ defmodule GesttaltWeb.AgentAuthTest do
     |> put_req_header("content-type", "application/json")
     |> post(
       ~p"/agent/identity",
-      Jason.encode!(%{type: "service_auth", login_hint: email})
+      JSON.encode!(%{type: "service_auth", login_hint: email})
     )
     |> json_response(200)
   end
@@ -244,7 +322,7 @@ defmodule GesttaltWeb.AgentAuthTest do
       |> put_req_header("content-type", "application/json")
       |> post(
         ~p"/mcp",
-        Jason.encode!(%{
+        JSON.encode!(%{
           jsonrpc: "2.0",
           id: id,
           method: "tools/call",
@@ -254,6 +332,6 @@ defmodule GesttaltWeb.AgentAuthTest do
       |> json_response(200)
 
     [content] = response["result"]["content"]
-    Jason.decode!(content["text"])
+    JSON.decode!(content["text"])
   end
 end
