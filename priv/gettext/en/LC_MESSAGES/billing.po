@@ -119,7 +119,7 @@ msgstr ""
 msgid "Upgrade for €%{price} per month"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/site_settings_controller.ex:53
+#: lib/gesttalt_web/controllers/site_settings_controller.ex:51
 #, elixir-autogen, elixir-format
 msgid "Upgrade to the Publisher plan to connect a custom domain."
 msgstr ""
