@@ -53,9 +53,16 @@
             Theme editing happens entirely through the <a href="https://modelcontextprotocol.io/">Model Context Protocol</a>. Ask your agent to call <code>create_theme_editing_session</code>. It receives an isolated copy of the active theme, the standard variable contract, and a preview address you can open beside the conversation.
           </p><p>
             Calls to <code>update_theme_editing_session</code>
-            accept partial variable changes, preserve omitted values, change only that in-process draft, and refresh every connected preview through Phoenix LiveView. The preview carries a visible editing sign until the session ends. The variables cover semantic colors, font families and scales, spacing, radii, sizes, and shadows. They adapt the
+            accept partial variable changes, preserve omitted values, store the draft durably across deployments, and refresh every connected preview through Phoenix LiveView. The preview carries a visible editing sign until the session ends. The variables cover semantic colors, font families and scales, spacing, radii, sizes, and shadows. They adapt the
             <a href="https://theme-ui.com/theme-spec">Theme UI (user interface) theme specification</a>
             to stable Cascading Style Sheets custom properties.
+          </p><p>
+            <code>list_theme_preview_clients</code>
+            reports every connected browser, its current page, viewport, and screenshot permission.
+            <code>navigate_theme_preview</code>
+            moves one of those browsers to a published home, article, or page path. Select
+            <em>Allow screenshots</em>
+            in the preview before calling <code>capture_theme_preview</code>. The returned image comes from the browser tab and is not retained by the editing session.
           </p><p>
             Prefer variables for visual decisions and the stylesheet for component rules. The three Liquid templates define route-specific document structure:
             <code>index_template</code>

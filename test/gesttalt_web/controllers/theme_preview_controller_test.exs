@@ -29,7 +29,7 @@ defmodule GesttaltWeb.ThemePreviewControllerTest do
 
     {:ok, session} = ThemeEditing.create(site)
 
-    on_exit(fn -> ThemeEditing.discard(session.id, site) end)
+    on_exit(fn -> terminate_session(session.id) end)
 
     %{page: page, post: post, session: session, site: site}
   end
@@ -90,6 +90,76 @@ defmodule GesttaltWeb.ThemePreviewControllerTest do
     assert html =~ "body { background: papayawhip; }"
     assert html =~ "Live preview · Revision 1"
     assert html =~ ~s(data-state="editing")
+  end
+
+  test "reports its current page and accepts remote navigation", %{
+    conn: conn,
+    post: post,
+    session: session,
+    site: site
+  } do
+    {:ok, view, _html} = live(conn, "/theme-previews/#{session.id}")
+
+    assert {:ok, [preview]} = ThemeEditing.list_previews(session.id, site)
+    assert preview.path == "/"
+    assert preview.page["kind"] == "home"
+
+    assert {:ok, navigated} =
+             ThemeEditing.navigate_preview(
+               session.id,
+               site,
+               preview.client_id,
+               "/blog/#{post.slug}"
+             )
+
+    assert navigated.path == "/blog/#{post.slug}"
+
+    assert_eventually(fn ->
+      html = render(view)
+      html =~ "Previewed post" and html =~ ~s(data-path="/blog/#{post.slug}")
+    end)
+
+    assert {:ok, [current_preview]} = ThemeEditing.list_previews(session.id, site)
+    assert current_preview.path == "/blog/#{post.slug}"
+    assert current_preview.page["title"] == "Previewed post"
+  end
+
+  test "uploads a permitted browser screenshot for a waiting request", %{
+    conn: conn,
+    session: session,
+    site: site
+  } do
+    {:ok, view, _html} = live(conn, "/theme-previews/#{session.id}")
+    assert {:ok, [preview]} = ThemeEditing.list_previews(session.id, site)
+
+    render_hook(view, "theme-preview-screenshot-access", %{"enabled" => true})
+
+    capture =
+      Task.async(fn ->
+        ThemeEditing.capture_preview(session.id, site, preview.client_id)
+      end)
+
+    assert_push_event view, "theme-preview:capture", %{request_id: request_id}
+
+    filename = "#{request_id}--2x1.png"
+
+    upload =
+      file_input(view, "#theme-preview-screenshot-upload", :theme_preview_screenshot, [
+        %{
+          content: "client png",
+          last_modified: 1_700_000_000_000,
+          name: filename,
+          type: "image/png"
+        }
+      ])
+
+    render_upload(upload, filename)
+
+    assert {:ok, screenshot} = Task.await(capture)
+    assert screenshot.data == "client png"
+    assert screenshot.width == 2
+    assert screenshot.height == 1
+    assert screenshot.client_id == preview.client_id
   end
 
   test "keeps live refresh available while a draft cannot render", %{
@@ -157,5 +227,28 @@ defmodule GesttaltWeb.ThemePreviewControllerTest do
 
     conn = get(conn, "/theme-previews/#{session.id}")
     assert response(conn, 404) =~ "not found or expired"
+  end
+
+  defp assert_eventually(assertion, attempts \\ 20)
+
+  defp assert_eventually(assertion, attempts) when attempts > 0 do
+    if assertion.() do
+      assert true
+    else
+      Process.sleep(10)
+      assert_eventually(assertion, attempts - 1)
+    end
+  end
+
+  defp assert_eventually(_assertion, 0), do: flunk("condition did not become true")
+
+  defp terminate_session(session_id) do
+    case Registry.lookup(Gesttalt.ThemeEditing.SessionRegistry, session_id) do
+      [{process, _value}] ->
+        DynamicSupervisor.terminate_child(Gesttalt.ThemeEditing.SessionSupervisor, process)
+
+      [] ->
+        :ok
+    end
   end
 end

@@ -15,7 +15,6 @@ defmodule Gesttalt.Application do
       {DNSCluster, query: Application.get_env(:gesttalt, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Gesttalt.PubSub},
       {Registry, keys: :unique, name: Gesttalt.ThemeEditing.SessionRegistry},
-      {Registry, keys: :unique, name: Gesttalt.ThemeEditing.SlotRegistry},
       {DynamicSupervisor, strategy: :one_for_one, name: Gesttalt.ThemeEditing.SessionSupervisor},
       # Start a worker by calling: Gesttalt.Worker.start_link(arg)
       # {Gesttalt.Worker, arg},
