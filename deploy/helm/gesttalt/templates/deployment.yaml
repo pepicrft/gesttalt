@@ -2,8 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "gesttalt.fullname" . }}
+  annotations:
+    hermes.pepicrft.com/elixir-container: web
+    hermes.pepicrft.com/elixir-release: {{ .Chart.Name | quote }}
   labels:
     {{- include "gesttalt.labels" . | nindent 4 }}
+    hermes.pepicrft.com/production-elixir-console: enabled
 spec:
   replicas: {{ .Values.replicaCount }}
   revisionHistoryLimit: 3
