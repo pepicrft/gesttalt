@@ -82,6 +82,12 @@ defmodule Gesttalt.MCP do
            conn.assigns.current_site,
            conn.assigns.current_user
          ) do
+      {:ok, value, additional_content} ->
+        result(conn, id, %{
+          content: [%{type: "text", text: JSON.encode!(value)} | additional_content],
+          structuredContent: %{result: value}
+        })
+
       {:ok, value} ->
         result(conn, id, %{
           content: [%{type: "text", text: JSON.encode!(value)}],
@@ -209,6 +215,44 @@ defmodule Gesttalt.MCP do
   defp call_tool("get_theme_editing_session", %{"session_id" => session_id}, site, _user) do
     with {:ok, session} <- ThemeEditing.fetch(session_id, site),
          do: {:ok, ThemeEditing.present(session)}
+  end
+
+  defp call_tool("list_theme_preview_clients", %{"session_id" => session_id}, site, _user) do
+    with {:ok, previews} <- ThemeEditing.list_previews(session_id, site),
+         do: {:ok, %{session_id: session_id, previews: previews}}
+  end
+
+  defp call_tool(
+         "navigate_theme_preview",
+         %{"path" => path, "session_id" => session_id} = arguments,
+         site,
+         _user
+       ) do
+    with {:ok, preview} <-
+           ThemeEditing.navigate_preview(session_id, site, arguments["client_id"], path),
+         do: {:ok, %{preview: preview, session_id: session_id}}
+  end
+
+  defp call_tool(
+         "capture_theme_preview",
+         %{"session_id" => session_id} = arguments,
+         site,
+         _user
+       ) do
+    with {:ok, screenshot} <-
+           ThemeEditing.capture_preview(session_id, site, arguments["client_id"]) do
+      {data, screenshot} = Map.pop!(screenshot, :data)
+      screenshot = Map.update!(screenshot, :captured_at, &DateTime.to_iso8601/1)
+
+      {:ok, screenshot,
+       [
+         %{
+           type: "image",
+           data: Base.encode64(data),
+           mimeType: screenshot.mime_type
+         }
+       ]}
+    end
   end
 
   defp call_tool(
@@ -361,17 +405,42 @@ defmodule Gesttalt.MCP do
       tool("get_theme", "Get the active publication theme", %{}),
       tool(
         "create_theme_editing_session",
-        "Create one of up to five isolated drafts from the active theme and return its live preview address, standard variables, and variable contract",
+        "Create one of up to five durable, isolated drafts from the active theme and return its live preview address, standard variables, and variable contract. Draft revisions survive application deployments",
         %{properties: %{}, required: []}
       ),
       tool(
         "get_theme_editing_session",
-        "Get the current theme draft, preview address, and revision",
+        "Get the current theme draft, preview address, revision, and connected browser previews",
         session_schema()
       ),
       tool(
+        "list_theme_preview_clients",
+        "List connected browser previews with their current page, viewport, and screenshot permission",
+        session_schema()
+      ),
+      tool(
+        "navigate_theme_preview",
+        "Navigate one connected browser preview to a public path such as /, /blog/my-post, or /about. The client identifier is optional when exactly one preview is connected",
+        %{
+          properties: %{
+            session_id: string_schema(),
+            client_id: string_schema(),
+            path: string_schema()
+          },
+          required: ["session_id", "path"]
+        }
+      ),
+      tool(
+        "capture_theme_preview",
+        "Capture the current connected browser preview after the user has enabled screenshot access. The client identifier is optional when exactly one preview is connected",
+        %{
+          properties: %{session_id: string_schema(), client_id: string_schema()},
+          required: ["session_id"]
+        }
+      ),
+      tool(
         "update_theme_editing_session",
-        "Apply partial standard-variable, stylesheet, or Liquid route-template changes to a theme draft and reload its open preview",
+        "Apply partial standard-variable, stylesheet, or Liquid route-template changes to a theme draft and refresh its open preview",
         %{
           properties: Map.put(theme_properties(), :session_id, string_schema()),
           required: ["session_id"]
@@ -476,6 +545,8 @@ defmodule Gesttalt.MCP do
         "list_media",
         "get_theme",
         "get_theme_editing_session",
+        "list_theme_preview_clients",
+        "capture_theme_preview",
         "get_publication",
         "list_domains",
         "list_connected_applications",
@@ -499,7 +570,7 @@ defmodule Gesttalt.MCP do
       title: tool_title(name),
       readOnlyHint: read_only,
       destructiveHint: destructive,
-      idempotentHint: read_only,
+      idempotentHint: read_only and name != "capture_theme_preview",
       openWorldHint: open_world
     }
   end

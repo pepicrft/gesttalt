@@ -4,6 +4,7 @@ defmodule Gesttalt.ThemeEditingTest do
   alias Gesttalt.AccountsFixtures
   alias Gesttalt.Sites
   alias Gesttalt.ThemeEditing
+  alias Gesttalt.ThemeEditing.StoredSession
 
   setup do
     site = AccountsFixtures.site_fixture()
@@ -11,7 +12,7 @@ defmodule Gesttalt.ThemeEditingTest do
     {:ok, session} = ThemeEditing.create(site)
 
     on_exit(fn ->
-      _result = ThemeEditing.discard(session.id, site)
+      terminate_session(session.id)
     end)
 
     %{session: session, site: site}
@@ -43,7 +44,7 @@ defmodule Gesttalt.ThemeEditingTest do
     assert published_theme.name == "Conversation"
     assert Sites.get_theme!(site).stylesheet == "body { color: rebeccapurple; }"
     assert Sites.get_theme!(site).variables["colors"]["primary"] == "#d73a49"
-    assert_receive :theme_editing_session_closed
+    assert_receive {:theme_editing_session_closed, :published}
     assert {:error, :not_found} = ThemeEditing.fetch(session.id)
   end
 
@@ -104,7 +105,138 @@ defmodule Gesttalt.ThemeEditingTest do
     assert {:ok, %{revision: 12}} = ThemeEditing.fetch(session.id, site)
   end
 
-  test "caps concurrent in-memory drafts per publication", %{session: first_session, site: site} do
+  test "tracks connected browser previews and navigates a selected client", %{
+    session: session,
+    site: site
+  } do
+    test_process = self()
+
+    client =
+      spawn(fn ->
+        receive do
+          {:theme_preview_navigate, page} ->
+            send(test_process, {:preview_navigated, page})
+        end
+      end)
+
+    assert {:ok, _client} =
+             ThemeEditing.connect_preview(
+               session.id,
+               site,
+               "browser-client-0001",
+               client,
+               %{
+                 page: %{"kind" => "home", "title" => site.name},
+                 path: "/",
+                 preview_path: ThemeEditing.preview_path(session.id),
+                 screenshots_enabled: false,
+                 viewport: %{device_pixel_ratio: 2, height: 800, width: 1_200}
+               }
+             )
+
+    assert {:ok, [preview]} = ThemeEditing.list_previews(session.id, site)
+    assert preview.client_id == "browser-client-0001"
+    assert preview.path == "/"
+    assert preview.viewport.width == 1_200
+    refute preview.screenshots_enabled
+
+    assert {:ok, navigated} =
+             ThemeEditing.navigate_preview(
+               session.id,
+               site,
+               "browser-client-0001",
+               "/"
+             )
+
+    assert navigated.page == %{"kind" => "home", "title" => site.name}
+    assert_receive {:preview_navigated, %{"kind" => "home"}}
+
+    assert_eventually(fn -> ThemeEditing.list_previews(session.id, site) == {:ok, []} end)
+  end
+
+  test "returns a client-provided screenshot without retaining its bytes", %{
+    session: session,
+    site: site
+  } do
+    test_process = self()
+
+    client =
+      spawn(fn ->
+        receive do
+          {:theme_preview_capture, request_id} ->
+            result =
+              ThemeEditing.complete_preview_screenshot(
+                session.id,
+                "browser-client-0002",
+                request_id,
+                %{
+                  data: "png image bytes",
+                  height: 720,
+                  mime_type: "image/png",
+                  width: 1_280
+                }
+              )
+
+            send(test_process, {:screenshot_completed, result})
+        end
+      end)
+
+    assert {:ok, _client} =
+             ThemeEditing.connect_preview(
+               session.id,
+               site,
+               "browser-client-0002",
+               client,
+               %{
+                 page: %{"kind" => "home", "title" => site.name},
+                 path: "/",
+                 preview_path: ThemeEditing.preview_path(session.id),
+                 screenshots_enabled: true,
+                 viewport: %{device_pixel_ratio: 1, height: 720, width: 1_280}
+               }
+             )
+
+    assert {:ok, screenshot} =
+             ThemeEditing.capture_preview(session.id, site, "browser-client-0002")
+
+    assert screenshot.data == "png image bytes"
+    assert screenshot.mime_type == "image/png"
+    assert screenshot.width == 1_280
+    assert screenshot.height == 720
+    assert screenshot.path == "/"
+    assert_receive {:screenshot_completed, :ok}
+
+    assert_eventually(fn -> ThemeEditing.list_previews(session.id, site) == {:ok, []} end)
+  end
+
+  test "requires screenshot permission and an unambiguous connected client", %{
+    session: session,
+    site: site
+  } do
+    client = spawn(fn -> Process.sleep(:infinity) end)
+
+    assert {:ok, _client} =
+             ThemeEditing.connect_preview(
+               session.id,
+               site,
+               "browser-client-0003",
+               client,
+               %{
+                 page: %{"kind" => "home", "title" => site.name},
+                 path: "/",
+                 preview_path: ThemeEditing.preview_path(session.id),
+                 screenshots_enabled: false,
+                 viewport: %{}
+               }
+             )
+
+    assert {:error, :screenshot_permission_required} =
+             ThemeEditing.capture_preview(session.id, site)
+
+    Process.exit(client, :kill)
+  end
+
+  test "caps concurrent durable drafts per publication", %{session: first_session, site: site} do
     other_sessions =
       for _index <- 2..5 do
         assert {:ok, session} = ThemeEditing.create(site)
@@ -112,15 +244,47 @@ defmodule Gesttalt.ThemeEditingTest do
       end
 
     on_exit(fn ->
-      Enum.each(other_sessions, fn session ->
-        _result = ThemeEditing.discard(session.id, site)
-      end)
+      Enum.each(other_sessions, &terminate_session(&1.id))
     end)
 
     assert {:error, :too_many_sessions} = ThemeEditing.create(site)
     assert :ok = ThemeEditing.discard(first_session.id, site)
     assert {:ok, replacement} = ThemeEditing.create(site)
     assert :ok = ThemeEditing.discard(replacement.id, site)
+  end
+
+  test "restores a durable draft after its editing process stops", %{
+    session: session,
+    site: site
+  } do
+    assert {:ok, %{revision: 1}} =
+             ThemeEditing.update(session.id, site, %{
+               name: "Deployment proof",
+               variables: %{"colors" => %{"primary" => "#ff4f81"}}
+             })
+
+    [{original_process, _value}] =
+      Registry.lookup(Gesttalt.ThemeEditing.SessionRegistry, session.id)
+
+    monitor = Process.monitor(original_process)
+
+    assert :ok =
+             DynamicSupervisor.terminate_child(
+               Gesttalt.ThemeEditing.SessionSupervisor,
+               original_process
+             )
+
+    assert_receive {:DOWN, ^monitor, :process, ^original_process, :shutdown}
+
+    assert {:ok, restored} = ThemeEditing.fetch(session.id, site)
+    assert restored.revision == 1
+    assert restored.theme.name == "Deployment proof"
+    assert restored.theme.variables["colors"]["primary"] == "#ff4f81"
+
+    assert [{restored_process, _value}] =
+             Registry.lookup(Gesttalt.ThemeEditing.SessionRegistry, session.id)
+
+    refute restored_process == original_process
   end
 
   test "locks the draft while a publication snapshot is in flight", %{
@@ -173,14 +337,42 @@ defmodule Gesttalt.ThemeEditingTest do
   test "expires a session and tells connected previews to close", %{session: session} do
     Phoenix.PubSub.subscribe(Gesttalt.PubSub, ThemeEditing.topic(session.id))
 
+    {1, _result} =
+      StoredSession
+      |> where([stored], stored.id == ^session.id)
+      |> Repo.update_all(set: [expires_at: DateTime.add(DateTime.utc_now(), -1, :second)])
+
     [{session_process, _value}] =
       Registry.lookup(Gesttalt.ThemeEditing.SessionRegistry, session.id)
 
     monitor = Process.monitor(session_process)
     send(session_process, :expire)
 
-    assert_receive :theme_editing_session_closed
+    assert_receive {:theme_editing_session_closed, :expired}
     assert_receive {:DOWN, ^monitor, :process, ^session_process, :normal}
     assert {:error, :not_found} = ThemeEditing.fetch(session.id)
+  end
+
+  defp assert_eventually(assertion, attempts \\ 20)
+
+  defp assert_eventually(assertion, attempts) when attempts > 0 do
+    if assertion.() do
+      assert true
+    else
+      Process.sleep(10)
+      assert_eventually(assertion, attempts - 1)
+    end
+  end
+
+  defp assert_eventually(_assertion, 0), do: flunk("condition did not become true")
+
+  defp terminate_session(session_id) do
+    case Registry.lookup(Gesttalt.ThemeEditing.SessionRegistry, session_id) do
+      [{process, _value}] ->
+        DynamicSupervisor.terminate_child(Gesttalt.ThemeEditing.SessionSupervisor, process)
+
+      [] ->
+        :ok
+    end
   end
 end

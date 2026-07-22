@@ -12,6 +12,7 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
   alias Gesttalt.Publishing
   alias Gesttalt.Repo
   alias Gesttalt.Sites
+  alias Gesttalt.ThemeEditing
 
   @scope_names ~w(content:read content:write media:write mcp)
 
@@ -172,6 +173,9 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert "delete_media" in names
     assert "get_theme" in names
     assert "create_theme_editing_session" in names
+    assert "list_theme_preview_clients" in names
+    assert "navigate_theme_preview" in names
+    assert "capture_theme_preview" in names
     assert "update_theme_editing_session" in names
     assert "publish_theme_editing_session" in names
     assert "discard_theme_editing_session" in names
@@ -344,6 +348,94 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert response(preview_conn, 404) =~ "not found or expired"
   end
 
+  test "observes, navigates, and captures a connected theme preview", %{
+    conn: conn,
+    site: site,
+    token: token
+  } do
+    created = call_tool(conn, token, 1, "create_theme_editing_session")
+    session_id = created["session_id"]
+    test_process = self()
+
+    client =
+      spawn(fn ->
+        loop = fn loop ->
+          receive do
+            {:theme_preview_navigate, page} ->
+              send(test_process, {:tool_navigated_preview, page})
+              loop.(loop)
+
+            {:theme_preview_capture, request_id} ->
+              result =
+                ThemeEditing.complete_preview_screenshot(
+                  session_id,
+                  "protocol-browser-client",
+                  request_id,
+                  %{
+                    data: "browser png",
+                    height: 720,
+                    mime_type: "image/png",
+                    width: 1_280
+                  }
+                )
+
+              send(test_process, {:tool_captured_preview, result})
+              loop.(loop)
+          end
+        end
+
+        loop.(loop)
+      end)
+
+    on_exit(fn ->
+      Process.exit(client, :kill)
+      terminate_session(session_id)
+    end)
+
+    assert {:ok, _preview} =
+             ThemeEditing.connect_preview(
+               session_id,
+               site,
+               "protocol-browser-client",
+               client,
+               %{
+                 page: %{"kind" => "home", "title" => site.name},
+                 path: "/",
+                 preview_path: ThemeEditing.preview_path(session_id),
+                 screenshots_enabled: true,
+                 viewport: %{device_pixel_ratio: 1, height: 720, width: 1_280}
+               }
+             )
+
+    listed = call_tool(conn, token, 2, "list_theme_preview_clients", %{session_id: session_id})
+    assert [%{"client_id" => "protocol-browser-client", "path" => "/"}] = listed["previews"]
+
+    navigated =
+      call_tool(conn, token, 3, "navigate_theme_preview", %{
+        session_id: session_id,
+        client_id: "protocol-browser-client",
+        path: "/"
+      })
+
+    assert navigated["preview"]["path"] == "/"
+    assert_receive {:tool_navigated_preview, %{"kind" => "home"}}
+
+    response =
+      call_tool_response(conn, token, 4, "capture_theme_preview", %{
+        session_id: session_id,
+        client_id: "protocol-browser-client"
+      })
+
+    refute response["result"]["isError"]
+    assert [metadata, image] = response["result"]["content"]
+    assert JSON.decode!(metadata["text"])["path"] == "/"
+    assert image["type"] == "image"
+    assert image["mimeType"] == "image/png"
+    assert Base.decode64!(image["data"]) == "browser png"
+    assert response["result"]["structuredContent"]["result"]["width"] == 1_280
+    assert_receive {:tool_captured_preview, :ok}
+  end
+
   test "advertises protected-resource metadata when a token is missing", %{conn: conn} do
     conn = get(conn, ~p"/api/posts")
 
@@ -379,24 +471,37 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
   end
 
   defp call_tool(conn, token, id, name, arguments \\ %{}) do
-    response =
-      conn
-      |> recycle()
-      |> put_req_header("authorization", "Bearer #{token}")
-      |> put_req_header("content-type", "application/json")
-      |> post(
-        ~p"/mcp",
-        JSON.encode!(%{
-          jsonrpc: "2.0",
-          id: id,
-          method: "tools/call",
-          params: %{name: name, arguments: arguments}
-        })
-      )
-      |> json_response(200)
+    response = call_tool_response(conn, token, id, name, arguments)
 
     [content] = response["result"]["content"]
     refute response["result"]["isError"]
     JSON.decode!(content["text"])
+  end
+
+  defp call_tool_response(conn, token, id, name, arguments) do
+    conn
+    |> recycle()
+    |> put_req_header("authorization", "Bearer #{token}")
+    |> put_req_header("content-type", "application/json")
+    |> post(
+      ~p"/mcp",
+      JSON.encode!(%{
+        jsonrpc: "2.0",
+        id: id,
+        method: "tools/call",
+        params: %{name: name, arguments: arguments}
+      })
+    )
+    |> json_response(200)
+  end
+
+  defp terminate_session(session_id) do
+    case Registry.lookup(Gesttalt.ThemeEditing.SessionRegistry, session_id) do
+      [{process, _value}] ->
+        DynamicSupervisor.terminate_child(Gesttalt.ThemeEditing.SessionSupervisor, process)
+
+      [] ->
+        :ok
+    end
   end
 end
