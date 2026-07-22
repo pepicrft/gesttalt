@@ -4,6 +4,7 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
 
   alias Boruta.Ecto.AccessTokens
   alias Boruta.Ecto.Admin.Clients
+  alias Boruta.Ecto.Client
   alias Boruta.Ecto.OauthMapper
   alias Boruta.Ecto.Scope
   alias Gesttalt.AccountsFixtures
@@ -56,6 +57,59 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert response["client_id"]
     assert response["client_name"] == "Mobile writer"
     assert response["token_endpoint_auth_method"] == "none"
+  end
+
+  test "registers Claude as a public client from its minimal metadata", %{conn: conn} do
+    conn =
+      conn
+      |> put_req_header("content-type", "application/json")
+      |> post(
+        ~p"/oauth2/register",
+        Jason.encode!(%{
+          client_name: "Claude",
+          redirect_uris: ["https://claude.ai/api/mcp/auth_callback"]
+        })
+      )
+
+    response = json_response(conn, 201)
+
+    assert response["client_id"]
+    assert response["client_name"] == "Claude"
+    assert response["redirect_uris"] == ["https://claude.ai/api/mcp/auth_callback"]
+    assert response["grant_types"] == ["authorization_code", "refresh_token"]
+    assert response["response_types"] == ["code"]
+    assert response["token_endpoint_auth_method"] == "none"
+    refute response["client_secret"]
+    refute response["client_secret_expires_at"]
+
+    client = Repo.get!(Client, response["client_id"])
+    refute client.confidential
+    assert client.pkce
+    assert client.public_refresh_token
+  end
+
+  test "returns a secret for an explicitly confidential client", %{conn: conn} do
+    conn =
+      conn
+      |> put_req_header("content-type", "application/json")
+      |> post(
+        ~p"/oauth2/register",
+        Jason.encode!(%{
+          client_name: "Confidential writer",
+          redirect_uris: ["https://writer.example/oauth/callback"],
+          grant_types: ["authorization_code", "refresh_token"],
+          token_endpoint_auth_method: "client_secret_basic"
+        })
+      )
+
+    response = json_response(conn, 201)
+
+    assert response["client_secret"]
+    assert response["client_secret_expires_at"] == 0
+    assert response["token_endpoint_auth_method"] == "client_secret_basic"
+
+    client = Repo.get!(Client, response["client_id"])
+    assert client.confidential
   end
 
   test "uses one tenant-scoped token for the application interface", %{
