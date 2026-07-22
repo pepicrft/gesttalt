@@ -78,6 +78,34 @@ config :gesttalt, GesttaltWeb.Endpoint,
 # Enable dev routes for dashboard and mailbox
 config :gesttalt, dev_routes: true, seed_demo: true, platform_host: platform_host
 
+case {
+  System.get_env("GESTTALT_TURNSTILE_SITE_KEY"),
+  System.get_env("GESTTALT_TURNSTILE_SECRET_KEY")
+} do
+  {site_key, secret_key} when site_key not in [nil, ""] and secret_key not in [nil, ""] ->
+    config :gesttalt,
+      account_registration_protection: [
+        enabled: true,
+        rate_limiter: Gesttalt.AccountRegistrationRateLimiter,
+        turnstile_verifier: Gesttalt.Turnstile,
+        rate_limit: [
+          period: :timer.hours(1),
+          per_client_address: 5,
+          per_email: 3
+        ],
+        turnstile: [
+          site_key: site_key,
+          secret_key: secret_key,
+          hostname: endpoint_host,
+          action: "account_registration",
+          allow_testing_key: true
+        ]
+      ]
+
+  _keys ->
+    :ok
+end
+
 config :boruta, Boruta.Oauth, issuer: development_url
 
 config :open_api_spex, :cache_adapter, OpenApiSpex.Plug.NoneCache

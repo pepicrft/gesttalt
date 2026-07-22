@@ -2,9 +2,10 @@ defmodule GesttaltWeb.AgentIdentityController do
   use GesttaltWeb, :controller
 
   alias Gesttalt.AgentAuth
+  alias GesttaltWeb.ClientAddress
 
   def create(conn, %{"type" => "service_auth", "login_hint" => email}) do
-    case AgentAuth.create_service_registration(email, remote_ip(conn)) do
+    case AgentAuth.create_service_registration(email, ClientAddress.from_conn(conn)) do
       {:ok,
        %{
          registration: registration,
@@ -151,14 +152,4 @@ defmodule GesttaltWeb.AgentIdentityController do
        |> Base.url_encode64(padding: false)
        |> binary_part(0, 24))
   end
-
-  defp remote_ip(conn) do
-    case get_req_header(conn, "x-forwarded-for") do
-      [forwarded] -> forwarded |> String.split(",") |> List.first() |> String.trim()
-      _headers -> format_remote_ip(conn.remote_ip)
-    end
-  end
-
-  defp format_remote_ip(nil), do: nil
-  defp format_remote_ip(address), do: address |> :inet.ntoa() |> to_string()
 end

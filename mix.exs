@@ -68,6 +68,7 @@ defmodule Gesttalt.MixProject do
       {:mdex, "~> 0.13"},
       {:solid, "~> 1.3"},
       {:req, "~> 0.5"},
+      {:hammer, "~> 7.4"},
       {:swoosh, "~> 1.26"},
       {:gen_smtp, "~> 1.3"},
       {:boruta, git: "https://github.com/malach-it/boruta_auth", branch: "master"},

@@ -40,6 +40,7 @@ caddy:
   email: hello@gesttalt.org
   httpPort: 8080
   httpsPort: 8443
+  trustedProxies: []
   persistence:
     storageClass: ""
     size: 2Gi
@@ -151,6 +152,8 @@ externalSecrets:
     fields:
       GESTTALT_SECRET_KEY_BASE: SECRET_KEY_BASE
       GESTTALT_AGENT_AUTH_PRIVATE_KEY_PEM: AGENT_AUTH_PRIVATE_KEY_PEM
+      GESTTALT_TURNSTILE_SITE_KEY: TURNSTILE_SITE_KEY
+      GESTTALT_TURNSTILE_SECRET_KEY: TURNSTILE_SECRET_KEY
   postgres:
     itemKey: gesttalt
     passwordField: POSTGRES_PASSWORD

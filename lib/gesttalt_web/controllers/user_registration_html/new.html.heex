@@ -25,10 +25,30 @@
           phx-mounted={JS.focus()}
         />
 
+        <div :if={@turnstile_site_key} id="signup-verification" data-part="verification">
+          <div
+            class="cf-turnstile"
+            data-sitekey={@turnstile_site_key}
+            data-action={@turnstile_action}
+            data-size="flexible"
+            data-theme="auto"
+          >
+          </div>
+          <noscript>JavaScript is required to verify this registration.</noscript>
+        </div>
+
         <.button phx-disable-with="Creating account..." class="btn btn-primary w-full">
           Create an account
         </.button>
       </.form>
+
+      <script
+        :if={@turnstile_site_key}
+        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+        async
+        defer
+      >
+      </script>
     </div>
   </div>
 </Layouts.app>

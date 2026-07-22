@@ -14,6 +14,7 @@ defmodule Gesttalt.Application do
       Gesttalt.Repo,
       {DNSCluster, query: Application.get_env(:gesttalt, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Gesttalt.PubSub},
+      {Gesttalt.AccountRegistrationRateLimiter, clean_period: :timer.minutes(10)},
       {Registry, keys: :unique, name: Gesttalt.ThemeEditing.SessionRegistry},
       {Registry, keys: :unique, name: Gesttalt.ThemeEditing.SlotRegistry},
       {DynamicSupervisor, strategy: :one_for_one, name: Gesttalt.ThemeEditing.SessionSupervisor},

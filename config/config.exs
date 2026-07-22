@@ -38,6 +38,23 @@ config :gesttalt,
     adapter: Gesttalt.MediaStorage.Local,
     uploads_dir: Path.expand("../priv/uploads", __DIR__)
   ],
+  account_registration_protection: [
+    enabled: false,
+    rate_limiter: Gesttalt.AccountRegistrationRateLimiter,
+    turnstile_verifier: Gesttalt.Turnstile,
+    rate_limit: [
+      period: :timer.hours(1),
+      per_client_address: 5,
+      per_email: 3
+    ],
+    turnstile: [
+      site_key: nil,
+      secret_key: nil,
+      hostname: "gesttalt.org",
+      action: "account_registration",
+      allow_testing_key: false
+    ]
+  ],
   agent_auth: [
     registration_ttl_seconds: 86_400,
     claim_attempt_ttl_seconds: 600,

@@ -23,6 +23,10 @@
           width: auto;
         }
       }
+
+      & > [data-part="verification"] {
+        min-height: 65px;
+      }
     }
   }
 
