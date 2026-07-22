@@ -8,6 +8,13 @@ data:
   Caddyfile: |
     {
       email {{ .Values.caddy.email }}
+      {{- if .Values.caddy.trustedProxies }}
+      servers {
+        trusted_proxies static {{ join " " .Values.caddy.trustedProxies }}
+        trusted_proxies_strict
+        client_ip_headers CF-Connecting-IP X-Forwarded-For
+      }
+      {{- end }}
       on_demand_tls {
         ask http://127.0.0.1:4000/internal/domains/allow
       }
@@ -22,6 +29,6 @@ data:
         on_demand
       }
       reverse_proxy 127.0.0.1:4000 {
-        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-For {client_ip}
       }
     }

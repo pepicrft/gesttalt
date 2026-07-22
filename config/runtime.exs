@@ -89,6 +89,14 @@ if config_env() == :prod do
   host = System.get_env("GESTTALT_HOST") || "gesttalt.org"
   uploads_dir = System.get_env("GESTTALT_UPLOADS_DIR", "/app/uploads")
 
+  turnstile_site_key =
+    System.get_env("GESTTALT_TURNSTILE_SITE_KEY") ||
+      raise "environment variable GESTTALT_TURNSTILE_SITE_KEY is missing"
+
+  turnstile_secret_key =
+    System.get_env("GESTTALT_TURNSTILE_SECRET_KEY") ||
+      raise "environment variable GESTTALT_TURNSTILE_SECRET_KEY is missing"
+
   media_storage =
     case System.get_env("GESTTALT_MEDIA_STORAGE", "local") do
       "s3" ->
@@ -115,6 +123,23 @@ if config_env() == :prod do
     platform_host: host,
     custom_domain_target: System.get_env("GESTTALT_CUSTOM_DOMAIN_TARGET", "domains.#{host}"),
     media_storage: media_storage,
+    account_registration_protection: [
+      enabled: true,
+      rate_limiter: Gesttalt.AccountRegistrationRateLimiter,
+      turnstile_verifier: Gesttalt.Turnstile,
+      rate_limit: [
+        period: :timer.hours(1),
+        per_client_address: 5,
+        per_email: 3
+      ],
+      turnstile: [
+        site_key: turnstile_site_key,
+        secret_key: turnstile_secret_key,
+        hostname: host,
+        action: "account_registration",
+        allow_testing_key: false
+      ]
+    ],
     agent_auth: [
       registration_ttl_seconds: 86_400,
       claim_attempt_ttl_seconds: 600,

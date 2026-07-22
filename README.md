@@ -2,6 +2,10 @@
 
 Gesttalt is an agent-native blogging platform. An agent can securely register a user and manage the complete publication, while the user keeps ownership of the account, address, and consequential decisions. It is built with Phoenix, PostgreSQL, Liquid themes, and vanilla Cascading Style Sheets. The browser editor, [Hypertext Transfer Protocol](https://developer.mozilla.org/en-US/docs/Web/HTTP) application programming interface, and [Model Context Protocol](https://modelcontextprotocol.io/) server share the same tenant-scoped publishing model.
 
+Browser account creation is protected by Cloudflare Turnstile and local Hammer
+rate limits. Production setup and Cloudflare edge guidance are documented in
+[Gesttalt registration abuse protection](../../infra/docs/gesttalt-registration-abuse.md).
+
 ## Run locally
 
 The project expects Elixir, Erlang, PostgreSQL, Node.js, and
