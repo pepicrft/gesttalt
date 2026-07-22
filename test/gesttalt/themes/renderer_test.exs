@@ -58,4 +58,31 @@ defmodule Gesttalt.Themes.RendererTest do
     assert html =~ "--gesttalt-colors-primary: #0062cc;"
     refute html =~ "hotpink"
   end
+
+  test "the built-in theme links every footer to Gesttalt", %{site: site} do
+    {:ok, post} =
+      Publishing.create_post(site, %{
+        title: "An article",
+        body: "Article body",
+        kind: :post,
+        status: :published
+      })
+
+    {:ok, page} =
+      Publishing.create_post(site, %{
+        title: "A page",
+        body: "Page body",
+        kind: :page,
+        status: :published
+      })
+
+    theme = Sites.get_theme!(site)
+    assert {:ok, index_html} = Renderer.render_index(site, theme, [post], [page])
+    assert {:ok, article_html} = Renderer.render_article(site, theme, post, [page])
+    assert {:ok, page_html} = Renderer.render_page(site, theme, page, [page])
+
+    for html <- [index_html, article_html, page_html] do
+      assert html =~ ~s(Powered by <a href="https://gesttalt.org">Gesttalt</a>)
+    end
+  end
 end
