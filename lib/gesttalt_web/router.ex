@@ -35,6 +35,11 @@ defmodule GesttaltWeb.Router do
   end
 
   pipeline :theme_preview do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {GesttaltWeb.Layouts, :root}
+    plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
 
@@ -144,7 +149,6 @@ defmodule GesttaltWeb.Router do
   scope "/theme-previews", GesttaltWeb do
     pipe_through :theme_preview
 
-    get "/:session_id/events", ThemePreviewController, :events
     get "/:session_id/media/:id/:filename", ThemePreviewController, :media
     get "/:session_id/blog/:slug", ThemePreviewController, :article
     get "/:session_id/:slug", ThemePreviewController, :page
