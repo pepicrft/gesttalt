@@ -32,6 +32,7 @@ config :gesttalt,
   ecto_repos: [Gesttalt.Repo],
   generators: [timestamp_type: :utc_datetime],
   observability_enabled: false,
+  early_access: true,
   platform_host: "gesttalt.org",
   seed_demo: false,
   media_storage: [

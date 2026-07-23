@@ -49,6 +49,15 @@ defmodule Gesttalt.MCP do
     |> send_resp(405, "")
   end
 
+  defp instructions do
+    billing_instruction =
+      if Plans.early_access?(),
+        do: "",
+        else: ", or begin billing"
+
+    "This server can manage every publication feature exposed by the dashboard. Inspect the current state before changing it. For theme work, create an editing session first. Prefer the standard variables for visual design changes, preserve the stylesheet when possible, and edit Liquid only for route-specific document structure. Never publish, unpublish, delete, change domains or credentials#{billing_instruction} unless the user explicitly asks."
+  end
+
   defp dispatch(conn, %{"method" => "initialize", "id" => id} = request) do
     requested_version = get_in(request, ["params", "protocolVersion"])
 
@@ -63,8 +72,7 @@ defmodule Gesttalt.MCP do
       protocolVersion: version,
       capabilities: %{tools: %{listChanged: false}},
       serverInfo: %{name: "gesttalt", title: "Gesttalt publishing", version: "1.0.0"},
-      instructions:
-        "This server can manage every publication feature exposed by the dashboard. Inspect the current state before changing it. For theme work, create an editing session first. Prefer the standard variables for visual design changes, preserve the stylesheet when possible, and edit Liquid only for route-specific document structure. Never publish, unpublish, delete, change domains or credentials, or begin billing unless the user explicitly asks."
+      instructions: instructions()
     })
   end
 
@@ -343,14 +351,18 @@ defmodule Gesttalt.MCP do
     do: {:ok, present_billing(site)}
 
   defp call_tool("create_billing_checkout", _arguments, site, user) do
-    with false <- Plans.publisher?(site),
-         true <- Billing.configured?(),
-         {:ok, checkout_url} <- Billing.checkout_url(site, user.email, billing_return_url()) do
-      {:ok, %{checkout_url: checkout_url, requires_user_interaction: true}}
+    if Plans.early_access?() do
+      {:error, :payment_not_required}
     else
-      true -> {:error, :publisher_plan_already_active}
-      false -> {:error, :billing_not_configured}
-      error -> error
+      with false <- Plans.publisher?(site),
+           true <- Billing.configured?(),
+           {:ok, checkout_url} <- Billing.checkout_url(site, user.email, billing_return_url()) do
+        {:ok, %{checkout_url: checkout_url, requires_user_interaction: true}}
+      else
+        true -> {:error, :publisher_plan_already_active}
+        false -> {:error, :billing_not_configured}
+        error -> error
+      end
     end
   end
 
@@ -388,7 +400,7 @@ defmodule Gesttalt.MCP do
       tool("list_media", "List every image in the publication media library", %{}),
       tool(
         "upload_media",
-        "Upload an image for use in published content on a paid plan",
+        "Upload an image for use in published content",
         %{
           properties: %{
             filename: string_schema(),
@@ -466,7 +478,7 @@ defmodule Gesttalt.MCP do
         }
       ),
       tool("list_domains", "List platform and custom domains with setup instructions", %{}),
-      tool("add_custom_domain", "Add a custom domain on a paid plan", %{
+      tool("add_custom_domain", "Add a custom domain", %{
         hostname: string_schema()
       }),
       tool(
@@ -497,7 +509,7 @@ defmodule Gesttalt.MCP do
       tool("delete_connected_application", "Delete an authorization client", %{
         id: string_schema()
       }),
-      tool("get_billing", "Get the current plan, subscription state, and price", %{}),
+      tool("get_billing", "Get the current publication access state", %{}),
       tool(
         "create_billing_checkout",
         "Create a hosted checkout address for the user to open and confirm",
@@ -509,6 +521,11 @@ defmodule Gesttalt.MCP do
         %{}
       )
     ]
+    |> then(fn tools ->
+      if Plans.early_access?(),
+        do: Enum.reject(tools, &(&1.name == "create_billing_checkout")),
+        else: tools
+    end)
   end
 
   defp tool(name, description, schema) do
@@ -667,15 +684,25 @@ defmodule Gesttalt.MCP do
   end
 
   defp present_billing(site),
-    do: %{
-      plan: Plans.tier(site),
-      subscription_status: site.subscription_status,
-      complimentary: Plans.comped?(site),
-      cancel_at_period_end: site.cancel_at_period_end,
-      subscription_ends_at: site.subscription_ends_at,
-      monthly_price_euros: Billing.monthly_price_euros(),
-      billing_configured: Billing.configured?()
-    }
+    do:
+      %{
+        plan: Plans.tier(site),
+        early_access: Plans.early_access?(),
+        payment_required: not Plans.early_access?(),
+        subscription_status: site.subscription_status,
+        complimentary: Plans.comped?(site),
+        cancel_at_period_end: site.cancel_at_period_end,
+        subscription_ends_at: site.subscription_ends_at
+      }
+      |> then(fn billing ->
+        if Plans.early_access?(),
+          do: billing,
+          else:
+            Map.merge(billing, %{
+              monthly_price_euros: Billing.monthly_price_euros(),
+              billing_configured: Billing.configured?()
+            })
+      end)
 
   defp billing_return_url, do: GesttaltWeb.Endpoint.url() <> "/admin/billing"
 

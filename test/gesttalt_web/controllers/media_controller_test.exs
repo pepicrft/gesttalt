@@ -5,6 +5,21 @@ defmodule GesttaltWeb.MediaControllerTest do
 
   setup :register_and_log_in_user
 
+  test "uploads media during early access without a subscription", %{conn: conn, user: user} do
+    {:ok, site} = Sites.ensure_site_for_user(user)
+    upload = upload_fixture("early-access.png", "early access image")
+
+    conn =
+      post(conn, ~p"/admin/media", %{
+        "image" => %{"file" => upload, "alt_text" => "Early access"}
+      })
+
+    assert redirected_to(conn) == ~p"/admin/media"
+    assert [image] = Sites.list_images(site)
+    assert image.filename == "early-access.png"
+    assert {:ok, _image} = Sites.delete_image(site, image.id)
+  end
+
   test "renders media through an authenticated admin route", %{conn: conn, user: user} do
     {:ok, site} = Sites.ensure_site_for_user(user)
     upload = upload_fixture("preview.png", "preview image")

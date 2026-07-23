@@ -90,6 +90,11 @@ Keep the routing record unproxied while completing verification. The request hos
 
 ## Billing and media
 
+Early access is enabled by default. While `GESTTALT_EARLY_ACCESS=true`, every publishing
+feature is available without payment, pricing stays hidden, and new checkout sessions are
+disabled. Existing subscribers can still open the customer portal. Set the value to `false`
+when paid plans should become visible again.
+
 The free plan allows unlimited posts and pages on a Gesttalt subdomain from the web, an application, or an agent. A five euro monthly Publisher plan unlocks custom domains, image and file uploads, and custom Liquid themes. The limit is feature-based rather than post-based, so writing and an existing archive never become a meter.
 
 [Stripe](https://stripe.com/) hosts checkout and the customer portal. Signed webhook events update each site's subscription state. To enable billing, create one recurring monthly price in Stripe and set:

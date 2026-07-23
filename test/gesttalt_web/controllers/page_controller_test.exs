@@ -1,5 +1,5 @@
 defmodule GesttaltWeb.PageControllerTest do
-  use GesttaltWeb.ConnCase
+  use GesttaltWeb.ConnCase, async: true
 
   test "GET /", %{conn: conn} do
     conn = conn |> Map.put(:host, "gesttalt.test") |> get(~p"/")
@@ -7,6 +7,9 @@ defmodule GesttaltWeb.PageControllerTest do
 
     assert html =~ "A blog your agents can run. A publication you own."
     assert html =~ "Manage the whole publication"
+    assert html =~ "Everything is free during early access"
+    refute html =~ "€5"
+    refute html =~ "Upgrade"
     assert html =~ ~s(href="/legal-notice")
     assert html =~ ~s(href="/privacy")
     assert html =~ ~s(href="/terms")
@@ -43,10 +46,16 @@ defmodule GesttaltWeb.PageControllerTest do
 
     legal_notice = conn |> recycle() |> get(~p"/legal-notice") |> html_response(200)
 
-    assert legal_notice =~ "Pedro Piñera"
+    assert legal_notice =~ "Pedro Piñera Buendía"
     assert legal_notice =~ "hola@pepicrft.me"
     assert legal_notice =~ "Sole proprietor"
+    refute legal_notice =~ "Serviceable address"
     refute legal_notice =~ "Commercial register"
+
+    privacy = conn |> recycle() |> get(~p"/privacy") |> html_response(200)
+
+    assert privacy =~ "Pedro Piñera Buendía"
+    refute privacy =~ "Serviceable address"
   end
 
   test "GET /sitemap.xml", %{conn: conn} do

@@ -317,14 +317,14 @@ defmodule Gesttalt.ThemeEditingTest do
     assert {:ok, _session} = ThemeEditing.update(session.id, site, %{name: "Available again"})
   end
 
-  test "keeps a draft open when the publishing entitlement lapses", %{
+  test "publishes a draft during early access without a subscription", %{
     session: session,
     site: site
   } do
     {:ok, inactive_site} = Sites.update_billing(site, %{subscription_status: :inactive})
 
-    assert {:error, :subscription_required} = ThemeEditing.publish(session.id, inactive_site)
-    assert {:ok, _session} = ThemeEditing.fetch(session.id, site)
+    assert {:ok, _theme} = ThemeEditing.publish(session.id, inactive_site)
+    assert {:error, :not_found} = ThemeEditing.fetch(session.id, site)
   end
 
   test "unlocks a draft when persistence raises", %{session: session, site: site} do

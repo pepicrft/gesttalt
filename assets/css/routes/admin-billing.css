@@ -6,6 +6,26 @@
     padding: var(--space-2);
   }
 
+  & > [data-part="access-card"] {
+    align-items: flex-start;
+    display: flex;
+    gap: var(--space-4);
+    justify-content: space-between;
+
+    & [data-part="eyebrow"] {
+      color: var(--blue);
+      font-size: var(--font-size);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin: 0 0 0.5rem;
+    }
+
+    & [data-part="features"] {
+      margin-bottom: 0;
+      padding-left: var(--space-3);
+    }
+  }
+
   & > [data-part="billing-card"] {
     align-items: center;
     display: flex;
@@ -62,8 +82,8 @@
   }
 
   @media (max-width: 760px) {
+    & > [data-part="access-card"],
     & > [data-part="billing-card"] {
-      align-items: flex-start;
       flex-direction: column;
     }
 

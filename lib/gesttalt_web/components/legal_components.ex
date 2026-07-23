@@ -21,7 +21,7 @@ defmodule GesttaltWeb.LegalComponents do
         <strong>{dgettext("legal", "Pre-launch draft.")}</strong>
         {dgettext(
           "legal",
-          "The serviceable address, tax treatment, and remaining service-provider information will be completed before paid subscriptions are offered. This page is not yet a final legal notice."
+          "The remaining business and service-provider information will be completed before launch. This page is not yet a final legal notice."
         )}
       </aside>
       <div data-part="content">{render_slot(@inner_block)}</div>

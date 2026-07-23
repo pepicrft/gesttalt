@@ -5,16 +5,26 @@ defmodule GesttaltWeb.BillingController do
   alias Gesttalt.Plans
   alias Gesttalt.Sites
 
-  def show(conn, params) do
+  def show(conn, _params) do
     site = current_site(conn)
+    early_access = Plans.early_access?()
 
     render(conn, :show,
-      page_title: dgettext("billing", "Billing"),
+      page_title:
+        if(early_access, do: dgettext("billing", "Access"), else: dgettext("billing", "Billing")),
       site: site,
+      early_access: early_access,
       plan: Plans.tier(site),
       comped: Plans.comped?(site),
       price: Billing.monthly_price_euros(),
       billing_configured: Billing.configured?(),
+      included_features: [
+        dgettext("billing", "Unlimited posts and pages"),
+        dgettext("billing", "Custom domains"),
+        dgettext("billing", "Image and file uploads"),
+        dgettext("billing", "Custom Liquid themes"),
+        dgettext("billing", "Web, application, agent, and feed publishing")
+      ],
       free_features: [
         dgettext("billing", "Unlimited posts and pages"),
         dgettext("billing", "A gesttalt.org subdomain"),
@@ -26,35 +36,44 @@ defmodule GesttaltWeb.BillingController do
         dgettext("billing", "Custom domains"),
         dgettext("billing", "Image and file uploads"),
         dgettext("billing", "Custom Liquid themes")
-      ],
-      checkout: params["checkout"]
+      ]
     )
   end
 
   def checkout(conn, _params) do
     site = current_site(conn)
 
-    if Plans.publisher?(site) do
-      conn
-      |> put_flash(:info, dgettext("billing", "The Publisher plan is already active."))
-      |> redirect(to: ~p"/admin/billing")
-    else
-      case Billing.checkout_url(
-             site,
-             conn.assigns.current_scope.user.email,
-             url(~p"/admin/billing")
-           ) do
-        {:ok, checkout_url} ->
-          redirect(conn, external: checkout_url)
+    cond do
+      Plans.early_access?() ->
+        conn
+        |> put_flash(
+          :info,
+          dgettext("billing", "Every publishing feature is included during early access.")
+        )
+        |> redirect(to: ~p"/admin/billing")
 
-        {:error, reason} ->
-          conn
-          |> put_flash(
-            :error,
-            dgettext("billing", "Billing is not available: %{reason}", reason: inspect(reason))
-          )
-          |> redirect(to: ~p"/admin/billing")
-      end
+      Plans.publisher?(site) ->
+        conn
+        |> put_flash(:info, dgettext("billing", "The Publisher plan is already active."))
+        |> redirect(to: ~p"/admin/billing")
+
+      true ->
+        case Billing.checkout_url(
+               site,
+               conn.assigns.current_scope.user.email,
+               url(~p"/admin/billing")
+             ) do
+          {:ok, checkout_url} ->
+            redirect(conn, external: checkout_url)
+
+          {:error, reason} ->
+            conn
+            |> put_flash(
+              :error,
+              dgettext("billing", "Billing is not available: %{reason}", reason: inspect(reason))
+            )
+            |> redirect(to: ~p"/admin/billing")
+        end
     end
   end
 

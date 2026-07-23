@@ -15,7 +15,7 @@
         <p data-state="missing">
           {dgettext(
             "legal",
-            "Gesttalt is operated by Pedro Piñera as a sole proprietor. The serviceable address and effective date of these terms will be inserted before launch. These terms will apply to Gesttalt accounts and paid publishing subscriptions."
+            "Gesttalt is operated by Pedro Piñera Buendía as a sole proprietor. The effective date and remaining provider details will be inserted before launch."
           )}
         </p>
       </section>
@@ -38,12 +38,23 @@
         </p>
       </section>
       <section data-part="section">
-        <h2 data-part="title">{dgettext("legal", "Price, renewal, and payment")}</h2>
-        <p data-state="missing">
-          {dgettext(
-            "legal",
-            "Text publishing from the web, an application, or an agent on a Gesttalt subdomain is free. The Publisher plan is expected to cost €5 per month and unlock custom domains, media uploads, and custom themes. The final gross price, value-added tax treatment, billing date, renewal terms, payment provider, failed-payment handling, and cancellation effective date remain to be confirmed."
-          )}
+        <h2 data-part="title">
+          {if Gesttalt.Plans.early_access?(),
+            do: dgettext("legal", "Early access"),
+            else: dgettext("legal", "Price, renewal, and payment")}
+        </h2>
+        <p data-state={if Gesttalt.Plans.early_access?(), do: nil, else: "missing"}>
+          {if Gesttalt.Plans.early_access?(),
+            do:
+              dgettext(
+                "legal",
+                "Gesttalt is free during early access. Custom domains, media uploads, custom themes, and publishing from the web, an application, or an agent are included without payment details."
+              ),
+            else:
+              dgettext(
+                "legal",
+                "Text publishing from the web, an application, or an agent on a Gesttalt subdomain is free. The Publisher plan is expected to cost €5 per month and unlock custom domains, media uploads, and custom themes. The final gross price, value-added tax treatment, billing date, renewal terms, payment provider, failed-payment handling, and cancellation effective date remain to be confirmed."
+              )}
         </p>
       </section>
       <section data-part="section">

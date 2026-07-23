@@ -26,11 +26,6 @@ msgstr ""
 msgid "Agent-native publishing"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_html/home.html.heex:24
-#, elixir-autogen, elixir-format
-msgid "Agents can manage your complete publication through one secure connection. Text publishing stays free. Upgrade for €5 per month when you need a custom domain, images, or custom themes."
-msgstr ""
-
 #: lib/gesttalt_web/controllers/page_html/home.html.heex:9
 #, elixir-autogen, elixir-format
 msgid "Ask an agent to create your account, write and publish content, manage media and domains, or reshape the theme in a live preview. Gesttalt was designed for the whole conversation."
@@ -49,4 +44,14 @@ msgstr ""
 #: lib/gesttalt_web/controllers/page_controller.ex:8
 #, elixir-autogen, elixir-format
 msgid "Agent-native publishing for content, media, themes, domains, and the complete publication."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/home.html.heex:26
+#, elixir-autogen, elixir-format
+msgid "Everything is free during early access, including custom domains, images, and custom themes. No payment details are required."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/home.html.heex:31
+#, elixir-autogen, elixir-format
+msgid "Agents can manage your complete publication through one secure connection. Text publishing stays free. Upgrade for €5 per month when you need a custom domain, images, or custom themes."
 msgstr ""

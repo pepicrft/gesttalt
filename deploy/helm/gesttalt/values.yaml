@@ -15,6 +15,7 @@ image:
 imagePullSecrets: []
 
 env:
+  GESTTALT_EARLY_ACCESS: "true"
   GESTTALT_PHX_SERVER: "true"
   GESTTALT_HOST: gesttalt.org
   GESTTALT_MEDIA_STORAGE: local

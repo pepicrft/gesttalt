@@ -4,6 +4,25 @@ defmodule GesttaltWeb.AuthMarkdownController do
   alias Gesttalt.AgentAuth
 
   def show(conn, _params) do
+    early_access = Gesttalt.Plans.early_access?()
+
+    management_capabilities =
+      if early_access,
+        do: "custom domains, and connected applications",
+        else: "custom domains, connected applications, and billing actions"
+
+    billing_guard =
+      if early_access,
+        do: "",
+        else: ", or begin a billing action"
+
+    media_scope =
+      if early_access,
+        do: "manage images.",
+        else: "manage images on a paid publishing plan."
+
+    access_label = if early_access, do: "Access", else: "Pricing"
+
     document = """
     # Gesttalt agent authentication
 
@@ -52,9 +71,9 @@ defmodule GesttaltWeb.AuthMarkdownController do
 
     ## 4. Connect and manage the publication
 
-    Connect the access token to the Model Context Protocol server at #{url(~p"/mcp")} with `Authorization: Bearer <access_token>`. Start with `tools/list`; the server exposes content, media, theme, publication settings, custom domains, connected applications, and billing actions available in the dashboard.
+    Connect the access token to the Model Context Protocol server at #{url(~p"/mcp")} with `Authorization: Bearer <access_token>`. Start with `tools/list`; the server exposes content, media, theme, publication settings, #{management_capabilities} available in the dashboard.
 
-    Never publish, delete, change a custom domain, create credentials, or begin a billing action unless the user explicitly asks.
+    Never publish, delete, change a custom domain, create credentials#{billing_guard} unless the user explicitly asks.
 
     ## 5. Renew or revoke
 
@@ -73,13 +92,13 @@ defmodule GesttaltWeb.AuthMarkdownController do
 
     - `content:read`: read posts and pages.
     - `content:write`: create, edit, publish, unpublish, and delete posts and pages.
-    - `media:write`: manage images on a paid publishing plan.
+    - `media:write`: #{media_scope}
     - `mcp`: use the complete agent management server.
 
     ## Service information
 
     - Documentation: #{url(~p"/docs")}
-    - Pricing: #{url(~p"/admin/billing")}
+    - #{access_label}: #{url(~p"/admin/billing")}
     - Terms: #{url(~p"/terms")}
     - Privacy: #{url(~p"/privacy")}
     - Integration help: hola@pepicrft.me

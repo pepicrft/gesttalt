@@ -204,7 +204,7 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert "create_connected_application" in names
     assert "delete_connected_application" in names
     assert "get_billing" in names
-    assert "create_billing_checkout" in names
+    refute "create_billing_checkout" in names
     assert "create_billing_portal" in names
     refute "publish_theme" in names
 
@@ -298,7 +298,9 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
 
     billing = call_tool(conn, token, 16, "get_billing")
     assert billing["plan"] == "publisher"
-    assert billing["monthly_price_euros"] == 5
+    assert billing["early_access"]
+    refute billing["payment_required"]
+    refute Map.has_key?(billing, "monthly_price_euros")
   end
 
   test "supports the streamable transport lifecycle used by agents", %{conn: conn, token: token} do

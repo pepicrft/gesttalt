@@ -4,13 +4,17 @@ defmodule Gesttalt.PlansTest do
   alias Gesttalt.Plans
   alias Gesttalt.Sites.Site
 
-  test "text publishing is available on the free plan" do
+  test "every publishing feature is available during early access" do
     site = %Site{subscription_status: :inactive}
 
+    assert Plans.early_access?()
     assert Plans.tier(site) == :free
     assert Plans.available?(site, :text_publishing)
     assert Plans.available?(site, :programmatic_publishing)
-    assert Plans.authorize(site, :media_uploads) == {:error, :subscription_required}
+    assert Plans.available?(site, :custom_domains)
+    assert Plans.available?(site, :media_uploads)
+    assert Plans.available?(site, :custom_themes)
+    assert Plans.authorize(site, :media_uploads) == :ok
   end
 
   test "Publisher features follow an active subscription" do
@@ -34,12 +38,13 @@ defmodule Gesttalt.PlansTest do
     assert Plans.available?(site, :custom_themes)
   end
 
-  test "ended subscriptions return to the free plan" do
+  test "ended subscriptions retain early access" do
     for status <- [:inactive, :canceled] do
       site = %Site{subscription_status: status}
 
       assert Plans.tier(site) == :free
       refute Plans.publisher?(site)
+      assert Plans.available?(site, :custom_domains)
     end
   end
 end

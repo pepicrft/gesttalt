@@ -2,22 +2,54 @@
   <div id="admin-billing">
     <header id="page-heading">
       <p data-part="eyebrow">{dgettext("billing", "Account")}</p><h1 data-part="title">
-        {dgettext("billing", "Billing")}
+        {if @early_access, do: dgettext("billing", "Access"), else: dgettext("billing", "Billing")}
       </h1>
       <p data-part="description">
-        {dgettext(
-          "billing",
-          "Writing stays free. Upgrade for the features that use more infrastructure or support a professional publication."
-        )}
+        {if @early_access,
+          do:
+            dgettext(
+              "billing",
+              "Try the complete publishing experience during early access."
+            ),
+          else:
+            dgettext(
+              "billing",
+              "Writing stays free. Upgrade for the features that use more infrastructure or support a professional publication."
+            )}
       </p>
     </header>
-    <aside :if={!@billing_configured} data-part="configuration-notice">
+    <section :if={@early_access} class="panel" data-part="access-card">
+      <div data-part="access">
+        <p data-part="eyebrow">{dgettext("billing", "Early access")}</p><h2>
+          {dgettext("billing", "Everything is included")}
+        </h2>
+        <p>
+          {dgettext(
+            "billing",
+            "Publish with every Gesttalt feature without paying or adding payment details."
+          )}
+        </p>
+        <ul data-part="features">
+          <li :for={feature <- @included_features}>{feature}</li>
+        </ul>
+      </div>
+      <div :if={@site.stripe_customer_id} data-part="actions">
+        <p>{dgettext("billing", "Already have a subscription?")}</p>
+        <form action={~p"/admin/billing/portal"} method="post">
+          <input type="hidden" name="_csrf_token" value={get_csrf_token()} /><button class="button">{dgettext(
+            "billing",
+            "Manage subscription"
+          )}</button>
+        </form>
+      </div>
+    </section>
+    <aside :if={!@early_access && !@billing_configured} data-part="configuration-notice">
       {dgettext(
         "billing",
         "Stripe checkout is not configured in this environment. Add the secret key, recurring price identifier, and webhook signing secret to enable subscriptions."
       )}
     </aside>
-    <section class="panel" data-part="billing-card">
+    <section :if={!@early_access} class="panel" data-part="billing-card">
       <div data-part="plan">
         <p data-part="eyebrow">{dgettext("billing", "Current plan")}</p><h2>
           {if @plan == :publisher,
@@ -41,11 +73,7 @@
             date: Calendar.strftime(@site.subscription_ends_at, "%d %B %Y")
           )}
         </p>
-        <form
-          :if={@plan == :free}
-          action={~p"/admin/billing/checkout"}
-          method="post"
-        >
+        <form :if={@plan == :free} action={~p"/admin/billing/checkout"} method="post">
           <input type="hidden" name="_csrf_token" value={get_csrf_token()} /><button
             class="button button--primary"
             disabled={!@billing_configured}
@@ -63,7 +91,11 @@
         </form>
       </div>
     </section>
-    <section data-part="plans" aria-label={dgettext("billing", "Plan comparison")}>
+    <section
+      :if={!@early_access}
+      data-part="plans"
+      aria-label={dgettext("billing", "Plan comparison")}
+    >
       <article data-part="plan-option">
         <p data-part="eyebrow">{dgettext("billing", "Free")}</p><h2>
           {dgettext("billing", "Write and publish")}

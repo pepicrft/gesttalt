@@ -21,10 +21,17 @@
         )}</a>
       </div>
       <p data-part="plan-note">
-        {dgettext(
-          "marketing",
-          "Agents can manage your complete publication through one secure connection. Text publishing stays free. Upgrade for €5 per month when you need a custom domain, images, or custom themes."
-        )}
+        {if Gesttalt.Plans.early_access?(),
+          do:
+            dgettext(
+              "marketing",
+              "Everything is free during early access, including custom domains, images, and custom themes. No payment details are required."
+            ),
+          else:
+            dgettext(
+              "marketing",
+              "Agents can manage your complete publication through one secure connection. Text publishing stays free. Upgrade for €5 per month when you need a custom domain, images, or custom themes."
+            )}
       </p>
     </section>
     <section data-part="features">
@@ -35,14 +42,14 @@
       </article>
       <article data-part="feature">
         <span data-part="index">02</span><h2 data-part="title">Manage the whole publication</h2><p data-part="description">
-          Create, schedule, publish, and delete content. Upload media, edit themes, connect domains and applications, and inspect billing without leaving the agent.
+          Create, schedule, publish, and delete content. Upload media, edit themes, and connect domains and applications without leaving the agent.
         </p>
       </article>
       <article data-part="feature">
         <span data-part="index">03</span><h2 data-part="title">
           Keep human approval in the loop
         </h2><p data-part="description">
-          Secure registration binds the agent to your account without sharing a password. Publishing, deletion, domains, credentials, and billing remain explicit decisions.
+          Secure registration binds the agent to your account without sharing a password. Publishing, deletion, domains, and credentials remain explicit decisions.
         </p>
       </article>
     </section>

@@ -120,6 +120,7 @@ if config_env() == :prod do
 
   config :gesttalt,
     dns_cluster_query: System.get_env("GESTTALT_DNS_CLUSTER_QUERY"),
+    early_access: System.get_env("GESTTALT_EARLY_ACCESS", "true") in ~w(true 1),
     platform_host: host,
     custom_domain_target: System.get_env("GESTTALT_CUSTOM_DOMAIN_TARGET", "domains.#{host}"),
     media_storage: media_storage,

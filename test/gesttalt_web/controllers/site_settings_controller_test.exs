@@ -10,10 +10,20 @@ defmodule GesttaltWeb.SiteSettingsControllerTest do
     user: user
   } do
     {:ok, site} = Sites.ensure_site_for_user(user)
-    {:ok, _site} = Sites.update_billing(site, %{subscription_status: :trialing})
-    {:ok, domain} = Sites.add_custom_domain(site, %{"hostname" => "writing.example.com"})
 
-    response = conn |> get(~p"/admin/settings") |> html_response(200)
+    conn =
+      post(conn, ~p"/admin/domains", %{
+        "domain" => %{"hostname" => "writing.example.com"}
+      })
+
+    assert redirected_to(conn) == ~p"/admin/settings"
+
+    domain =
+      site
+      |> Sites.list_domains()
+      |> Enum.find(&(&1.hostname == "writing.example.com"))
+
+    response = conn |> recycle() |> get(~p"/admin/settings") |> html_response(200)
 
     assert response =~ "Add both records below"
     assert response =~ "Text (TXT) record"

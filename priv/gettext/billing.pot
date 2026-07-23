@@ -11,112 +11,54 @@
 msgid ""
 msgstr ""
 
-#: lib/gesttalt_web/controllers/billing_controller.ex:20
-#, elixir-autogen, elixir-format
-msgid "A gesttalt.org subdomain"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:40
-#, elixir-autogen, elixir-format
-msgid "Access ends on %{date}."
-msgstr ""
-
 #: lib/gesttalt_web/controllers/billing_html/show.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "Account"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/billing_controller.ex:12
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:5
-#, elixir-autogen, elixir-format
-msgid "Billing"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_controller.ex:54
+#: lib/gesttalt_web/controllers/billing_controller.ex:73
 #, elixir-autogen, elixir-format
 msgid "Billing is not available: %{reason}"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:22
-#, elixir-autogen, elixir-format
-msgid "Current plan"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_controller.ex:28
+#: lib/gesttalt_web/controllers/billing_controller.ex:25
+#: lib/gesttalt_web/controllers/billing_controller.ex:38
 #, elixir-autogen, elixir-format
 msgid "Custom Liquid themes"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/billing_controller.ex:26
+#: lib/gesttalt_web/controllers/billing_controller.ex:23
+#: lib/gesttalt_web/controllers/billing_controller.ex:36
 #, elixir-autogen, elixir-format
 msgid "Custom domains"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/billing_controller.ex:25
-#, elixir-autogen, elixir-format
-msgid "Everything in Free"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:25
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:68
-#, elixir-autogen, elixir-format
-msgid "Free"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_controller.ex:27
+#: lib/gesttalt_web/controllers/billing_controller.ex:24
+#: lib/gesttalt_web/controllers/billing_controller.ex:37
 #, elixir-autogen, elixir-format
 msgid "Image and file uploads"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:59
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:39
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:87
 #, elixir-autogen, elixir-format
 msgid "Manage subscription"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:66
-#, elixir-autogen, elixir-format
-msgid "Plan comparison"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:24
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:77
-#, elixir-autogen, elixir-format
-msgid "Publisher"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:32
-#, elixir-autogen, elixir-format
-msgid "Status"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:15
-#, elixir-autogen, elixir-format
-msgid "Stripe checkout is not configured in this environment. Add the secret key, recurring price identifier, and webhook signing secret to enable subscriptions."
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_controller.ex:21
-#, elixir-autogen, elixir-format
-msgid "The Paper theme"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_controller.ex:39
+#: lib/gesttalt_web/controllers/billing_controller.ex:57
 #, elixir-autogen, elixir-format
 msgid "The Publisher plan is already active."
 msgstr ""
 
-#: lib/gesttalt_web/controllers/billing_controller.ex:70
+#: lib/gesttalt_web/controllers/billing_controller.ex:89
 #, elixir-autogen, elixir-format
 msgid "The billing portal is not available: %{reason}"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/billing_controller.ex:19
+#: lib/gesttalt_web/controllers/billing_controller.ex:22
+#: lib/gesttalt_web/controllers/billing_controller.ex:29
 #, elixir-autogen, elixir-format
 msgid "Unlimited posts and pages"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:52
-#, elixir-autogen, elixir-format
-msgid "Upgrade for €%{price} per month"
 msgstr ""
 
 #: lib/gesttalt_web/controllers/site_settings_controller.ex:51
@@ -129,32 +71,132 @@ msgstr ""
 msgid "Upgrade to the Publisher plan to upload images."
 msgstr ""
 
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:69
-#, elixir-autogen, elixir-format
-msgid "Write and publish"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:8
-#, elixir-autogen, elixir-format
-msgid "Writing stays free. Upgrade for the features that use more infrastructure or support a professional publication."
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:28
-#, elixir-autogen, elixir-format
-msgid "per month"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:76
-#, elixir-autogen, elixir-format
-msgid "€%{price} per month"
-msgstr ""
-
-#: lib/gesttalt_web/controllers/billing_controller.ex:22
+#: lib/gesttalt_web/controllers/billing_controller.ex:26
+#: lib/gesttalt_web/controllers/billing_controller.ex:32
 #, elixir-autogen, elixir-format
 msgid "Web, application, agent, and feed publishing"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/billing_html/show.html.heex:34
+#: lib/gesttalt_web/controllers/billing_controller.ex:14
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Access"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:37
+#, elixir-autogen, elixir-format
+msgid "Already have a subscription?"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:23
+#, elixir-autogen, elixir-format
+msgid "Early access"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_controller.ex:51
+#, elixir-autogen, elixir-format
+msgid "Every publishing feature is included during early access."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "Everything is included"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:27
+#, elixir-autogen, elixir-format
+msgid "Publish with every Gesttalt feature without paying or adding payment details."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:10
+#, elixir-autogen, elixir-format
+msgid "Try the complete publishing experience during early access."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_controller.ex:30
+#, elixir-autogen, elixir-format
+msgid "A gesttalt.org subdomain"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:72
+#, elixir-autogen, elixir-format
+msgid "Access ends on %{date}."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_controller.ex:14
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Billing"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:54
+#, elixir-autogen, elixir-format
+msgid "Current plan"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_controller.ex:35
+#, elixir-autogen, elixir-format
+msgid "Everything in Free"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:57
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:100
+#, elixir-autogen, elixir-format
+msgid "Free"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:97
+#, elixir-autogen, elixir-format
+msgid "Plan comparison"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:56
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:109
+#, elixir-autogen, elixir-format
+msgid "Publisher"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:66
 #, elixir-autogen, elixir-format
 msgid "Publisher features are complimentary on this publication. There is nothing to pay."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:64
+#, elixir-autogen, elixir-format
+msgid "Status"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:47
+#, elixir-autogen, elixir-format
+msgid "Stripe checkout is not configured in this environment. Add the secret key, recurring price identifier, and webhook signing secret to enable subscriptions."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_controller.ex:31
+#, elixir-autogen, elixir-format
+msgid "The Paper theme"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:80
+#, elixir-autogen, elixir-format
+msgid "Upgrade for €%{price} per month"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:101
+#, elixir-autogen, elixir-format
+msgid "Write and publish"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:15
+#, elixir-autogen, elixir-format
+msgid "Writing stays free. Upgrade for the features that use more infrastructure or support a professional publication."
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:60
+#, elixir-autogen, elixir-format
+msgid "per month"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/billing_html/show.html.heex:108
+#, elixir-autogen, elixir-format
+msgid "€%{price} per month"
 msgstr ""
