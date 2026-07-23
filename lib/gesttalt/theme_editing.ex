@@ -10,6 +10,8 @@ defmodule Gesttalt.ThemeEditing do
   alias Gesttalt.Themes.Variables
 
   @session_lifetime to_timeout(hour: 4)
+  @stale_session_retries 10
+  @stale_session_retry_delay 1
 
   @theme_fields [
     :name,
@@ -180,23 +182,42 @@ defmodule Gesttalt.ThemeEditing do
     |> Map.update!(:variables, &Variables.normalize/1)
   end
 
-  defp call(session_id, message, timeout \\ 5_000) do
+  defp call(session_id, message, timeout \\ 5_000),
+    do: call(session_id, message, timeout, @stale_session_retries)
+
+  defp call(session_id, message, timeout, retries) do
     case Registry.lookup(Gesttalt.ThemeEditing.SessionRegistry, session_id) do
       [{pid, _value}] ->
         try do
           GenServer.call(pid, message, timeout)
         catch
-          :exit, {:noproc, _call} -> {:error, :not_found}
-          :exit, {:normal, _call} -> {:error, :not_found}
-          :exit, {:shutdown, _call} -> {:error, :not_found}
-          :exit, {{:shutdown, _reason}, _call} -> {:error, :not_found}
-          :exit, {:timeout, _call} -> {:error, :preview_timeout}
+          :exit, {:noproc, _call} ->
+            retry_stale_session(session_id, message, timeout, retries)
+
+          :exit, {:normal, _call} ->
+            retry_stale_session(session_id, message, timeout, retries)
+
+          :exit, {:shutdown, _call} ->
+            retry_stale_session(session_id, message, timeout, retries)
+
+          :exit, {{:shutdown, _reason}, _call} ->
+            retry_stale_session(session_id, message, timeout, retries)
+
+          :exit, {:timeout, _call} ->
+            {:error, :preview_timeout}
         end
 
       [] ->
         with {:ok, _pid} <- restore_session(session_id),
-             do: call(session_id, message, timeout)
+             do: call(session_id, message, timeout, retries)
     end
+  end
+
+  defp retry_stale_session(_session_id, _message, _timeout, 0), do: {:error, :not_found}
+
+  defp retry_stale_session(session_id, message, timeout, retries) do
+    Process.sleep(@stale_session_retry_delay)
+    call(session_id, message, timeout, retries - 1)
   end
 
   defp take_theme_fields(attrs) do
