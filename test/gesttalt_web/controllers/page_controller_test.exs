@@ -7,9 +7,7 @@ defmodule GesttaltWeb.PageControllerTest do
 
     assert html =~ "A blog your agents can run. A publication you own."
     assert html =~ "Manage the whole publication"
-    assert html =~ "Everything is free during early access"
-    refute html =~ "€5"
-    refute html =~ "Upgrade"
+    refute html =~ ~r/pricing|payment|free|€|per month|upgrade/i
     assert html =~ ~s(href="/legal-notice")
     assert html =~ ~s(href="/privacy")
     assert html =~ ~s(href="/terms")

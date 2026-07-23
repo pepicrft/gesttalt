@@ -32,12 +32,6 @@
       flex-wrap: wrap;
       gap: var(--space-2);
     }
-
-    & > [data-part="plan-note"] {
-      color: var(--muted);
-      margin: var(--space-2) 0 0;
-      max-width: 660px;
-    }
   }
 
   & > [data-part="features"] {
