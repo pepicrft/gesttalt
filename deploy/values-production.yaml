@@ -57,17 +57,11 @@ media:
 nodeSelector:
   node.cluster.x-k8s.io/pool: app
 
-affinity:
-  podAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchLabels:
-            app.kubernetes.io/name: gesttalt
-            app.kubernetes.io/instance: gesttalt
-          matchExpressions:
-            - key: batch.kubernetes.io/job-name
-              operator: DoesNotExist
-        topologyKey: kubernetes.io/hostname
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 0
+    maxUnavailable: 1
 
 postgres:
   storage:
