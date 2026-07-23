@@ -59,7 +59,7 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert response["token_endpoint_auth_method"] == "none"
   end
 
-  test "registers Claude as a public client from its minimal metadata", %{conn: conn} do
+  test "registers Claude as a public client from its current metadata", %{conn: conn} do
     conn =
       conn
       |> put_req_header("content-type", "application/json")
@@ -67,7 +67,18 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
         ~p"/oauth2/register",
         JSON.encode!(%{
           client_name: "Claude",
-          redirect_uris: ["https://claude.ai/api/mcp/auth_callback"]
+          client_uri: "https://claude.ai",
+          redirect_uris: ["https://claude.ai/api/mcp/auth_callback"],
+          grant_types: [
+            "authorization_code",
+            "refresh_token",
+            Gesttalt.AgentAuth.claim_grant(),
+            Gesttalt.AgentAuth.jwt_bearer_grant()
+          ],
+          response_types: ["code"],
+          token_endpoint_auth_method: "none",
+          scope: Enum.join(@scope_names, " "),
+          software_id: "claude-hosted"
         })
       )
 
@@ -86,6 +97,10 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     refute client.confidential
     assert client.pkce
     assert client.public_refresh_token
+    assert client.supported_grant_types == ["authorization_code", "refresh_token"]
+    assert client.metadata["client_uri"] == "https://claude.ai"
+    assert client.metadata["scope"] == Enum.join(@scope_names, " ")
+    assert client.metadata["software_id"] == "claude-hosted"
   end
 
   test "returns a secret for an explicitly confidential client", %{conn: conn} do
