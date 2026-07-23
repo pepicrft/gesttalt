@@ -1,54 +1,50 @@
 <Layouts.app flash={@flash} current_scope={@current_scope}>
   <div id="withdrawal-policy">
     <.legal_document
+      draft={false}
       eyebrow={dgettext("legal", "Consumer contracts")}
       title={dgettext("legal", "Right of withdrawal")}
       description={
         dgettext(
           "legal",
-          "Withdrawal reverses a recently concluded consumer contract. It is separate from cancelling an ongoing subscription."
+          "Withdrawal reverses a recently concluded consumer contract. It is separate from ending ongoing use or deleting an account."
         )
       }
     >
       <section data-part="section">
-        <h2 data-part="title">{dgettext("legal", "Withdrawal period")}</h2>
+        <h2 data-part="title">{dgettext("legal", "Current early access")}</h2>
         <p>
-          {dgettext(
-            "legal",
-            "Consumers generally have fourteen days from the day the contract is concluded to withdraw without giving a reason. The final notice will use the applicable German statutory model and explain any consequences of asking Gesttalt to begin service during that period."
-          )}
+          Gesttalt does not currently offer a paid consumer subscription or request payment details.
+          You may stop using the free early-access service at any time and permanently delete your
+          account through <a href={~p"/users/settings"}>account settings</a>.
         </p>
       </section>
+
       <section data-part="section">
-        <h2 data-part="title">{dgettext("legal", "How to withdraw")}</h2>
-        <p data-state="missing">
-          {dgettext(
-            "legal",
-            "Consumer subscriptions are not currently offered. Questions about withdrawal may be sent to Pedro Piñera Buendía at hola@pepicrft.me."
-          )}
+        <h2 data-part="title">{dgettext("legal", "Withdrawal notice")}</h2>
+        <p>
+          Where a statutory consumer right of withdrawal applies, you generally have fourteen days
+          from the day the contract is concluded to withdraw without giving a reason. To exercise
+          that right, send a clear statement to Pedro Piñera Buendía, trading as Gesttalt,
+          Jessnerstrasse 27a, 10247 Berlin, Germany, or to <a href="mailto:gesttalt@pepicrft.me">gesttalt@pepicrft.me</a>. Gesttalt will promptly acknowledge an electronic withdrawal.
         </p>
       </section>
+
       <section data-part="section">
         <h2 data-part="title">{dgettext("legal", "Model withdrawal form")}</h2>
         <div data-part="model-form">
           <p>
-            {dgettext("legal", "To:")}
-            <span data-state="missing">{dgettext(
-              "legal",
-              "Operator name, postal address, and email to be provided"
-            )}</span>
+            To: Pedro Piñera Buendía, trading as Gesttalt, Jessnerstrasse 27a, 10247 Berlin, Germany,
+            gesttalt@pepicrft.me
           </p>
           <p>
-            {dgettext(
-              "legal",
-              "I hereby give notice that I withdraw from my contract for the following service:"
-            )}
+            I hereby give notice that I withdraw from my contract for the following service:
           </p>
-          <p>{dgettext("legal", "Ordered on:")}</p>
-          <p>{dgettext("legal", "Name of consumer:")}</p>
-          <p>{dgettext("legal", "Address of consumer:")}</p>
-          <p>{dgettext("legal", "Date:")}</p>
-          <p>{dgettext("legal", "Signature, only when submitted on paper:")}</p>
+          <p>Ordered on:</p>
+          <p>Name of consumer:</p>
+          <p>Address of consumer:</p>
+          <p>Date:</p>
+          <p>Signature, only when submitted on paper:</p>
         </div>
       </section>
     </.legal_document>

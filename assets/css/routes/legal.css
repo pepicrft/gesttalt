@@ -1,0 +1,23 @@
+#illegal-content-report {
+  & [data-part="report-form"] {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  & [data-part="verification"] {
+    min-height: 65px;
+  }
+
+  & [data-part="checkbox-field"] [data-part="label"] {
+    align-items: flex-start;
+    display: flex;
+    gap: var(--space-1);
+
+    & > [data-part="control"] {
+      flex: 0 0 auto;
+      margin-top: 0.2rem;
+      width: auto;
+    }
+  }
+}

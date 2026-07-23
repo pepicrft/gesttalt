@@ -36,12 +36,12 @@ msgstr ""
 msgid "Connect an agent →"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:6
+#: lib/gesttalt_web/controllers/page_controller.ex:10
 #, elixir-autogen, elixir-format
 msgid "A blog your agents can run"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:8
+#: lib/gesttalt_web/controllers/page_controller.ex:12
 #, elixir-autogen, elixir-format
 msgid "Agent-native publishing for content, media, themes, domains, and the complete publication."
 msgstr ""

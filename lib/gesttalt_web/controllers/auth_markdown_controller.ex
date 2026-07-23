@@ -101,7 +101,7 @@ defmodule GesttaltWeb.AuthMarkdownController do
     - #{access_label}: #{url(~p"/admin/billing")}
     - Terms: #{url(~p"/terms")}
     - Privacy: #{url(~p"/privacy")}
-    - Integration help: hola@pepicrft.me
+    - Integration help: gesttalt@pepicrft.me
     """
 
     conn

@@ -11,7 +11,7 @@ defmodule Gesttalt.Accounts.UserNotifierTest do
 
     assert {:ok, email} = UserNotifier.deliver_login_instructions(user, @url)
 
-    assert email.from == {"gesttalt", "hello@pepicrft.me"}
+    assert email.from == {"gesttalt", "gesttalt@pepicrft.me"}
     assert email.subject == "Confirm your gesttalt account"
     assert email.text_body =~ "Confirm account: #{@url}"
     assert email.text_body =~ "expires in 15 minutes"

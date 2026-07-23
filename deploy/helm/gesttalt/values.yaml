@@ -38,7 +38,7 @@ service:
 caddy:
   image: caddy:2.10.0-alpine@sha256:ae4458638da8e1a91aafffb231c5f8778e964bca650c8a8cb23a7e8ac557aa3c
   permissionsImage: busybox:1.37.0@sha256:9532d8c39891ca2ecde4d30d7710e01fb739c87a8b9299685c63704296b16028
-  email: hello@gesttalt.org
+  email: gesttalt@pepicrft.me
   httpPort: 8080
   httpsPort: 8443
   trustedProxies: []

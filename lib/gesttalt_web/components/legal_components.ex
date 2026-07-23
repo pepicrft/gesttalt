@@ -6,7 +6,7 @@ defmodule GesttaltWeb.LegalComponents do
   attr :eyebrow, :string, required: true
   attr :title, :string, required: true
   attr :description, :string, required: true
-  attr :draft, :boolean, default: true
+  attr :draft, :boolean, default: false
   slot :inner_block, required: true
 
   def legal_document(assigns) do
@@ -18,10 +18,10 @@ defmodule GesttaltWeb.LegalComponents do
         <p data-part="description">{@description}</p>
       </header>
       <aside :if={@draft} data-part="draft-notice" role="status">
-        <strong>{dgettext("legal", "Pre-launch draft.")}</strong>
+        <strong>{dgettext("legal", "Draft pending a publishable address.")}</strong>
         {dgettext(
           "legal",
-          "The remaining business and service-provider information will be completed before launch. This page is not yet a final legal notice."
+          "A serviceable business address is legally required before this page can become final. The private residential address has not been published."
         )}
       </aside>
       <div data-part="content">{render_slot(@inner_block)}</div>

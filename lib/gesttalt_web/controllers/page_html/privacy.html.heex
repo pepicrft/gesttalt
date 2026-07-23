@@ -1,12 +1,13 @@
 <Layouts.app flash={@flash} current_scope={@current_scope}>
   <div id="privacy-policy">
     <.legal_document
+      draft={false}
       eyebrow={dgettext("legal", "Your information")}
       title={dgettext("legal", "Privacy policy")}
       description={
         dgettext(
           "legal",
-          "This policy explains which personal information Gesttalt handles, why it is needed, and the choices available to you."
+          "This policy explains which personal information Gesttalt handles, why it is needed, how long it is kept, and the choices available to you."
         )
       }
     >
@@ -16,103 +17,192 @@
           <dt>{dgettext("legal", "Name")}</dt><dd>Pedro Piñera Buendía</dd>
           <dt>{dgettext("legal", "Trading as")}</dt><dd>Gesttalt</dd>
           <dt>{dgettext("legal", "Email")}</dt><dd>
-            <a href="mailto:hola@pepicrft.me">hola@pepicrft.me</a>
+            <a href="mailto:gesttalt@pepicrft.me">gesttalt@pepicrft.me</a>
+          </dd>
+          <dt>{dgettext("legal", "Last updated")}</dt><dd>23 July 2026</dd>
+        </dl>
+        <p>
+          No data protection officer has been appointed because Gesttalt is not currently required
+          to appoint one.
+        </p>
+      </section>
+
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Information, purpose, and legal basis")}</h2>
+        <dl data-part="facts">
+          <dt>{dgettext("legal", "Account and authentication")}</dt><dd>
+            Email address, password hash, login links, session records, and security events are
+            used to create and secure your account and perform the service contract. The legal
+            basis is Article 6(1)(b) of the General Data Protection Regulation.
+          </dd>
+          <dt>{dgettext("legal", "Publication")}</dt><dd>
+            Posts, pages, images, themes, publication settings, domain names, and delivery records
+            are processed to store and publish material at your direction. The legal basis is
+            Article 6(1)(b) of the General Data Protection Regulation.
+          </dd>
+          <dt>{dgettext("legal", "Connected applications")}</dt><dd>
+            Application details, authorization grants, public keys, and security tokens are
+            processed to provide requested publishing interfaces and protect accounts. The legal
+            bases are Article 6(1)(b) and Article 6(1)(f) of the General Data Protection Regulation.
+            The legitimate interest is operating a secure, interoperable service.
+          </dd>
+          <dt>{dgettext("legal", "Service operation and security")}</dt><dd>
+            Network address, request metadata, browser and transport signals, error logs, delivery
+            logs, and aggregated service measurements are processed to prevent abuse, diagnose
+            failures, and keep the service reliable. The legal basis is Article 6(1)(f) of the
+            General Data Protection Regulation. The legitimate interests are service security and
+            reliability.
+          </dd>
+          <dt>{dgettext("legal", "Messages and legal reports")}</dt><dd>
+            Contact details, correspondence, reported content addresses, explanations, and
+            decisions are processed to answer requests and comply with legal duties. The legal
+            bases are Article 6(1)(c) and Article 6(1)(f) of the General Data Protection Regulation.
+            The legitimate interests are resolving requests, protecting rights, and documenting
+            responsible moderation.
           </dd>
         </dl>
       </section>
+
       <section data-part="section">
-        <h2 data-part="title">{dgettext("legal", "Information we handle")}</h2>
-        <ul>
-          <li>
-            {dgettext(
-              "legal",
-              "Account details, including email address and authentication information."
-            )}
-          </li>
-          <li>
-            {dgettext(
-              "legal",
-              "Publication content, uploaded images, themes, settings, and custom domains."
-            )}
-          </li>
-          <li>
-            {dgettext(
-              "legal",
-              "Subscription, invoice, and payment status received from the payment provider."
-            )}
-          </li>
-          <li>
-            {dgettext(
-              "legal",
-              "Connected applications, authorization grants, and security tokens."
-            )}
-          </li>
-          <li>{dgettext("legal", "Technical request, security, error, and delivery logs.")}</li>
-          <li>
-            {dgettext(
-              "legal",
-              "Messages sent to support, privacy, or illegal-content reporting contacts."
-            )}
-          </li>
-        </ul>
-      </section>
-      <section data-part="section">
-        <h2 data-part="title">{dgettext("legal", "Why we handle it")}</h2>
+        <h2 data-part="title">{dgettext("legal", "Required information and sources")}</h2>
         <p>
-          {dgettext(
-            "legal",
-            "Information is used to provide the contracted publishing service, secure accounts, process payments, answer requests, meet legal duties, and improve reliability. The final policy will map each purpose to its legal basis."
-          )}
+          An email address is required to create an account because Gesttalt uses it to confirm
+          ownership, authenticate you, and send security notices. Without it, an account cannot be
+          provided. Publication and support information is supplied by you. Request and security
+          information is generated when you use the service. Domain information may also be read
+          from public Domain Name System records.
+        </p>
+        <p>
+          Gesttalt does not use your information for advertising, sell it, or make decisions with
+          legal or similarly significant effects solely by automated means. Illegal-content
+          reports and moderation decisions are assessed by a person.
         </p>
       </section>
+
       <section data-part="section">
         <h2 data-part="title">
-          {dgettext(
-            "legal",
-            "Service providers and international transfers"
-          )}
+          {dgettext("legal", "Service providers and international transfers")}
         </h2>
-        <p data-state="missing">
-          {dgettext(
-            "legal",
-            "The final list will identify hosting, database, image storage, payment, email, monitoring, support, and backup providers, their processing locations, and any safeguards used for transfers outside the European Economic Area."
-          )}
+        <dl data-part="facts">
+          <dt>Hetzner Online GmbH</dt><dd>
+            Provides computing, network delivery, database infrastructure, object storage, and
+            backups in Germany. Gesttalt selects the Falkenstein, Germany region.
+            <a href="https://www.hetzner.com/legal/privacy-policy/" rel="external">
+              Hetzner privacy information
+            </a>
+          </dd>
+          <dt>Cloudflare, Inc.</dt><dd>
+            Provides Turnstile abuse protection on account registration and legal-reporting forms.
+            It receives the network address and browser, transport, site, and challenge signals
+            needed to distinguish people from automated abuse. Processing outside the European
+            Economic Area may occur under Cloudflare's data-processing terms and applicable
+            transfer safeguards.
+            <a href="https://www.cloudflare.com/turnstile-privacy-policy/" rel="external">
+              Turnstile privacy information
+            </a>
+          </dd>
+          <dt>Plunk</dt><dd>
+            Delivers transactional email through Gesttalt's mail relay. Primary hosted processing
+            is in Germany. Amazon Web Services Simple Email Service may transmit messages
+            internationally under the European Commission's standard contractual clauses.
+            <a href="https://www.useplunk.com/dpa" rel="external">
+              Plunk data-processing terms
+            </a>
+          </dd>
+          <dt>Fastmail Pty Ltd</dt><dd>
+            Hosts the gesttalt@pepicrft.me mailbox used for support, privacy requests, and legal
+            reports. Fastmail is based in Australia and uses the European Commission's standard
+            contractual clauses for restricted transfers.
+            <a href="https://www.fastmail.com/policies/dpa/" rel="external">
+              Fastmail data-processing terms
+            </a>
+          </dd>
+        </dl>
+        <p>
+          Gesttalt may disclose information to courts, regulators, law-enforcement authorities, or
+          other recipients when legally required, or when necessary to establish, exercise, or
+          defend legal claims.
         </p>
       </section>
+
       <section data-part="section">
         <h2 data-part="title">{dgettext("legal", "Retention")}</h2>
-        <p data-state="missing">
-          {dgettext(
-            "legal",
-            "Account, publication, invoice, security-log, support-message, and backup retention periods remain to be confirmed."
-          )}
+        <ul>
+          <li>
+            Unconfirmed accounts are automatically deleted after 30 days.
+          </li>
+          <li>
+            Active account and publication information is kept while the account exists. A
+            permanent deletion job is available in <a href={~p"/users/settings"}>account settings</a>. It removes the account, publication,
+            connected applications, and stored media; encrypted backups expire within 30 days.
+          </li>
+          <li>
+            Login links are removed after 15 minutes, email-change links after 7 days, and browser
+            session records after 14 days. Expired application authorization records are removed
+            within 35 days. Expired or revoked agent registration records are removed after 7 days.
+          </li>
+          <li>
+            Application request, error, and security logs are kept for 7 days. Service measurements
+            are kept for 15 days.
+          </li>
+          <li>
+            Resolved illegal-content reports and their decision records are automatically deleted
+            after 3 years. Open reports are kept until a decision is completed.
+          </li>
+          <li>
+            Support, privacy, and legal correspondence in the contact mailbox is deleted no later
+            than 3 years after the matter closes, unless longer retention is required for a legal
+            claim or by law.
+          </li>
+          <li>
+            Plunk states that application programming interface logs and hosted backups are deleted
+            after 30 days. Temporary mail relay queues retain a message only while delivery is
+            attempted.
+          </li>
+        </ul>
+        <p>
+          A legal preservation duty or active claim may require a limited record to be kept longer.
+          When that duty ends, the record is deleted.
         </p>
       </section>
+
       <section data-part="section">
         <h2 data-part="title">{dgettext("legal", "Cookies and browser storage")}</h2>
         <p>
-          {dgettext(
-            "legal",
-            "Gesttalt is designed to use browser storage only where it is necessary for authentication, security, checkout, and features explicitly requested by the user. Optional analytics or marketing storage will not be enabled without an appropriate consent mechanism."
-          )}
+          Gesttalt uses only storage necessary to provide requested features. The signed session
+          cookie maintains a login for the current browser session. If “Keep me logged in” is
+          selected, a signed authentication cookie lasts up to 14 days. Theme previews use session
+          storage until the browser tab closes. Cloudflare Turnstile uses the signals and storage
+          necessary to protect registration and reporting forms. No advertising or optional
+          analytics storage is used.
         </p>
       </section>
+
       <section data-part="section">
         <h2 data-part="title">{dgettext("legal", "Your rights")}</h2>
         <p>
-          {dgettext(
-            "legal",
-            "Depending on the circumstances, you may request access, correction, deletion, restriction, portability, or object to processing. You may withdraw consent where processing relies on consent and complain to a competent data-protection authority."
-          )}
+          Depending on the circumstances, you may request access, correction, deletion,
+          restriction, or portability of your information, and you may object to processing based
+          on legitimate interests. Where processing relies on consent, you may withdraw it for the
+          future. Contact <a href="mailto:gesttalt@pepicrft.me">gesttalt@pepicrft.me</a>. Gesttalt may need to verify
+          your identity before fulfilling a request.
+        </p>
+        <p>
+          You may complain to any competent supervisory authority. The authority for the Berlin
+          establishment is the Berlin Commissioner for Data Protection and Freedom of Information,
+          Alt-Moabit 59-61, 10555 Berlin, Germany, <a href="mailto:mailbox@datenschutz-berlin.de">mailbox@datenschutz-berlin.de</a>.
         </p>
       </section>
+
       <section data-part="section">
         <h2 data-part="title">{dgettext("legal", "Customer publications")}</h2>
         <p>
-          {dgettext(
-            "legal",
-            "A publication owner may separately determine how information from its visitors is used. Publication owners are responsible for providing their own legal information where required. Gesttalt will offer a Data Processing Agreement when it processes personal information on their behalf."
-          )}
+          A publication owner separately determines how information from its visitors is used and
+          is responsible for its own legal notices and privacy information. When Gesttalt processes
+          visitor information solely on a publication owner's instructions, the publication owner
+          is the controller and Gesttalt is the processor. Contact
+          <a href="mailto:gesttalt@pepicrft.me">gesttalt@pepicrft.me</a>
+          before using Gesttalt for processing that requires a written data-processing agreement.
         </p>
       </section>
     </.legal_document>

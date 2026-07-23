@@ -141,6 +141,22 @@ if config_env() == :prod do
         allow_testing_key: false
       ]
     ],
+    illegal_content_report_protection: [
+      enabled: true,
+      rate_limiter: Gesttalt.AccountRegistrationRateLimiter,
+      turnstile_verifier: Gesttalt.Turnstile,
+      rate_limit: [
+        period: :timer.hours(1),
+        per_client_address: 10
+      ],
+      turnstile: [
+        site_key: turnstile_site_key,
+        secret_key: turnstile_secret_key,
+        hostname: host,
+        action: "illegal_content_report",
+        allow_testing_key: false
+      ]
+    ],
     agent_auth: [
       registration_ttl_seconds: 86_400,
       claim_attempt_ttl_seconds: 600,

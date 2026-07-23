@@ -1,6 +1,7 @@
 defmodule GesttaltWeb.UserSettingsController do
   use GesttaltWeb, :controller
 
+  alias Gesttalt.AccountDeletion
   alias Gesttalt.Accounts
   alias GesttaltWeb.UserAuth
 
@@ -51,6 +52,29 @@ defmodule GesttaltWeb.UserSettingsController do
       {:error, changeset} ->
         render(conn, :edit, password_changeset: changeset)
     end
+  end
+
+  def update(conn, %{"action" => "delete_account", "confirmation" => "DELETE"}) do
+    case AccountDeletion.request(conn.assigns.current_scope.user) do
+      {:ok, _job} ->
+        conn
+        |> UserAuth.log_out_user()
+        |> put_flash(
+          :info,
+          "Account deletion has started. Your account and publication will be permanently removed."
+        )
+
+      {:error, _changeset} ->
+        conn
+        |> put_flash(:error, "Account deletion could not be scheduled. Please try again.")
+        |> redirect(to: ~p"/users/settings")
+    end
+  end
+
+  def update(conn, %{"action" => "delete_account"}) do
+    conn
+    |> put_flash(:error, "Enter DELETE exactly to confirm permanent account deletion.")
+    |> redirect(to: ~p"/users/settings")
   end
 
   def confirm_email(conn, %{"token" => token}) do

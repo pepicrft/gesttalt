@@ -6,7 +6,7 @@ defmodule Gesttalt.Accounts.UserNotifier do
   alias Gesttalt.Accounts.User
   alias Gesttalt.Mailer
 
-  @from {"gesttalt", "hello@pepicrft.me"}
+  @from {"gesttalt", "gesttalt@pepicrft.me"}
 
   defp deliver(recipient, subject, content) do
     email =

@@ -1,7 +1,9 @@
 defmodule GesttaltWeb.UserSettingsControllerTest do
   use GesttaltWeb.ConnCase, async: true
+  use Oban.Testing, repo: Gesttalt.Repo
 
   alias Gesttalt.Accounts
+  alias Gesttalt.Workers.DeleteAccountWorker
   import Gesttalt.AccountsFixtures
 
   setup :register_and_log_in_user
@@ -143,6 +145,36 @@ defmodule GesttaltWeb.UserSettingsControllerTest do
       conn = build_conn()
       conn = get(conn, ~p"/users/settings/confirm-email/#{token}")
       assert redirected_to(conn) == ~p"/users/log-in"
+    end
+  end
+
+  describe "PUT /users/settings (delete account form)" do
+    test "queues permanent deletion and logs the user out", %{conn: conn, user: user} do
+      conn =
+        put(conn, ~p"/users/settings", %{
+          "action" => "delete_account",
+          "confirmation" => "DELETE"
+        })
+
+      assert redirected_to(conn) == ~p"/"
+      refute get_session(conn, :user_token)
+
+      assert_enqueued(
+        worker: DeleteAccountWorker,
+        args: %{"user_id" => user.id}
+      )
+    end
+
+    test "requires the exact confirmation", %{conn: conn, user: user} do
+      conn =
+        put(conn, ~p"/users/settings", %{
+          "action" => "delete_account",
+          "confirmation" => "delete"
+        })
+
+      assert redirected_to(conn) == ~p"/users/settings"
+      assert Accounts.get_user_by_email(user.email)
+      refute_enqueued(worker: DeleteAccountWorker, args: %{"user_id" => user.id})
     end
   end
 end

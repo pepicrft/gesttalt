@@ -1,6 +1,7 @@
 <Layouts.app flash={@flash} current_scope={@current_scope}>
   <div id="illegal-content-report">
     <.legal_document
+      draft={false}
       eyebrow={dgettext("legal", "Hosting safety")}
       title={dgettext("legal", "Report illegal content")}
       description={
@@ -12,12 +13,99 @@
     >
       <section data-part="section">
         <h2 data-part="title">{dgettext("legal", "Electronic reporting")}</h2>
-        <p data-state="missing">
+        <p>
           {dgettext(
             "legal",
-            "The reporting form and monitored contact address will be activated before public customer publications are accepted. Reports will receive an electronic acknowledgment and a decision notice where contact details are provided."
+            "This form is monitored at gesttalt@pepicrft.me. A reference and electronic acknowledgment are sent when an email address is provided. A decision notice follows after human assessment unless the law prevents disclosure."
           )}
         </p>
+        <.form
+          :let={f}
+          for={@changeset}
+          as={:illegal_content_report}
+          action={~p"/report-illegal-content"}
+          id="illegal-content-report-form"
+          data-part="report-form"
+        >
+          <.input
+            field={f[:content_url]}
+            type="url"
+            label={dgettext("legal", "Exact internet address of the content")}
+            autocomplete="url"
+            required
+          />
+          <.input
+            field={f[:explanation]}
+            type="textarea"
+            label={dgettext("legal", "Why you believe the content is illegal")}
+            rows="8"
+            minlength="20"
+            maxlength="20000"
+            required
+          />
+          <.input
+            field={f[:reporter_name]}
+            type="text"
+            label={dgettext("legal", "Your name")}
+            autocomplete="name"
+          />
+          <.input
+            field={f[:reporter_email]}
+            type="email"
+            label={dgettext("legal", "Your email address")}
+            autocomplete="email"
+          />
+          <.input
+            field={f[:anonymous_sensitive_offence]}
+            type="checkbox"
+            label={
+              dgettext(
+                "legal",
+                "This report concerns suspected child sexual abuse or exploitation, so I am submitting it without contact details."
+              )
+            }
+          />
+          <.input
+            field={f[:good_faith]}
+            type="checkbox"
+            label={
+              dgettext(
+                "legal",
+                "I believe in good faith that the information in this report is accurate and complete."
+              )
+            }
+            required
+          />
+
+          <div
+            :if={@turnstile_site_key}
+            id="illegal-content-report-verification"
+            data-part="verification"
+          >
+            <div
+              class="cf-turnstile"
+              data-sitekey={@turnstile_site_key}
+              data-action={@turnstile_action}
+              data-size="flexible"
+              data-theme="auto"
+            >
+            </div>
+            <noscript>
+              {dgettext("legal", "JavaScript is required to verify this report.")}
+            </noscript>
+          </div>
+
+          <.button variant="primary" phx-disable-with={dgettext("legal", "Submitting report...")}>
+            {dgettext("legal", "Submit report")}
+          </.button>
+        </.form>
+        <script
+          :if={@turnstile_site_key}
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          async
+          defer
+        >
+        </script>
       </section>
       <section data-part="section">
         <h2 data-part="title">{dgettext("legal", "What a report must include")}</h2>
@@ -44,6 +132,12 @@
           {dgettext(
             "legal",
             "Reports will be assessed diligently, objectively, and without arbitrary treatment. Gesttalt may request more information, preserve relevant records, restrict content where warranted, notify the affected publisher, and explain available ways to challenge the decision."
+          )}
+        </p>
+        <p>
+          {dgettext(
+            "legal",
+            "Gesttalt does not use automated moderation or automated decisions. Reply to the acknowledgment or decision email to provide more information or request another human review."
           )}
         </p>
       </section>

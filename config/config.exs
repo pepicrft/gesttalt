@@ -56,6 +56,22 @@ config :gesttalt,
       allow_testing_key: false
     ]
   ],
+  illegal_content_report_protection: [
+    enabled: false,
+    rate_limiter: Gesttalt.AccountRegistrationRateLimiter,
+    turnstile_verifier: Gesttalt.Turnstile,
+    rate_limit: [
+      period: :timer.hours(1),
+      per_client_address: 10
+    ],
+    turnstile: [
+      site_key: nil,
+      secret_key: nil,
+      hostname: "gesttalt.org",
+      action: "illegal_content_report",
+      allow_testing_key: false
+    ]
+  ],
   agent_auth: [
     registration_ttl_seconds: 86_400,
     claim_attempt_ttl_seconds: 600,
@@ -67,6 +83,18 @@ config :gesttalt,
 
 config :gesttalt, Gesttalt.Mailer, adapter: Swoosh.Adapters.Local
 config :swoosh, :api_client, Swoosh.ApiClient.Req
+
+config :gesttalt, Oban,
+  engine: Oban.Engines.Basic,
+  repo: Gesttalt.Repo,
+  queues: [retention: 2, notifications: 5],
+  plugins: [
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"15 3 * * *", Gesttalt.Workers.RetentionWorker}
+     ]},
+    {Oban.Plugins.Pruner, max_age: 7 * 24 * 60 * 60}
+  ]
 
 # Exporting stays disabled unless a production runtime provides an OpenTelemetry
 # Protocol endpoint. This keeps local development and tests self-contained.

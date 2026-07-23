@@ -59,5 +59,44 @@
         Save Password
       </.button>
     </.form>
+
+    <div data-part="divider" />
+
+    <section data-part="danger-zone">
+      <.header>
+        Delete account
+        <:subtitle>
+          Permanently remove your account, publication, connected applications, and uploaded
+          media. Backups expire automatically within 30 days.
+        </:subtitle>
+      </.header>
+
+      <.form
+        :let={f}
+        for={%{}}
+        as={:account_deletion}
+        action={~p"/users/settings"}
+        id="delete_account"
+        data-part="form"
+      >
+        <input type="hidden" name="action" value="delete_account" />
+        <.input
+          field={f[:confirmation]}
+          name="confirmation"
+          type="text"
+          label="Type DELETE to confirm"
+          autocomplete="off"
+          spellcheck="false"
+          required
+        />
+        <button
+          class="button button--danger"
+          type="submit"
+          phx-disable-with="Deleting account..."
+        >
+          Permanently delete account
+        </button>
+      </.form>
+    </section>
   </div>
 </Layouts.app>

@@ -1,125 +1,159 @@
 <Layouts.app flash={@flash} current_scope={@current_scope}>
   <div id="terms-of-service">
     <.legal_document
+      draft={false}
       eyebrow={dgettext("legal", "Using Gesttalt")}
       title={dgettext("legal", "Terms of service")}
       description={
         dgettext(
           "legal",
-          "These terms describe the publishing service, subscriptions, customer responsibilities, and how content is handled."
+          "These terms describe the publishing service, early access, customer responsibilities, moderation, termination, and liability."
         )
       }
     >
       <section data-part="section">
         <h2 data-part="title">{dgettext("legal", "Contracting party and scope")}</h2>
-        <p data-state="missing">
-          {dgettext(
-            "legal",
-            "Gesttalt is operated by Pedro Piñera Buendía as a sole proprietor. The effective date and remaining provider details will be inserted before launch."
-          )}
+        <p>
+          Gesttalt is operated by Pedro Piñera Buendía, trading as Gesttalt, as a sole proprietor.
+          The contracting party's serviceable address is Jessnerstrasse 27a, 10247 Berlin, Germany.
+          These terms apply when you create an account or use the hosted publishing service. Last
+          updated: 23 July 2026.
         </p>
       </section>
+
       <section data-part="section">
         <h2 data-part="title">{dgettext("legal", "Accounts")}</h2>
         <p>
-          {dgettext(
-            "legal",
-            "Account holders must provide accurate information, keep their credentials secure, and promptly report suspected misuse. Paid consumer accounts are intended for people who are at least 18 years old."
-          )}
+          You must be at least 18 years old and able to enter a binding contract. You must provide
+          accurate account information, keep credentials and connected-application secrets secure,
+          and promptly report suspected misuse. You are responsible for activity performed through
+          your account unless it resulted from a security failure attributable to Gesttalt.
         </p>
       </section>
+
       <section data-part="section">
-        <h2 data-part="title">{dgettext("legal", "Publishing service")}</h2>
+        <h2 data-part="title">{dgettext("legal", "Publishing service and early access")}</h2>
         <p>
-          {dgettext(
-            "legal",
-            "Gesttalt provides tools to create and publish posts and pages, store images, use custom domains, edit Liquid themes, and publish through supported programmatic interfaces. Exact plan limits and support commitments will be shown before an order is placed."
-          )}
-        </p>
-      </section>
-      <section data-part="section">
-        <h2 data-part="title">
-          {if Gesttalt.Plans.early_access?(),
-            do: dgettext("legal", "Early access"),
-            else: dgettext("legal", "Price, renewal, and payment")}
-        </h2>
-        <p data-state={if Gesttalt.Plans.early_access?(), do: nil, else: "missing"}>
-          {if Gesttalt.Plans.early_access?(),
-            do:
-              dgettext(
-                "legal",
-                "Gesttalt is free during early access. Custom domains, media uploads, custom themes, and publishing from the web, an application, or an agent are included without payment details."
-              ),
-            else:
-              dgettext(
-                "legal",
-                "Text publishing from the web, an application, or an agent on a Gesttalt subdomain is free. The Publisher plan is expected to cost €5 per month and unlock custom domains, media uploads, and custom themes. The final gross price, value-added tax treatment, billing date, renewal terms, payment provider, failed-payment handling, and cancellation effective date remain to be confirmed."
-              )}
-        </p>
-      </section>
-      <section data-part="section">
-        <h2 data-part="title">{dgettext("legal", "Your content and themes")}</h2>
-        <p>
-          {dgettext(
-            "legal",
-            "You retain ownership of the content and themes you upload. You grant Gesttalt the limited rights needed to store, process, back up, and publicly deliver them at your direction. You must have the rights needed to publish all submitted text, images, code, and other material."
-          )}
-        </p>
-      </section>
-      <section data-part="section">
-        <h2 data-part="title">{dgettext("legal", "Domains and legal responsibilities")}</h2>
-        <p>
-          {dgettext(
-            "legal",
-            "You are responsible for controlling connected domains and for the legal notices, privacy information, and other disclosures required for your own publication. Gesttalt may pause a domain connection when control cannot be verified or its configuration creates a security risk."
-          )}
-        </p>
-      </section>
-      <section data-part="section">
-        <h2 data-part="title">{dgettext("legal", "Content restrictions and moderation")}</h2>
-        <p>
-          {dgettext(
-            "legal",
-            "Do not publish illegal material, infringe intellectual-property or privacy rights, impersonate others, distribute malicious software, facilitate fraud, or use the service to threaten or exploit people. Gesttalt may review reports and restrict content or accounts where required by law or these terms."
-          )}
+          Gesttalt provides tools to create and publish posts and pages, store images, use custom
+          domains, edit themes, and publish through supported programmatic interfaces. The service
+          is free during early access and does not require payment details. Gesttalt may introduce
+          paid plans later, but no charge or paid renewal will begin without clear terms and your
+          express order.
         </p>
         <p>
-          {dgettext(
-            "legal",
-            "Affected account holders will receive a clear reason for a restriction where the law permits it. The final policy will state whether any automated moderation is used and describe the available review process."
-          )}
+          Early access is under active development. Features may change, be unavailable, or contain
+          errors. There is no guaranteed service level or continuous availability during early
+          access. Gesttalt will use reasonable care in operating the service and maintaining
+          backups, but you should keep an independent copy of important content.
         </p>
       </section>
+
       <section data-part="section">
-        <h2 data-part="title">{dgettext("legal", "Cancellation, withdrawal, and export")}</h2>
+        <h2 data-part="title">{dgettext("legal", "Your content and permissions")}</h2>
         <p>
-          {dgettext("legal", "Customers may cancel an ongoing subscription through the")}
-          <a href={~p"/cancel"}>{dgettext("legal", "cancellation page")}</a>. {dgettext(
-            "legal",
-            "Consumers may separately exercise a statutory right of withdrawal through the"
-          )}
-          <a href={~p"/withdrawal"}>{dgettext("legal", "withdrawal page")}</a>. {dgettext(
-            "legal",
-            "The final terms will state how long content remains available for export after cancellation."
-          )}
+          You retain ownership of content and themes you submit. You grant Gesttalt a worldwide,
+          non-exclusive, royalty-free permission to host, reproduce, adapt technically, back up,
+          and publicly deliver that material only as needed to operate the service at your
+          direction. The permission ends when the material is deleted, subject to backup expiry and
+          legal preservation duties.
+        </p>
+        <p>
+          You must have the rights and permissions needed to submit and publish all text, images,
+          code, personal information, and other material. You are responsible for connected domain
+          names and for the legal notices, privacy information, and disclosures required for your
+          own publication.
         </p>
       </section>
+
       <section data-part="section">
-        <h2 data-part="title">{dgettext("legal", "Availability and liability")}</h2>
-        <p data-state="missing">
-          {dgettext(
-            "legal",
-            "Maintenance, support, backups, statutory defect rights, liability, force-majeure events, and service discontinuation clauses require final legal review. Nothing in these terms will exclude rights or liability that cannot legally be excluded."
-          )}
+        <h2 data-part="title">{dgettext("legal", "Acceptable use")}</h2>
+        <p>
+          Do not use Gesttalt to publish illegal material; infringe intellectual-property, privacy,
+          or personality rights; impersonate others; distribute malicious software; evade security
+          controls; facilitate fraud; send unsolicited bulk messages; or threaten, exploit, or
+          endanger people. Do not overload the service or interfere with another person's use.
         </p>
       </section>
+
       <section data-part="section">
-        <h2 data-part="title">{dgettext("legal", "Changes and governing law")}</h2>
-        <p data-state="missing">
-          {dgettext(
-            "legal",
-            "The notice period and grounds for changing these terms will be finalized with counsel. German law is expected to apply without depriving consumers of mandatory protections available where they live."
-          )}
+        <h2 data-part="title">{dgettext("legal", "Reports and moderation")}</h2>
+        <p>
+          Anyone may use the <a href={~p"/report-illegal-content"}>illegal-content reporting form</a>. Gesttalt assesses
+          reports diligently, objectively, and without arbitrary treatment. Moderation and
+          decisions are performed by a person. Gesttalt does not use automated moderation or
+          automated decision-making.
+        </p>
+        <p>
+          Gesttalt may preserve evidence, restrict access to content, disconnect a domain, or
+          suspend an account where required by law or reasonably necessary to address a material
+          breach of these terms. Affected users receive a reason where the law permits it and may
+          request another human review by writing to <a href="mailto:gesttalt@pepicrft.me">gesttalt@pepicrft.me</a>.
+        </p>
+      </section>
+
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Ending the service and exporting content")}</h2>
+        <p>
+          You may stop using Gesttalt at any time. The permanent deletion control in
+          <a href={~p"/users/settings"}>account settings</a>
+          removes your account, publication, connected applications, and uploaded media. Deletion
+          cannot be undone; encrypted backups expire within 30 days.
+        </p>
+        <p>
+          If Gesttalt ordinarily terminates your account or closes the service, it will give at
+          least 30 days' notice and keep access available during that period so you can copy your
+          content. Immediate restriction or termination may be necessary for an urgent legal or
+          security reason, a serious or repeated breach, or conduct that materially endangers
+          another person or the service. Where possible, Gesttalt will still provide a reasonable
+          way to retrieve lawful content.
+        </p>
+      </section>
+
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Liability")}</h2>
+        <p>
+          Gesttalt has unlimited liability for intent and gross negligence; injury to life, body,
+          or health; guarantees expressly given; liability under the German Product Liability Act;
+          and any other liability that cannot legally be limited.
+        </p>
+        <p>
+          For ordinary negligence, Gesttalt is liable only for breach of a duty whose performance
+          is essential to the contract and on whose performance you may normally rely. In that
+          case, liability is limited to loss that was typical and reasonably foreseeable when the
+          contract was made. This limitation does not reduce mandatory consumer rights or
+          statutory rights concerning defective digital products.
+        </p>
+        <p>
+          Gesttalt is not responsible for content you publish, external services you connect,
+          internet or domain-provider failures outside Gesttalt's control, or loss caused by your
+          failure to secure credentials or keep a reasonable independent copy, except to the extent
+          the loss was also caused by a breach for which Gesttalt is liable under the preceding
+          paragraphs.
+        </p>
+      </section>
+
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Changes")}</h2>
+        <p>
+          Gesttalt may change these terms when reasonably necessary for legal or security
+          requirements, to reflect a changed service, or to preserve a balanced contractual
+          relationship. Material changes will be explained by email at least 30 days before they
+          take effect. Urgent legal or security changes may take effect sooner, with notice as soon
+          as reasonably possible. If you do not accept a material change, you may end the service
+          and copy your content before it takes effect.
+        </p>
+      </section>
+
+      <section data-part="section">
+        <h2 data-part="title">{dgettext("legal", "Governing law and contact")}</h2>
+        <p>
+          German law applies, excluding its conflict-of-law rules and the United Nations Convention
+          on Contracts for the International Sale of Goods. A consumer keeps any mandatory
+          protection provided by the law of the country where they habitually live. Mandatory
+          rules on court jurisdiction remain unaffected.
+        </p>
+        <p>
+          Questions about these terms may be sent to <a href="mailto:gesttalt@pepicrft.me">gesttalt@pepicrft.me</a>.
         </p>
       </section>
     </.legal_document>

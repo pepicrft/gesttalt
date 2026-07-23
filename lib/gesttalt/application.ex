@@ -12,6 +12,7 @@ defmodule Gesttalt.Application do
     children = [
       GesttaltWeb.Telemetry,
       Gesttalt.Repo,
+      {Oban, Application.fetch_env!(:gesttalt, Oban)},
       {DNSCluster, query: Application.get_env(:gesttalt, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Gesttalt.PubSub},
       {Gesttalt.AccountRegistrationRateLimiter, clean_period: :timer.minutes(10)},

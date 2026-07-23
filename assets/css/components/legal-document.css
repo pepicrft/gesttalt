@@ -73,6 +73,10 @@
           font-weight: 700;
           padding-right: var(--space-2);
         }
+
+        & address {
+          font-style: normal;
+        }
       }
 
       & [data-state="missing"] {

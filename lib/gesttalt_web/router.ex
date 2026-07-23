@@ -53,6 +53,7 @@ defmodule GesttaltWeb.Router do
     get "/withdrawal", GesttaltWeb.PageController, :withdrawal
     get "/cancel", GesttaltWeb.PageController, :cancel
     get "/report-illegal-content", GesttaltWeb.PageController, :report_illegal_content
+    post "/report-illegal-content", GesttaltWeb.PageController, :create_illegal_content_report
     get "/sitemap.xml", GesttaltWeb.SitemapController, :show
     get "/api-docs", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
     get "/agent/identity/claim", GesttaltWeb.AgentClaimController, :show

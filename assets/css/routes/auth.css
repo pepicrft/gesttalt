@@ -53,6 +53,17 @@
     display: grid;
     gap: var(--space-2);
   }
+
+  & > [data-part="danger-zone"] {
+    border: 1px solid var(--red);
+    padding: var(--space-2);
+
+    & > [data-part="form"] {
+      display: grid;
+      gap: var(--space-2);
+      margin-top: var(--space-2);
+    }
+  }
 }
 
 .w-full {

@@ -41,21 +41,74 @@ defmodule GesttaltWeb.PageControllerTest do
       response = conn |> recycle() |> get(path) |> html_response(200)
 
       assert response =~ heading
-      assert response =~ "Pre-launch draft."
     end
 
     legal_notice = conn |> recycle() |> get(~p"/legal-notice") |> html_response(200)
 
     assert legal_notice =~ "Pedro Piñera Buendía"
-    assert legal_notice =~ "hola@pepicrft.me"
+    assert legal_notice =~ "gesttalt@pepicrft.me"
     assert legal_notice =~ "Sole proprietor"
-    refute legal_notice =~ "Serviceable address"
+    assert legal_notice =~ "Serviceable address"
+    assert legal_notice =~ "Jessnerstrasse 27a"
+    assert legal_notice =~ "10247 Berlin"
+    refute legal_notice =~ "Draft pending a publishable address."
     refute legal_notice =~ "Commercial register"
 
     privacy = conn |> recycle() |> get(~p"/privacy") |> html_response(200)
 
     assert privacy =~ "Pedro Piñera Buendía"
+    assert privacy =~ "Hetzner Online GmbH"
+    assert privacy =~ "automatically deleted after 30 days"
+    refute privacy =~ "Draft pending a publishable address."
     refute privacy =~ "Serviceable address"
+
+    report = conn |> recycle() |> get(~p"/report-illegal-content") |> html_response(200)
+    assert report =~ ~s(id="illegal-content-report-form")
+    refute report =~ "Draft pending a publishable address."
+
+    cancellation = conn |> recycle() |> get(~p"/cancel") |> html_response(200)
+    assert cancellation =~ "No paid subscription to cancel"
+    refute cancellation =~ "Draft pending a publishable address."
+
+    terms = conn |> recycle() |> get(~p"/terms") |> html_response(200)
+    assert terms =~ "Jessnerstrasse 27a"
+    refute terms =~ "Draft pending a publishable address."
+
+    withdrawal = conn |> recycle() |> get(~p"/withdrawal") |> html_response(200)
+    assert withdrawal =~ "Jessnerstrasse 27a"
+    refute withdrawal =~ "Draft pending a publishable address."
+  end
+
+  test "POST /report-illegal-content records a valid report", %{conn: conn} do
+    conn =
+      post(conn, ~p"/report-illegal-content", %{
+        "illegal_content_report" => %{
+          "content_url" => "https://writer.gesttalt.test/blog/reported-post",
+          "explanation" =>
+            "This page contains a specific threat against an identified person and should be reviewed.",
+          "reporter_name" => "Robin Reporter",
+          "reporter_email" => "reporter@example.com",
+          "good_faith" => "true"
+        }
+      })
+
+    assert redirected_to(conn) == ~p"/report-illegal-content"
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Your report was received"
+  end
+
+  test "POST /report-illegal-content renders validation errors", %{conn: conn} do
+    conn =
+      post(conn, ~p"/report-illegal-content", %{
+        "illegal_content_report" => %{
+          "content_url" => "/relative",
+          "explanation" => "Too short",
+          "good_faith" => "false"
+        }
+      })
+
+    response = html_response(conn, 422)
+    assert response =~ "must be a complete http or https address"
+    assert response =~ "must be confirmed before the report can be submitted"
   end
 
   test "GET /sitemap.xml", %{conn: conn} do
