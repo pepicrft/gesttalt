@@ -28,6 +28,21 @@ runtime_port =
 
 config :gesttalt, GesttaltWeb.Endpoint, http: [port: runtime_port]
 
+analytics_host = System.get_env("SMOLANALYTICS_HOST")
+analytics_write_key = System.get_env("SMOLANALYTICS_WRITE_KEY")
+
+analytics_enabled =
+  Enum.all?([analytics_host, analytics_write_key], fn value ->
+    is_binary(value) and String.trim(value) != ""
+  end)
+
+config :gesttalt, GesttaltWeb.Endpoint,
+  analytics: [
+    enabled: analytics_enabled,
+    host: analytics_host,
+    write_key: analytics_write_key
+  ]
+
 if config_env() == :prod do
   case System.get_env("OTEL_EXPORTER_OTLP_ENDPOINT") do
     endpoint when is_binary(endpoint) and endpoint != "" ->

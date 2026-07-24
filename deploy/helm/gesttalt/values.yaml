@@ -28,6 +28,10 @@ env:
 secrets:
   envSecretName: gesttalt-app-env
 
+analytics:
+  enabled: false
+  secretName: analytics-client
+
 service:
   type: LoadBalancer
   externalTrafficPolicy: Cluster

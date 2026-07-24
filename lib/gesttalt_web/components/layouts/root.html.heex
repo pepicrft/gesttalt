@@ -1,9 +1,18 @@
 <!doctype html>
 <html lang={Gettext.get_locale(GesttaltWeb.Gettext)}>
   <head>
+    <% analytics =
+      Application.get_env(:gesttalt, GesttaltWeb.Endpoint, [])
+      |> Keyword.get(:analytics, []) %>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
+    <meta :if={analytics[:enabled]} name="smolanalytics-host" content={analytics[:host]} />
+    <meta
+      :if={analytics[:enabled]}
+      name="smolanalytics-write-key"
+      content={analytics[:write_key]}
+    />
     <meta
       name="description"
       content={assigns[:meta_description] || "Independent publishing with an open interface."}
