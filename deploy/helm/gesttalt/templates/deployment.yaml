@@ -130,6 +130,10 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ .Values.secrets.envSecretName }}
+            {{- if .Values.analytics.enabled }}
+            - secretRef:
+                name: {{ required "analytics.secretName is required when analytics is enabled" .Values.analytics.secretName }}
+            {{- end }}
             {{- if .Values.media.objectStorage.enabled }}
             - secretRef:
                 name: {{ .Values.media.objectStorage.secretName }}

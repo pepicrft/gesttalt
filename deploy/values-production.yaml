@@ -10,6 +10,9 @@ env:
 imagePullSecrets:
   - name: ghcr-pull-secret
 
+analytics:
+  enabled: true
+
 service:
   externalTrafficPolicy: Local
   annotations:
