@@ -11,6 +11,7 @@
 @import "components/legal-document.css";
 @import "routes/home.css";
 @import "routes/docs.css";
+@import "routes/changelog.css";
 @import "routes/legal.css";
 @import "routes/auth.css";
 @import "routes/agent-claim.css";

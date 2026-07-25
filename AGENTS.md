@@ -1,5 +1,11 @@
 # Gesttalt development instructions
 
+## Changelog
+
+- Keep the public changelog current. Every change that affects what users can see or do must add or update an entry under `priv/changelog`.
+- Name entries `YYYY-MM-DD-slug.md`, explain what changed and why it matters, and reserve the changelog for user-facing changes rather than internal maintenance.
+- Format entries for [NimblePublisher](https://github.com/dashbitco/nimble_publisher) with a metadata map containing `title` and `summary`, followed by `---` and the Markdown body.
+
 ## Cascading Style Sheets
 
 - Give every route a single, stable identifier on its outermost rendered element.

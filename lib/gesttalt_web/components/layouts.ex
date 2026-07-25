@@ -34,7 +34,10 @@ defmodule GesttaltWeb.Layouts do
           </a>
         </nav>
         <nav :if={!@admin} data-part="navigation" data-context="public">
-          <a href={~p"/docs"}>{dgettext("navigation", "Developers")}</a><a
+          <a href={~p"/docs"}>{dgettext("navigation", "Developers")}</a><a href={~p"/changelog"}>{dgettext(
+            "navigation",
+            "Changelog"
+          )}</a><a
             :if={!@current_scope || !@current_scope.user}
             href={~p"/users/log-in"}
           >{dgettext("navigation", "Log in")}</a><a
@@ -76,6 +79,9 @@ defmodule GesttaltWeb.Layouts do
           }>{dgettext("navigation", "Privacy")}</a><a href={~p"/terms"}>{dgettext(
             "navigation",
             "Terms"
+          )}</a><a href={~p"/changelog"}>{dgettext(
+            "navigation",
+            "Changelog"
           )}</a><a href={~p"/withdrawal"}>{dgettext("navigation", "Withdrawal")}</a><a href={
             ~p"/cancel"
           }>{dgettext("navigation", "Cancel contract")}</a><a href={~p"/report-illegal-content"}>{dgettext(

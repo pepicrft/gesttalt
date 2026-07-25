@@ -7,6 +7,7 @@ defmodule GesttaltWeb.SitemapController do
     paths = [
       ~p"/",
       ~p"/docs",
+      ~p"/changelog",
       ~p"/legal-notice",
       ~p"/privacy",
       ~p"/terms",

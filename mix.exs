@@ -67,6 +67,7 @@ defmodule Gesttalt.MixProject do
       {:otel_metric_exporter, "~> 0.4.4"},
       {:gettext, "~> 1.0"},
       {:mdex, "~> 0.13"},
+      {:nimble_publisher, "~> 2.0", runtime: false},
       {:solid, "~> 1.3"},
       {:carta, "~> 0.2"},
       {:browse_chrome, "~> 0.2"},

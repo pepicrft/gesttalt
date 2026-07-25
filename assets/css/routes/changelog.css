@@ -1,0 +1,111 @@
+#changelog {
+  padding: var(--page-top) 0 var(--page-bottom);
+
+  & > [data-part="introduction"] {
+    align-items: end;
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-bottom: var(--space-4);
+
+    & > [data-part="copy"] {
+      max-width: 620px;
+
+      & > [data-part="eyebrow"] {
+        color: var(--blue);
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        margin: 0 0 var(--space-1);
+      }
+
+      & > [data-part="title"] {
+        font-size: var(--font-size);
+        margin: 0;
+      }
+
+      & > [data-part="description"] {
+        color: var(--muted);
+        margin: var(--space-2) 0 0;
+      }
+    }
+
+    & > [data-part="feeds"] {
+      border-left: 2px solid var(--blue);
+      display: grid;
+      gap: 0.35rem;
+      padding-left: var(--space-2);
+
+      & > [data-part="label"] {
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  & > [data-part="entries"] {
+    & > [data-part="entry"] {
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: var(--space-4);
+      grid-template-columns: 9rem minmax(0, 1fr);
+      padding: var(--space-4) 0;
+      scroll-margin-top: var(--space-3);
+
+      & > time {
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      & > [data-part="entry-content"] {
+        max-width: 640px;
+
+        & > [data-part="title"] {
+          font-size: var(--font-size);
+          margin: 0;
+
+          & > a {
+            color: var(--ink);
+            text-decoration: none;
+
+            &:hover {
+              color: var(--blue);
+              text-decoration: underline;
+            }
+          }
+        }
+
+        & > [data-part="summary"] {
+          color: var(--muted);
+          font-weight: 600;
+          margin: var(--space-1) 0 var(--space-2);
+        }
+
+        & > [data-part="body"] {
+          & > :first-child {
+            margin-top: 0;
+          }
+
+          & > :last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 640px) {
+    & > [data-part="introduction"] {
+      align-items: start;
+      grid-template-columns: 1fr;
+    }
+
+    & > [data-part="entries"] > [data-part="entry"] {
+      gap: var(--space-2);
+      grid-template-columns: 1fr;
+    }
+  }
+}
