@@ -7,7 +7,7 @@
     </header>
     <div data-part="layout">
       <nav data-part="navigation">
-        <a href="#authentication">Authentication</a><a href="#agent-registration">Agent registration</a><a href="#clients">Clients</a><a href="#api">Application programming interface</a><a href="#mcp">Model Context Protocol</a><a href="#themes">Themes</a><a href="#migration">Migration</a>
+        <a href="#authentication">Authentication</a><a href="#agent-registration">Agent registration</a><a href="#clients">Clients</a><a href="#api">Application programming interface</a><a href="#mcp">Model Context Protocol</a><a href="#themes">Themes</a>
       </nav>
       <article data-part="content">
         <section id="authentication" data-part="section">
@@ -75,11 +75,6 @@
             makes the previewed theme active and redraws the preview from the persisted theme.
             <code>discard_theme_editing_session</code>
             closes the session and redraws the same page with the previously published theme.
-          </p>
-        </section>
-        <section id="migration" data-part="section">
-          <h2 data-part="title">Migrate from Zola</h2><pre><code>mix gesttalt.import_zola /path/to/website --email you@example.com</code></pre><p>
-            The importer preserves titles, slugs, descriptions, publication dates, and Markdown bodies from the existing content folder.
           </p>
         </section>
       </article>
