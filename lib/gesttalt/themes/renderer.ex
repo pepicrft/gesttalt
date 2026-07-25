@@ -7,10 +7,12 @@ defmodule Gesttalt.Themes.Renderer do
   alias Gesttalt.Sites.{Site, Theme}
   alias Gesttalt.Themes.Variables
 
-  def render_index(%Site{} = site, %Theme{} = theme, posts, pages) do
+  def render_index(%Site{} = site, %Theme{} = theme, posts, pages, pagination \\ nil) do
     render(
       theme.index_template,
-      base_context(site, theme, pages) |> Map.put("posts", Enum.map(posts, &post_context/1))
+      base_context(site, theme, pages)
+      |> Map.put("posts", Enum.map(posts, &post_context/1))
+      |> Map.put("pagination", pagination_context(pagination, length(posts)))
     )
   end
 
@@ -55,6 +57,7 @@ defmodule Gesttalt.Themes.Renderer do
     |> Map.put("posts", [post_context(post)])
     |> Map.put("post", post_context(post))
     |> Map.put("page", post_context(%{post | title: "About", slug: "about", kind: :page}))
+    |> Map.put("pagination", pagination_context(nil, 1))
   end
 
   defp render(template, context) do
@@ -96,4 +99,35 @@ defmodule Gesttalt.Themes.Renderer do
       "reading_time" => Publishing.Post.reading_time(post)
     }
   end
+
+  defp pagination_context(%Flop.Meta{} = pagination, _post_count) do
+    current_page = pagination.current_page || 1
+
+    %{
+      "current_page" => current_page,
+      "total_pages" => pagination.total_pages || 0,
+      "total_count" => pagination.total_count || 0,
+      "page_size" => pagination.page_size || 0,
+      "has_previous_page" => pagination.has_previous_page?,
+      "has_next_page" => pagination.has_next_page?,
+      "previous_url" => if(pagination.has_previous_page?, do: pagination_url(current_page - 1)),
+      "next_url" => if(pagination.has_next_page?, do: pagination_url(current_page + 1))
+    }
+  end
+
+  defp pagination_context(_pagination, post_count) do
+    %{
+      "current_page" => 1,
+      "total_pages" => if(post_count > 0, do: 1, else: 0),
+      "total_count" => post_count,
+      "page_size" => 20,
+      "has_previous_page" => false,
+      "has_next_page" => false,
+      "previous_url" => nil,
+      "next_url" => nil
+    }
+  end
+
+  defp pagination_url(1), do: "/"
+  defp pagination_url(page), do: "/?page=#{page}"
 end

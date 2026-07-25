@@ -70,6 +70,33 @@ defmodule Gesttalt.PublishingTest do
     assert Publishing.list_published_posts(site) == [post]
   end
 
+  test "paginates published posts from newest to oldest", %{site: site} do
+    posts =
+      Enum.map(1..21, fn index ->
+        post_fixture(%{
+          site: site,
+          title: "Post #{index}",
+          status: :published,
+          published_at: DateTime.add(~U[2026-01-01 00:00:00Z], index, :day)
+        })
+      end)
+
+    {first_page, first_meta} = Publishing.paginate_published_posts(site, 1)
+    {second_page, second_meta} = Publishing.paginate_published_posts(site, 2)
+    expected_first_page_ids = posts |> Enum.reverse() |> Enum.take(20) |> Enum.map(& &1.id)
+
+    assert Enum.map(first_page, & &1.id) == expected_first_page_ids
+    assert Enum.map(second_page, & &1.id) == [hd(posts).id]
+    assert first_meta.current_page == 1
+    assert first_meta.page_size == 20
+    assert first_meta.total_count == 21
+    assert first_meta.total_pages == 2
+    assert first_meta.has_next_page?
+    assert second_meta.current_page == 2
+    assert second_meta.has_previous_page?
+    refute second_meta.has_next_page?
+  end
+
   test "deletes a post", %{site: site} do
     post = post_fixture(%{site: site})
     assert {:ok, %Post{}} = Publishing.delete_post(post)

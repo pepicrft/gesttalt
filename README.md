@@ -60,6 +60,8 @@ A theme has five editable sources:
 
 The standard variables adapt the [Theme UI (user interface) theme specification](https://theme-ui.com/theme-spec) to Cascading Style Sheets custom properties. The built-in Paper theme in `priv/themes/paper` uses those properties and documents the available Liquid values through a complete working example. Liquid remains responsible for route-specific document structure, while variables are the preferred way for an agent to adjust the visual system. Theme editing happens through the [Model Context Protocol](https://modelcontextprotocol.io/) endpoint. `create_theme_editing_session` creates a durable draft from the active theme and returns its preview address, current variables, and the variable contract. Draft revisions are stored in PostgreSQL and restored after an application restart. `update_theme_editing_session` accepts partial variable changes, preserves omitted values, and reloads connected previews. `publish_theme_editing_session` atomically makes the draft active, while `discard_theme_editing_session` closes it without changing the publication.
 
+Home themes receive at most 20 entries in `posts`. The `pagination` value includes `current_page`, `total_pages`, `total_count`, `page_size`, `has_previous_page`, `has_next_page`, `previous_url`, and `next_url`. The built-in Paper theme shows newer and older links when the archive spans multiple pages.
+
 ## Import the existing blog
 
 The importer reads the Zola `content/blog` and `content/pages` directories, preserves Markdown and front matter, and upserts entries by slug:

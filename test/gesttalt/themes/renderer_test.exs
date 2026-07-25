@@ -59,6 +59,28 @@ defmodule Gesttalt.Themes.RendererTest do
     refute html =~ "hotpink"
   end
 
+  test "makes archive pagination available to Liquid themes", %{site: site} do
+    {:ok, theme} =
+      Sites.update_theme(site, %{
+        index_template:
+          "<p>{{ pagination.current_page }} of {{ pagination.total_pages }}</p><a href=\"{{ pagination.previous_url }}\">Previous</a><a href=\"{{ pagination.next_url }}\">Next</a>"
+      })
+
+    pagination = %Flop.Meta{
+      current_page: 2,
+      page_size: 20,
+      total_count: 41,
+      total_pages: 3,
+      has_previous_page?: true,
+      has_next_page?: true
+    }
+
+    assert {:ok, html} = Renderer.render_index(site, theme, [], [], pagination)
+    assert html =~ "<p>2 of 3</p>"
+    assert html =~ ~s(href="/")
+    assert html =~ ~s(href="/?page=3")
+  end
+
   test "the built-in theme links every footer to Gesttalt", %{site: site} do
     {:ok, post} =
       Publishing.create_post(site, %{

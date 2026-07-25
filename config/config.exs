@@ -7,6 +7,8 @@
 # General application configuration
 import Config
 
+config :flop, repo: Gesttalt.Repo
+
 config :boruta, Boruta.Oauth,
   repo: Gesttalt.Repo,
   issuer: "http://localhost:4000",

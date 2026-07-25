@@ -8,6 +8,11 @@ defmodule Gesttalt.Publishing.Post do
 
   @statuses [:draft, :published]
 
+  @derive {
+    Flop.Schema,
+    filterable: [], sortable: [], default_limit: 20, max_limit: 20, pagination_types: [:page]
+  }
+
   schema "posts" do
     field :title, :string
     field :slug, :string
