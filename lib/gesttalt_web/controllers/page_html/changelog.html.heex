@@ -1,0 +1,37 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <div id="changelog">
+    <header data-part="introduction">
+      <div data-part="copy">
+        <p data-part="eyebrow">Product updates</p>
+        <h1 data-part="title">Changelog</h1>
+        <p data-part="description">
+          New capabilities, thoughtful improvements, and the changes that matter when you publish with Gesttalt.
+        </p>
+      </div>
+      <nav data-part="feeds" aria-label="Subscribe to the changelog">
+        <span data-part="label">Follow every update</span>
+        <a href={@rss_feed_path}>Really Simple Syndication</a>
+        <a href={@atom_feed_path}>Atom</a>
+      </nav>
+    </header>
+
+    <section data-part="entries" aria-label="Product updates">
+      <article
+        :for={entry <- @entries}
+        id={"changelog-entry-#{entry.slug}"}
+        data-part="entry"
+      >
+        <time datetime={Date.to_iso8601(entry.published_on)}>
+          {Calendar.strftime(entry.published_on, "%B %-d, %Y")}
+        </time>
+        <div data-part="entry-content">
+          <h2 data-part="title">
+            <a href={"#changelog-entry-#{entry.slug}"}>{entry.title}</a>
+          </h2>
+          <p data-part="summary">{entry.summary}</p>
+          <div data-part="body">{Gesttalt.Changelog.body_html(entry)}</div>
+        </div>
+      </article>
+    </section>
+  </div>
+</Layouts.app>

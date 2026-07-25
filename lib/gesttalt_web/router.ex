@@ -47,6 +47,7 @@ defmodule GesttaltWeb.Router do
     pipe_through :browser
 
     get "/docs", GesttaltWeb.PageController, :docs
+    get "/changelog", GesttaltWeb.PageController, :changelog
     get "/legal-notice", GesttaltWeb.PageController, :legal_notice
     get "/privacy", GesttaltWeb.PageController, :privacy
     get "/terms", GesttaltWeb.PageController, :terms
@@ -73,6 +74,14 @@ defmodule GesttaltWeb.Router do
     get "/auth.md", AuthMarkdownController, :show
     post "/agent/identity", AgentIdentityController, :create
     post "/agent/identity/claim", AgentIdentityController, :claim
+  end
+
+  scope "/", GesttaltWeb do
+    pipe_through :feed
+
+    get "/changelog/feed.xml", ChangelogFeedController, :rss
+    get "/changelog/rss.xml", ChangelogFeedController, :rss
+    get "/changelog/atom.xml", ChangelogFeedController, :atom
   end
 
   scope "/oauth2", GesttaltWeb.OAuth do

@@ -25,6 +25,18 @@ defmodule GesttaltWeb.PageControllerTest do
     assert html =~ "every publication action available in the dashboard"
   end
 
+  test "GET /changelog lists updates and advertises both feed formats", %{conn: conn} do
+    html = conn |> get(~p"/changelog") |> html_response(200)
+
+    assert html =~ ~s(id="changelog")
+    assert html =~ ~s(id="changelog-entry-follow-gesttalt-updates")
+    assert html =~ "Follow what changes in Gesttalt"
+    assert html =~ ~s(type="application/rss+xml")
+    assert html =~ ~s(href="/changelog/feed.xml")
+    assert html =~ ~s(type="application/atom+xml")
+    assert html =~ ~s(href="/changelog/atom.xml")
+  end
+
   test "GET public legal pages", %{conn: conn} do
     pages = [
       {~p"/legal-notice", "Legal notice"},
@@ -118,6 +130,7 @@ defmodule GesttaltWeb.PageControllerTest do
 
     assert body =~ "<urlset"
     assert body =~ "<loc>#{base_url}/</loc>"
+    assert body =~ "<loc>#{base_url}/changelog</loc>"
     assert body =~ "<loc>#{base_url}/privacy</loc>"
     assert body =~ "<loc>#{base_url}/report-illegal-content</loc>"
   end

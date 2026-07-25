@@ -1,6 +1,7 @@
 defmodule GesttaltWeb.PageController do
   use GesttaltWeb, :controller
 
+  alias Gesttalt.Changelog
   alias Gesttalt.IllegalContentReportProtection
   alias Gesttalt.Legal
   alias GesttaltWeb.ClientAddress
@@ -20,6 +21,16 @@ defmodule GesttaltWeb.PageController do
     render(conn, :docs,
       page_title: "Publish from anywhere",
       meta_description: "Gesttalt publishing interfaces and Model Context Protocol tools."
+    )
+  end
+
+  def changelog(conn, _params) do
+    render(conn, :changelog,
+      page_title: "Changelog",
+      meta_description: "New Gesttalt capabilities, improvements, and other product updates.",
+      entries: Changelog.list(),
+      rss_feed_path: ~p"/changelog/feed.xml",
+      atom_feed_path: ~p"/changelog/atom.xml"
     )
   end
 
