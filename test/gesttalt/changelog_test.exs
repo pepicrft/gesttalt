@@ -20,10 +20,11 @@ defmodule Gesttalt.ChangelogTest do
              )
   end
 
-  test "renders safe entry HTML" do
+  test "returns the pre-rendered entry body as safe HTML" do
     [entry | _rest] = Changelog.list()
     html = entry |> Changelog.body_html() |> Phoenix.HTML.safe_to_string()
 
+    assert entry.body == html
     assert html =~ "<p>Gesttalt now has a public home"
     assert html =~ ~s(<a href="https://www.rssboard.org/rss-specification")
   end
