@@ -67,6 +67,8 @@ defmodule Gesttalt.MixProject do
       {:gettext, "~> 1.0"},
       {:mdex, "~> 0.13"},
       {:solid, "~> 1.3"},
+      {:carta, "~> 0.2"},
+      {:browse_chrome, "~> 0.2"},
       {:req, "~> 0.5"},
       {:hammer, "~> 7.4"},
       {:oban, "~> 2.23"},
@@ -78,7 +80,8 @@ defmodule Gesttalt.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:quokka, "~> 2.13", only: [:dev, :test], runtime: false}
+      {:quokka, "~> 2.13", only: [:dev, :test], runtime: false},
+      {:mimic, "~> 1.7", only: :test}
     ]
   end
 

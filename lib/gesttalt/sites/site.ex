@@ -7,6 +7,8 @@ defmodule Gesttalt.Sites.Site do
   alias Gesttalt.Accounts.User
   alias Gesttalt.Sites.{Domain, Image, Theme}
 
+  @type t :: %__MODULE__{}
+
   @subscription_statuses [:inactive, :trialing, :active, :past_due, :canceled, :comped]
 
   schema "sites" do

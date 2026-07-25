@@ -31,6 +31,21 @@ defmodule Gesttalt.Publishing do
   @doc "Fetches a site-owned post without raising."
   def get_post(%Site{id: site_id}, id), do: Repo.get_by(Post, id: id, site_id: site_id)
 
+  @doc "Fetches a public post by kind and database identifier, or nil."
+  def get_published_post(%Site{id: site_id}, kind, id) when kind in [:post, :page] do
+    now = now()
+
+    Post
+    |> where([post], post.site_id == ^site_id)
+    |> where([post], post.id == ^id)
+    |> where([post], post.kind == ^kind)
+    |> where([post], post.status == :published)
+    |> where([post], post.published_at <= ^now)
+    |> Repo.one()
+  rescue
+    Ecto.Query.CastError -> nil
+  end
+
   @doc "Fetches a public post by kind and slug."
   def get_published_post_by_slug!(%Site{id: site_id}, kind, slug) when kind in [:post, :page] do
     now = now()

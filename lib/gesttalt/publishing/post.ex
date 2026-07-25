@@ -6,6 +6,8 @@ defmodule Gesttalt.Publishing.Post do
 
   alias Gesttalt.Sites.Site
 
+  @type t :: %__MODULE__{}
+
   @statuses [:draft, :published]
 
   schema "posts" do

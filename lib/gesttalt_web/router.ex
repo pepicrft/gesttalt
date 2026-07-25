@@ -200,6 +200,7 @@ defmodule GesttaltWeb.Router do
     get "/", SiteController, :home
     get "/blog/:slug", SiteController, :article
     get "/media/:id/:filename", SiteController, :media
+    get "/og-image", OpenGraphController, :show
     get "/:slug", SiteController, :page
   end
 end

@@ -133,6 +133,15 @@ if config_env() == :prod do
         raise "unsupported GESTTALT_MEDIA_STORAGE value: #{inspect(storage)}"
     end
 
+  og_browser_pool_size =
+    "GESTTALT_OG_BROWSER_POOL_SIZE"
+    |> System.get_env("2")
+    |> String.to_integer()
+
+  config :browse_chrome,
+    default_pool: Gesttalt.OpenGraph.BrowserPool,
+    pools: [{Gesttalt.OpenGraph.BrowserPool, [pool_size: og_browser_pool_size]}]
+
   config :gesttalt,
     dns_cluster_query: System.get_env("GESTTALT_DNS_CLUSTER_QUERY"),
     early_access: System.get_env("GESTTALT_EARLY_ACCESS", "true") in ~w(true 1),

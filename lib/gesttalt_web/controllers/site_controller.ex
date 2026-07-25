@@ -47,29 +47,34 @@ defmodule GesttaltWeb.SiteController do
     do: conn |> put_view(html: GesttaltWeb.PageHTML) |> GesttaltWeb.PageController.home(params)
 
   def home(%{assigns: %{current_site: site}} = conn, _params) do
+    og = og_context(conn, site)
+
     render_theme(conn, site, fn ->
       Renderer.render_index(
         site,
         site.theme,
         Publishing.list_published_posts(site),
-        Publishing.list_published_pages(site)
+        Publishing.list_published_pages(site),
+        og
       )
     end)
   end
 
   def article(%{assigns: %{current_site: site}} = conn, %{"slug" => slug}) do
     post = Publishing.get_published_post_by_slug!(site, :post, slug)
+    og = og_context(conn, site)
 
     render_theme(conn, site, fn ->
-      Renderer.render_article(site, site.theme, post, Publishing.list_published_pages(site))
+      Renderer.render_article(site, site.theme, post, Publishing.list_published_pages(site), og)
     end)
   end
 
   def page(%{assigns: %{current_site: site}} = conn, %{"slug" => slug}) do
     page = Publishing.get_published_post_by_slug!(site, :page, slug)
+    og = og_context(conn, site)
 
     render_theme(conn, site, fn ->
-      Renderer.render_page(site, site.theme, page, Publishing.list_published_pages(site))
+      Renderer.render_page(site, site.theme, page, Publishing.list_published_pages(site), og)
     end)
   end
 
@@ -94,6 +99,26 @@ defmodule GesttaltWeb.SiteController do
         |> put_status(:service_unavailable)
         |> text("Media could not be loaded: #{inspect(reason)}")
     end
+  end
+
+  defp og_context(conn, site) do
+    %{site: site, theme: site.theme, base_url: og_base_url(conn)}
+  end
+
+  defp og_base_url(conn) do
+    scheme = endpoint_scheme()
+
+    case conn.port do
+      port when port in [80, 443] or is_nil(port) -> "#{scheme}://#{conn.host}"
+      port -> "#{scheme}://#{conn.host}:#{port}"
+    end
+  end
+
+  defp endpoint_scheme do
+    :gesttalt
+    |> Application.get_env(GesttaltWeb.Endpoint, [])
+    |> Keyword.get(:url, [])
+    |> Keyword.get(:scheme, "https")
   end
 
   defp render_theme(conn, site, render) do

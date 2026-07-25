@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ site.name }}</title>
     <meta name="description" content="{{ site.tagline }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ site.name }}">
+    <meta property="og:description" content="{{ site.tagline }}">
+    <meta property="og:image" content="{{ og_image }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="{{ og_image }}">
     <link rel="alternate" type="application/rss+xml" title="{{ site.name }} Really Simple Syndication feed" href="/blog/feed.xml">
     <link rel="alternate" type="application/atom+xml" title="{{ site.name }} Atom feed" href="/blog/atom.xml">
     <style>{{ stylesheet }}</style>

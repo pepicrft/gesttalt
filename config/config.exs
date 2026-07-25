@@ -84,6 +84,14 @@ config :gesttalt,
 config :gesttalt, Gesttalt.Mailer, adapter: Swoosh.Adapters.Local
 config :swoosh, :api_client, Swoosh.ApiClient.Req
 
+# Headless-browser pool used to render Open Graph images. browse_chrome
+# auto-detects a Chrome or Chromium binary and launches it with the container-safe
+# flags (--no-sandbox, --disable-dev-shm-usage). config/test.exs empties the pool
+# so tests never launch a browser; config/runtime.exs makes the size tunable.
+config :browse_chrome,
+  default_pool: Gesttalt.OpenGraph.BrowserPool,
+  pools: [{Gesttalt.OpenGraph.BrowserPool, [pool_size: 2]}]
+
 config :gesttalt, Oban,
   engine: Oban.Engines.Basic,
   repo: Gesttalt.Repo,

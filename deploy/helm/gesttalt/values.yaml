@@ -67,13 +67,15 @@ media:
     storageClass: ""
     size: 20Gi
 
+# The headless Chromium pool that renders Open Graph images needs memory headroom
+# beyond the base application. Tune alongside GESTTALT_OG_BROWSER_POOL_SIZE.
 resources:
   requests:
-    cpu: 100m
-    memory: 256Mi
+    cpu: 150m
+    memory: 512Mi
   limits:
     cpu: "1"
-    memory: 768Mi
+    memory: 2Gi
 
 nodeSelector: {}
 tolerations: []
