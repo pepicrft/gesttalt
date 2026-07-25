@@ -46,18 +46,26 @@ defmodule GesttaltWeb.SiteController do
   def home(%{assigns: %{current_site: nil}} = conn, params),
     do: conn |> put_view(html: GesttaltWeb.PageHTML) |> GesttaltWeb.PageController.home(params)
 
-  def home(%{assigns: %{current_site: site}} = conn, _params) do
+  def home(%{assigns: %{current_site: site}} = conn, params) do
     og = og_context(conn, site)
+    page = page_number(params)
+    {posts, pagination} = Publishing.paginate_published_posts(site, page)
+    last_page = max(pagination.total_pages, 1)
 
-    render_theme(conn, site, fn ->
-      Renderer.render_index(
-        site,
-        site.theme,
-        Publishing.list_published_posts(site),
-        Publishing.list_published_pages(site),
-        og
-      )
-    end)
+    if page > last_page do
+      redirect(conn, to: page_path(last_page))
+    else
+      render_theme(conn, site, fn ->
+        Renderer.render_index(
+          site,
+          site.theme,
+          posts,
+          Publishing.list_published_pages(site),
+          pagination,
+          og
+        )
+      end)
+    end
   end
 
   def article(%{assigns: %{current_site: site}} = conn, %{"slug" => slug}) do
@@ -165,4 +173,16 @@ defmodule GesttaltWeb.SiteController do
         html <> controls
     end
   end
+
+  defp page_number(%{"page" => value}) do
+    case Integer.parse(to_string(value)) do
+      {page, ""} when page in 1..1_000_000 -> page
+      _invalid -> 1
+    end
+  end
+
+  defp page_number(_params), do: 1
+
+  defp page_path(1), do: "/"
+  defp page_path(page), do: "/?page=#{page}"
 end

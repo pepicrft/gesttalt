@@ -15,7 +15,7 @@
     <link rel="alternate" type="application/atom+xml" title="{{ site.name }} Atom feed" href="/blog/atom.xml">
     <style>{{ stylesheet }}</style>
   </head>
-  <body>
+  <body id="site-home">
     <header class="site-header">
       <div class="container header-inner">
         <div class="site-identity">
@@ -41,6 +41,13 @@
         </article>
         {% endfor %}
       </section>
+      {% if pagination.total_pages > 1 %}
+      <nav id="posts-pagination" aria-label="Writing pages">
+        {% if pagination.previous_url %}<a data-part="previous" href="{{ pagination.previous_url }}">Newer posts</a>{% endif %}
+        <span data-part="status">Page {{ pagination.current_page }} of {{ pagination.total_pages }}</span>
+        {% if pagination.next_url %}<a data-part="next" href="{{ pagination.next_url }}">Older posts</a>{% endif %}
+      </nav>
+      {% endif %}
     </main>
     <footer id="site-footer">
       <div class="container" data-part="inner">

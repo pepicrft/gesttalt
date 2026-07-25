@@ -7,6 +7,8 @@ defmodule Gesttalt.Publishing do
   alias Gesttalt.Repo
   alias Gesttalt.Sites.Site
 
+  @published_posts_page_size 20
+
   @doc "Lists every post for a site, newest first by the date the desk shows."
   def list_posts(%Site{id: site_id}) do
     Post
@@ -18,6 +20,15 @@ defmodule Gesttalt.Publishing do
   @doc "Lists public articles for a site, newest first."
   def list_published_posts(%Site{id: site_id}) do
     published_query(site_id, :post) |> Repo.all()
+  end
+
+  @doc "Lists one page of public articles and its pagination metadata."
+  def paginate_published_posts(%Site{id: site_id}, page \\ 1) when is_integer(page) do
+    published_query(site_id, :post)
+    |> Flop.validate_and_run!(
+      %{page: max(page, 1), page_size: @published_posts_page_size},
+      for: Post
+    )
   end
 
   @doc "Lists public standalone pages for a site."
@@ -97,7 +108,7 @@ defmodule Gesttalt.Publishing do
     |> where([post], post.kind == ^kind)
     |> where([post], post.status == :published)
     |> where([post], post.published_at <= ^now)
-    |> order_by([post], desc: post.published_at)
+    |> order_by([post], desc: post.published_at, desc: post.id)
   end
 
   defp key_for(attrs, key) do

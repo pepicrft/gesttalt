@@ -319,11 +319,14 @@ defmodule GesttaltWeb.ThemePreviewLive do
   end
 
   defp render_page(site, theme, %{"kind" => "home"}) do
+    {posts, pagination} = Publishing.paginate_published_posts(site)
+
     Renderer.render_index(
       site,
       theme,
-      Publishing.list_published_posts(site),
-      Publishing.list_published_pages(site)
+      posts,
+      Publishing.list_published_pages(site),
+      pagination
     )
   end
 

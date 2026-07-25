@@ -27,6 +27,19 @@ h1 { font-family: var(--gesttalt-fonts-heading); font-size: var(--gesttalt-font-
 .prose code { background: var(--gesttalt-colors-surface); font-family: var(--gesttalt-fonts-monospace); font-size: .9em; padding: .1rem .3rem; }
 .prose pre { background: var(--gesttalt-colors-surface); border: 1px solid var(--gesttalt-colors-border); overflow-x: auto; padding: 1rem; }
 .prose pre code { padding: 0; }
+#site-home {
+  & #posts-pagination {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 1.5rem;
+
+    & > [data-part="previous"] { grid-column: 1; justify-self: start; }
+    & > [data-part="status"] { grid-column: 2; color: var(--gesttalt-colors-muted-text); }
+    & > [data-part="next"] { grid-column: 3; justify-self: end; }
+  }
+}
 #site-footer {
   border-top: 1px solid var(--gesttalt-colors-border);
   padding: 1.5rem 0 2rem;
