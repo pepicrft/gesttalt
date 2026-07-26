@@ -113,7 +113,7 @@ defmodule Gesttalt.Themes.RendererTest do
     theme = Sites.get_theme!(site)
 
     assert theme.stylesheet =~
-             ".header-inner { align-items: flex-start; display: flex; flex-direction: column;"
+             ".header-inner { align-items: flex-start; display: flex; flex-direction: column; gap: 1.5rem; }"
 
     assert {:ok, html} = Renderer.render_index(site, theme, [], [])
     assert html =~ ~s(<a href="/">Writing</a>)

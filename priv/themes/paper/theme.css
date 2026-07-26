@@ -5,7 +5,7 @@ a { color: inherit; text-underline-offset: .18em; }
 a:hover { color: var(--gesttalt-colors-primary); }
 .container { width: min(100% - calc(var(--gesttalt-space-3) * 2), var(--gesttalt-sizes-content)); margin-inline: auto; }
 .site-header { border-top: 4px solid var(--gesttalt-colors-primary); border-bottom: 1px solid var(--gesttalt-colors-border); padding: 1.15rem 0; }
-.header-inner { align-items: flex-start; display: flex; flex-direction: column; gap: .75rem; }
+.header-inner { align-items: flex-start; display: flex; flex-direction: column; gap: 1.5rem; }
 .site-identity { display: flex; flex-direction: column; }
 .site-title, nav a, .post-link { font-weight: var(--gesttalt-font-weights-bold); text-decoration: none; }
 .site-tagline, time, .post-copy p, #site-footer { color: var(--gesttalt-colors-muted-text); }

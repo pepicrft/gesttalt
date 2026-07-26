@@ -21,7 +21,7 @@ defmodule Gesttalt.Repo.Migrations.UpdatePaperHeader do
   @page_navigation_after ~s(<nav><a href="/">Writing</a><a href="/photography">Photography</a>{% for item in pages %}<a href="{{ item.url }}">{{ item.title }}</a>{% endfor %}</nav>)
 
   @header_styles_before ".header-inner { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }"
-  @header_styles_after ".header-inner { align-items: flex-start; display: flex; flex-direction: column; gap: .75rem; }"
+  @header_styles_after ".header-inner { align-items: flex-start; display: flex; flex-direction: column; gap: 1.5rem; }"
 
   @mobile_styles_before "@media (max-width: 640px) { .header-inner, .post-row { display: flex; flex-direction: column; } .post-row { gap: .35rem; } #site-footer > [data-part=\"inner\"] { flex-wrap: wrap; } }"
   @mobile_styles_after "@media (max-width: 640px) { .post-row { display: flex; flex-direction: column; gap: .35rem; } #site-footer > [data-part=\"inner\"] { flex-wrap: wrap; } }"
