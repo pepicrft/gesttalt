@@ -35,6 +35,7 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     document = conn |> get(~p"/api/openapi") |> json_response(200)
 
     assert document["paths"]["/api/posts"]
+    assert document["paths"]["/api/photos"]
     refute document["paths"]["/api/theme"]
     assert document["paths"]["/api/media"]
     assert document["components"]["securitySchemes"]["oauth2"]
@@ -171,6 +172,56 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert write_response["title"] == "Free draft"
   end
 
+  test "uploads and manages photography feed entries through the application interface", %{
+    conn: conn,
+    token: token
+  } do
+    upload = upload_fixture("application-photo.png", "application photo")
+
+    created =
+      conn
+      |> put_req_header("authorization", "Bearer #{token}")
+      |> post(~p"/api/photos", %{
+        "file" => upload,
+        "alt_text" => "Sunlight passing over a concrete wall",
+        "caption" => "Late July.",
+        "status" => "draft"
+      })
+      |> json_response(201)
+
+    assert created["status"] == "draft"
+    assert created["caption"] == "Late July."
+    assert created["image"]["alt_text"] == "Sunlight passing over a concrete wall"
+    assert created["url"] == nil
+
+    published =
+      conn
+      |> recycle()
+      |> put_req_header("authorization", "Bearer #{token}")
+      |> post(~p"/api/photos/#{created["id"]}/publish")
+      |> json_response(200)
+
+    assert published["status"] == "published"
+    assert published["url"] == "/photography#photo-#{created["id"]}"
+
+    listed =
+      conn
+      |> recycle()
+      |> put_req_header("authorization", "Bearer #{token}")
+      |> get(~p"/api/photos")
+      |> json_response(200)
+
+    assert Enum.any?(listed, &(&1["id"] == created["id"]))
+
+    delete_response =
+      conn
+      |> recycle()
+      |> put_req_header("authorization", "Bearer #{token}")
+      |> delete(~p"/api/photos/#{created["id"]}")
+
+    assert response(delete_response, 204) == ""
+  end
+
   test "exposes publishing tools through the Model Context Protocol", %{conn: conn, token: token} do
     response =
       conn
@@ -186,6 +237,11 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert "delete_content" in names
     assert "list_media" in names
     assert "delete_media" in names
+    assert "list_photos" in names
+    assert "upload_photo" in names
+    assert "publish_photo" in names
+    assert "unpublish_photo" in names
+    assert "delete_photo" in names
     assert "get_theme" in names
     assert "create_theme_editing_session" in names
     assert "list_theme_preview_clients" in names
@@ -266,6 +322,26 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert image["markdown"] =~ "Uploaded by an agent"
     assert Enum.any?(call_tool(conn, token, 7, "list_media"), &(&1["id"] == image["id"]))
     assert call_tool(conn, token, 8, "delete_media", %{id: image["id"]})["deleted"]
+
+    photo =
+      call_tool(conn, token, 81, "upload_photo", %{
+        filename: "agent-photo.png",
+        content_base64: Base.encode64("photo contents"),
+        content_type: "image/png",
+        alt_text: "Uploaded to the photography feed",
+        caption: "From a conversation."
+      })
+
+    assert photo["status"] == "draft"
+    assert photo["image"]["alt_text"] == "Uploaded to the photography feed"
+    assert Enum.any?(call_tool(conn, token, 82, "list_photos"), &(&1["id"] == photo["id"]))
+
+    published = call_tool(conn, token, 83, "publish_photo", %{id: photo["id"]})
+    assert published["status"] == "published"
+
+    unpublished = call_tool(conn, token, 84, "unpublish_photo", %{id: photo["id"]})
+    assert unpublished["status"] == "draft"
+    assert call_tool(conn, token, 85, "delete_photo", %{id: photo["id"]})["deleted"]
 
     theme = call_tool(conn, token, 9, "get_theme")
     assert theme["name"] == "Paper"
@@ -520,5 +596,13 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
       [] ->
         :ok
     end
+  end
+
+  defp upload_fixture(filename, contents) do
+    path = Path.join(System.tmp_dir!(), "gesttalt-interface-#{Ecto.UUID.generate()}-#{filename}")
+    File.write!(path, contents)
+    on_exit(fn -> File.rm(path) end)
+
+    %Plug.Upload{path: path, filename: filename, content_type: "image/png"}
   end
 end

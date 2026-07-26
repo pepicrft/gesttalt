@@ -3,9 +3,10 @@ defmodule Gesttalt.Themes.Renderer do
 
   alias Gesttalt.Markdown
   alias Gesttalt.OpenGraph
+  alias Gesttalt.Photography.Photo
   alias Gesttalt.Publishing
   alias Gesttalt.Publishing.Post
-  alias Gesttalt.Sites.{Site, Theme}
+  alias Gesttalt.Sites.{Image, Site, Theme, ThemeDefaults}
   alias Gesttalt.Themes.Variables
 
   def render_index(%Site{} = site, %Theme{} = theme, posts, pages, pagination \\ nil, og \\ nil) do
@@ -28,6 +29,14 @@ defmodule Gesttalt.Themes.Renderer do
     render(
       theme.page_template,
       base_context(site, theme, pages, og) |> Map.put("page", post_context(page, og))
+    )
+  end
+
+  def render_photography(%Site{} = site, %Theme{} = theme, photos, pages, og \\ nil) do
+    render(
+      theme.photography_template || ThemeDefaults.photography_template(),
+      base_context(site, theme, pages, og)
+      |> Map.put("photos", Enum.map(photos, &photo_context/1))
     )
   end
 
@@ -54,8 +63,21 @@ defmodule Gesttalt.Themes.Renderer do
       tagline: "Independent writing, published thoughtfully."
     }
 
+    photo = %Photo{
+      id: 1,
+      caption: "A sample photograph for developing a Gesttalt theme.",
+      image: %Image{
+        id: 1,
+        filename: "sample.jpg",
+        alt_text: "Soft morning light crossing a quiet room"
+      },
+      status: :published,
+      published_at: now
+    }
+
     base_context(site, %Theme{stylesheet: stylesheet, variables: Variables.defaults()}, [])
     |> Map.put("posts", [post_context(post)])
+    |> Map.put("photos", [photo_context(photo)])
     |> Map.put("post", post_context(post))
     |> Map.put("page", post_context(%{post | title: "About", slug: "about", kind: :page}))
     |> Map.put("pagination", pagination_context(nil, 1))
@@ -112,6 +134,22 @@ defmodule Gesttalt.Themes.Renderer do
       "reading_time" => Publishing.Post.reading_time(post)
     }
   end
+
+  defp photo_context(photo) do
+    published_at = photo.published_at || photo.inserted_at || DateTime.utc_now()
+
+    %{
+      "id" => photo.id,
+      "caption" => escape(photo.caption),
+      "alt_text" => escape(photo.image.alt_text),
+      "image_url" => Gesttalt.Sites.image_url(photo.image),
+      "published_at" => DateTime.to_iso8601(published_at),
+      "published_on" => Calendar.strftime(published_at, "%B %-d, %Y")
+    }
+  end
+
+  defp escape(value),
+    do: value |> then(&(&1 || "")) |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
 
   defp pagination_context(%Flop.Meta{} = pagination, _post_count) do
     current_page = pagination.current_page || 1

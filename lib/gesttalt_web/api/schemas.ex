@@ -43,3 +43,35 @@ defmodule GesttaltWeb.API.Schemas.PostParams do
     required: [:title, :body]
   })
 end
+
+defmodule GesttaltWeb.API.Schemas.Photo do
+  @moduledoc false
+
+  require OpenApiSpex
+
+  OpenApiSpex.schema(%{
+    title: "Photo",
+    type: :object,
+    properties: %{
+      id: %OpenApiSpex.Schema{type: :integer},
+      caption: %OpenApiSpex.Schema{type: :string, nullable: true},
+      status: %OpenApiSpex.Schema{type: :string, enum: ["draft", "published"]},
+      published_at: %OpenApiSpex.Schema{type: :string, format: :date_time, nullable: true},
+      inserted_at: %OpenApiSpex.Schema{type: :string, format: :date_time},
+      url: %OpenApiSpex.Schema{type: :string, nullable: true},
+      image: %OpenApiSpex.Schema{
+        type: :object,
+        properties: %{
+          id: %OpenApiSpex.Schema{type: :integer},
+          filename: %OpenApiSpex.Schema{type: :string},
+          content_type: %OpenApiSpex.Schema{type: :string},
+          byte_size: %OpenApiSpex.Schema{type: :integer},
+          alt_text: %OpenApiSpex.Schema{type: :string},
+          url: %OpenApiSpex.Schema{type: :string}
+        },
+        required: [:id, :filename, :content_type, :byte_size, :alt_text, :url]
+      }
+    },
+    required: [:id, :status, :inserted_at, :image]
+  })
+end

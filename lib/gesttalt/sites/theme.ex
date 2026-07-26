@@ -14,6 +14,7 @@ defmodule Gesttalt.Sites.Theme do
     field :index_template, :string
     field :article_template, :string
     field :page_template, :string
+    field :photography_template, :string
     field :stylesheet, :string
     field :variables, :map
 
@@ -32,6 +33,7 @@ defmodule Gesttalt.Sites.Theme do
       :index_template,
       :article_template,
       :page_template,
+      :photography_template,
       :stylesheet,
       :variables
     ])
@@ -41,6 +43,7 @@ defmodule Gesttalt.Sites.Theme do
       :index_template,
       :article_template,
       :page_template,
+      :photography_template,
       :stylesheet,
       :variables
     ])
@@ -48,6 +51,7 @@ defmodule Gesttalt.Sites.Theme do
     |> validate_source_size(:index_template)
     |> validate_source_size(:article_template)
     |> validate_source_size(:page_template)
+    |> validate_source_size(:photography_template)
     |> validate_source_size(:stylesheet)
     |> validate_change(:variables, fn :variables, variables ->
       case Variables.validate(variables) do

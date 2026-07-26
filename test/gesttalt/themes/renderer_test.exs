@@ -102,8 +102,9 @@ defmodule Gesttalt.Themes.RendererTest do
     assert {:ok, index_html} = Renderer.render_index(site, theme, [post], [page])
     assert {:ok, article_html} = Renderer.render_article(site, theme, post, [page])
     assert {:ok, page_html} = Renderer.render_page(site, theme, page, [page])
+    assert {:ok, photography_html} = Renderer.render_photography(site, theme, [], [page])
 
-    for html <- [index_html, article_html, page_html] do
+    for html <- [index_html, article_html, page_html, photography_html] do
       assert html =~ ~s(Powered by <a href="https://gesttalt.org">Gesttalt</a>)
     end
   end

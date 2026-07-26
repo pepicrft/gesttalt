@@ -18,8 +18,8 @@ defmodule GesttaltWeb.AuthMarkdownController do
 
     media_scope =
       if early_access,
-        do: "manage images.",
-        else: "manage images on a paid publishing plan."
+        do: "manage images and photography feed entries.",
+        else: "manage images and photography feed entries on a paid publishing plan."
 
     access_label = if early_access, do: "Access", else: "Pricing"
 
@@ -71,7 +71,7 @@ defmodule GesttaltWeb.AuthMarkdownController do
 
     ## 4. Connect and manage the publication
 
-    Connect the access token to the Model Context Protocol server at #{url(~p"/mcp")} with `Authorization: Bearer <access_token>`. Start with `tools/list`; the server exposes content, media, theme, publication settings, #{management_capabilities} available in the dashboard.
+    Connect the access token to the Model Context Protocol server at #{url(~p"/mcp")} with `Authorization: Bearer <access_token>`. Start with `tools/list`; the server exposes content, photography, media, theme, publication settings, #{management_capabilities} available in the dashboard.
 
     Never publish, delete, change a custom domain, create credentials#{billing_guard} unless the user explicitly asks.
 
@@ -90,7 +90,7 @@ defmodule GesttaltWeb.AuthMarkdownController do
 
     ## Granted scopes
 
-    - `content:read`: read posts and pages.
+    - `content:read`: read posts, pages, and photography feed entries.
     - `content:write`: create, edit, publish, unpublish, and delete posts and pages.
     - `media:write`: #{media_scope}
     - `mcp`: use the complete agent management server.

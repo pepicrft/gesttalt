@@ -47,4 +47,84 @@ h1 { font-family: var(--gesttalt-fonts-heading); font-size: var(--gesttalt-font-
   & > [data-part="inner"] { display: flex; align-items: baseline; gap: 1rem; }
   & [data-part="powered-by"] { margin-inline-start: auto; white-space: nowrap; }
 }
+#site-photography {
+  & .photography-page {
+    padding-block: 2.5rem 4rem;
+  }
+
+  & .photography-introduction {
+    margin: 0 auto 2rem;
+    max-width: 40rem;
+    text-align: center;
+
+    & > h1 {
+      margin-bottom: .5rem;
+    }
+
+    & > p:last-child {
+      color: var(--gesttalt-colors-muted-text);
+      margin: 0;
+    }
+  }
+
+  & .photography-feed {
+    display: grid;
+    gap: 2rem;
+    margin-inline: auto;
+    max-width: 40rem;
+  }
+
+  & .photography-entry {
+    background: var(--gesttalt-colors-background);
+    border: 1px solid var(--gesttalt-colors-border);
+    box-shadow: var(--gesttalt-shadows-card);
+
+    & > img {
+      display: block;
+      max-height: 52rem;
+      object-fit: contain;
+      width: 100%;
+    }
+  }
+
+  & .photography-entry-header {
+    align-items: center;
+    display: flex;
+    gap: .75rem;
+    padding: .85rem 1rem;
+
+    & > .photography-mark {
+      background: var(--gesttalt-colors-primary);
+      border: 3px solid var(--gesttalt-colors-background);
+      border-radius: 50%;
+      box-shadow: 0 0 0 1px var(--gesttalt-colors-border);
+      height: 2rem;
+      width: 2rem;
+    }
+
+    & > div {
+      display: grid;
+      line-height: 1.25;
+
+      & > time {
+        font-size: .82rem;
+      }
+    }
+  }
+
+  & .photography-caption {
+    margin: 0;
+    padding: 1rem;
+    white-space: pre-wrap;
+  }
+
+  & .photography-empty {
+    border-block: 1px solid var(--gesttalt-colors-border);
+    color: var(--gesttalt-colors-muted-text);
+    margin-inline: auto;
+    max-width: 40rem;
+    padding: 3rem 1rem;
+    text-align: center;
+  }
+}
 @media (max-width: 640px) { .header-inner, .post-row { display: flex; flex-direction: column; } .post-row { gap: .35rem; } #site-footer > [data-part="inner"] { flex-wrap: wrap; } }

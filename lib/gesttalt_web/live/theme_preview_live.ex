@@ -1,6 +1,7 @@
 defmodule GesttaltWeb.ThemePreviewLive do
   use GesttaltWeb, :live_view
 
+  alias Gesttalt.Photography
   alias Gesttalt.Publishing
   alias Gesttalt.Sites
   alias Gesttalt.ThemeEditing
@@ -333,6 +334,15 @@ defmodule GesttaltWeb.ThemePreviewLive do
   defp render_page(site, theme, %{"kind" => "article", "slug" => slug}) do
     post = Publishing.get_published_post_by_slug!(site, :post, slug)
     Renderer.render_article(site, theme, post, Publishing.list_published_pages(site))
+  end
+
+  defp render_page(site, theme, %{"kind" => "photography"}) do
+    Renderer.render_photography(
+      site,
+      theme,
+      Photography.list_published_photos(site),
+      Publishing.list_published_pages(site)
+    )
   end
 
   defp render_page(site, theme, %{"kind" => "page", "slug" => slug}) do
