@@ -77,6 +77,11 @@ resources:
     cpu: "1"
     memory: 2Gi
 
+# Chromium keeps each pooled browser profile and its shared files under /tmp.
+# Keep the volume bounded while leaving enough room for the default two workers.
+temporaryFiles:
+  sizeLimit: 512Mi
+
 nodeSelector: {}
 tolerations: []
 affinity: {}

@@ -239,7 +239,7 @@ spec:
             name: {{ include "gesttalt.fullname" . }}-caddy
         - name: tmp
           emptyDir:
-            sizeLimit: 128Mi
+            sizeLimit: {{ .Values.temporaryFiles.sizeLimit }}
         - name: caddy-bin
           emptyDir:
             sizeLimit: 64Mi
