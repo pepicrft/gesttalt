@@ -38,14 +38,16 @@
         <section id="api" data-part="section">
           <h2 data-part="title">Application programming interface</h2><p>
             Read the machine-readable <a href={~p"/api/openapi"}>OpenAPI document</a>
-            or use the <a href={~p"/api-docs"}>interactive reference</a>. Scopes separate content and media, while theme sessions stay behind the Model Context Protocol authorization scope.
+            or use the <a href={~p"/api-docs"}>interactive reference</a>. The
+            <code>/api/photos</code>
+            endpoints upload, list, caption, publish, unpublish, and delete photography feed entries. Scopes separate readable content from media changes, while theme sessions stay behind the Model Context Protocol authorization scope.
           </p>
         </section>
         <section id="mcp" data-part="section">
           <h2 data-part="title">Model Context Protocol</h2><p>
             Connect compatible tools to <code>/mcp</code>
             with the <code>mcp</code>
-            authorization scope. The tools cover every publication action available in the dashboard: content, media, live theme editing, publication settings, custom domains, connected applications<%= unless Gesttalt.Plans.early_access?() do %>
+            authorization scope. The tools cover every publication action available in the dashboard: content, photography, media, live theme editing, publication settings, custom domains, connected applications<%= unless Gesttalt.Plans.early_access?() do %>
               , and billing links
             <% end %>.
           </p>
@@ -62,15 +64,16 @@
             <code>list_theme_preview_clients</code>
             reports every connected browser, its current page, viewport, and screenshot permission.
             <code>navigate_theme_preview</code>
-            moves one of those browsers to a published home, article, or page path. Select
+            moves one of those browsers to a published home, article, photography, or page path. Select
             <em>Allow screenshots</em>
             in the preview before calling <code>capture_theme_preview</code>. The returned image comes from the browser tab and is not retained by the editing session.
           </p><p>
-            Prefer variables for visual decisions and the stylesheet for component rules. The three Liquid templates define route-specific document structure:
+            Prefer variables for visual decisions and the stylesheet for component rules. The four Liquid templates define route-specific document structure:
             <code>index_template</code>
             for the home page, <code>article_template</code>
             for blog posts, and <code>page_template</code>
-            for standalone pages. When the result is ready,
+            for standalone pages. <code>photography_template</code>
+            defines the public photo feed. When the result is ready,
             <code>publish_theme_editing_session</code>
             makes the previewed theme active and redraws the preview from the persisted theme.
             <code>discard_theme_editing_session</code>

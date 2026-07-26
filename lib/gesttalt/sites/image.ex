@@ -4,6 +4,7 @@ defmodule Gesttalt.Sites.Image do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Gesttalt.Photography.Photo
   alias Gesttalt.Sites.Site
 
   schema "images" do
@@ -14,6 +15,7 @@ defmodule Gesttalt.Sites.Image do
     field :alt_text, :string
 
     belongs_to :site, Site
+    has_one :photo, Photo
 
     timestamps(type: :utc_datetime)
   end

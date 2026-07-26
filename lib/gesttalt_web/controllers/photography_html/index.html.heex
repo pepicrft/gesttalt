@@ -1,0 +1,110 @@
+<Layouts.app flash={@flash} current_scope={@current_scope} admin>
+  <div id="admin-photography">
+    <header id="page-heading" data-layout="split">
+      <div data-part="heading-copy">
+        <p data-part="eyebrow">Visual journal</p><h1 data-part="title">Photography</h1><p data-part="description">
+          Publish a quiet, chronological photo feed alongside your writing.
+        </p>
+      </div><a
+        :if={Enum.any?(@photos, &Gesttalt.Photography.Photo.published?/1)}
+        data-part="action"
+        href={public_feed_url(@site)}
+      >View feed</a>
+    </header>
+    <form
+      action={~p"/admin/photography"}
+      method="post"
+      enctype="multipart/form-data"
+      class="panel"
+      data-part="upload-form"
+    >
+      <div data-part="form-introduction">
+        <p data-part="eyebrow">New photograph</p><h2>Share one frame</h2><p>
+          Images can be up to 10 megabytes. Alternative text makes the feed accessible.
+        </p>
+      </div>
+      <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+      <div class="field" data-part="field">
+        <label for="photo-file">Image</label><input
+          id="photo-file"
+          type="file"
+          name="photo[file]"
+          accept="image/jpeg,image/png,image/gif,image/webp"
+          required
+        />
+      </div>
+      <div class="field" data-part="field">
+        <label for="photo-alt-text">Alternative text</label><input
+          id="photo-alt-text"
+          name="photo[alt_text]"
+          maxlength="500"
+          placeholder="Describe what is visible in the photograph"
+          required
+        />
+      </div>
+      <div class="field" data-part="field">
+        <label for="photo-caption">Caption <span>Optional</span></label><textarea
+          id="photo-caption"
+          name="photo[caption]"
+          maxlength="2200"
+          rows="3"
+          placeholder="Add context, a place, or a passing thought"
+        ></textarea>
+      </div>
+      <div data-part="form-actions">
+        <button class="button" name="photo[status]" value="draft">Save draft</button><button
+          class="button button--primary"
+          name="photo[status]"
+          value="published"
+        >Publish photo</button>
+      </div>
+    </form>
+    <section data-part="feed" aria-label="Photography feed">
+      <div :if={@photos == []} data-part="empty">
+        <p data-part="eyebrow">The feed is empty</p><h2>Your first photograph starts here</h2><p>
+          Upload a frame above, add a useful description, and publish it when it feels ready.
+        </p>
+      </div>
+      <article :for={photo <- @photos} id={"photo-card-#{photo.id}"} data-part="photo-card">
+        <img
+          data-part="image"
+          src={~p"/admin/media/#{photo.image}/#{photo.image.filename}"}
+          alt={photo.image.alt_text}
+        />
+        <div data-part="photo-content">
+          <div data-part="metadata">
+            <span data-part="status" data-status={photo.status}>{photo.status}</span><time datetime={
+              photo.published_at || photo.inserted_at
+            }>{Calendar.strftime(photo.published_at || photo.inserted_at, "%d %b %Y, %H:%M")}</time>
+          </div>
+          <p :if={photo.caption not in [nil, ""]} data-part="caption">{photo.caption}</p>
+          <p data-part="alternative-text">{photo.image.alt_text}</p>
+          <div data-part="actions">
+            <a
+              :if={Gesttalt.Photography.Photo.published?(photo)}
+              href={public_feed_url(@site, "#photo-#{photo.id}")}
+            >View</a><form
+              :if={photo.status == :draft}
+              action={~p"/admin/photography/#{photo}/publish"}
+              method="post"
+            >
+              <input type="hidden" name="_csrf_token" value={get_csrf_token()} /><button class="link-button">Publish</button>
+            </form><form
+              :if={photo.status == :published}
+              action={~p"/admin/photography/#{photo}/unpublish"}
+              method="post"
+            >
+              <input type="hidden" name="_csrf_token" value={get_csrf_token()} /><button class="link-button">Unpublish</button>
+            </form><form action={~p"/admin/photography/#{photo}"} method="post">
+              <input type="hidden" name="_method" value="delete" /><input
+                type="hidden"
+                name="_csrf_token"
+                value={get_csrf_token()}
+              /><button class="link-button">Delete</button>
+            </form>
+          </div>
+        </div>
+      </article>
+    </section>
+  </div>
+</Layouts.app>

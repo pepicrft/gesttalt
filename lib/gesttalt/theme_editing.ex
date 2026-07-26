@@ -5,7 +5,7 @@ defmodule Gesttalt.ThemeEditing do
   alias Gesttalt.Publishing
   alias Gesttalt.Repo
   alias Gesttalt.Sites
-  alias Gesttalt.Sites.{Site, Theme}
+  alias Gesttalt.Sites.{Site, Theme, ThemeDefaults}
   alias Gesttalt.ThemeEditing.{Session, StoredSession}
   alias Gesttalt.Themes.Variables
 
@@ -18,6 +18,7 @@ defmodule Gesttalt.ThemeEditing do
     :index_template,
     :article_template,
     :page_template,
+    :photography_template,
     :stylesheet,
     :variables
   ]
@@ -147,6 +148,7 @@ defmodule Gesttalt.ThemeEditing do
 
   @doc false
   def public_page_path(%{"kind" => "home"}), do: "/"
+  def public_page_path(%{"kind" => "photography"}), do: "/photography"
 
   def public_page_path(%{"kind" => "article", "slug" => slug}),
     do: "/blog/#{URI.encode(slug)}"
@@ -162,6 +164,9 @@ defmodule Gesttalt.ThemeEditing do
 
         ["blog", slug] ->
           page_for_slug(Publishing.list_published_posts(site), "article", URI.decode(slug))
+
+        ["photography"] ->
+          {:ok, %{"kind" => "photography", "title" => "Photography"}}
 
         [slug] ->
           page_for_slug(Publishing.list_published_pages(site), "page", URI.decode(slug))
@@ -179,6 +184,7 @@ defmodule Gesttalt.ThemeEditing do
   def theme_attrs(%Theme{} = theme) do
     theme
     |> Map.take(@theme_fields)
+    |> Map.update!(:photography_template, &(&1 || ThemeDefaults.photography_template()))
     |> Map.update!(:variables, &Variables.normalize/1)
   end
 

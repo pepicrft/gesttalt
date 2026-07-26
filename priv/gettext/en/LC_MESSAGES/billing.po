@@ -67,6 +67,7 @@ msgid "Upgrade to the Publisher plan to connect a custom domain."
 msgstr ""
 
 #: lib/gesttalt_web/controllers/media_controller.ex:23
+#: lib/gesttalt_web/controllers/photography_controller.ex:34
 #, elixir-autogen, elixir-format
 msgid "Upgrade to the Publisher plan to upload images."
 msgstr ""

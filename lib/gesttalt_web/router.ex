@@ -116,6 +116,12 @@ defmodule GesttaltWeb.Router do
     post "/posts/:id/unpublish", AdminController, :unpublish
     delete "/posts/:id", AdminController, :delete
 
+    get "/photography", PhotographyController, :index
+    post "/photography", PhotographyController, :create
+    post "/photography/:id/publish", PhotographyController, :publish
+    post "/photography/:id/unpublish", PhotographyController, :unpublish
+    delete "/photography/:id", PhotographyController, :delete
+
     get "/media", MediaController, :index
     post "/media", MediaController, :create
     get "/media/:id/:filename", MediaController, :show
@@ -150,6 +156,13 @@ defmodule GesttaltWeb.Router do
     delete "/posts/:id", GesttaltWeb.ApiPostController, :delete
     post "/posts/:id/publish", GesttaltWeb.ApiPostController, :publish
     post "/posts/:id/unpublish", GesttaltWeb.ApiPostController, :unpublish
+    get "/photos", GesttaltWeb.ApiPhotoController, :index
+    post "/photos", GesttaltWeb.ApiPhotoController, :create
+    get "/photos/:id", GesttaltWeb.ApiPhotoController, :show
+    patch "/photos/:id", GesttaltWeb.ApiPhotoController, :update
+    delete "/photos/:id", GesttaltWeb.ApiPhotoController, :delete
+    post "/photos/:id/publish", GesttaltWeb.ApiPhotoController, :publish
+    post "/photos/:id/unpublish", GesttaltWeb.ApiPhotoController, :unpublish
     get "/media", GesttaltWeb.ApiMediaController, :index
     post "/media", GesttaltWeb.ApiMediaController, :create
   end
@@ -160,6 +173,7 @@ defmodule GesttaltWeb.Router do
     pipe_through :theme_preview
 
     get "/:session_id/media/:id/:filename", ThemePreviewController, :media
+    get "/:session_id/photography", ThemePreviewController, :photography
     get "/:session_id/blog/:slug", ThemePreviewController, :article
     get "/:session_id/:slug", ThemePreviewController, :page
     get "/:session_id", ThemePreviewController, :home
@@ -207,6 +221,7 @@ defmodule GesttaltWeb.Router do
   scope "/", GesttaltWeb do
     pipe_through [:browser, :tenant]
     get "/", SiteController, :home
+    get "/photography", SiteController, :photography
     get "/blog/:slug", SiteController, :article
     get "/media/:id/:filename", SiteController, :media
     get "/og-image", OpenGraphController, :show

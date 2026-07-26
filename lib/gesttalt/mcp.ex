@@ -7,6 +7,8 @@ defmodule Gesttalt.MCP do
 
   alias Gesttalt.Billing
   alias Gesttalt.OAuth.ClientsManager
+  alias Gesttalt.Photography
+  alias Gesttalt.Photography.PhotoJSON
   alias Gesttalt.Plans
   alias Gesttalt.Publishing
   alias Gesttalt.Publishing.PostJSON
@@ -212,6 +214,71 @@ defmodule Gesttalt.MCP do
     end
   end
 
+  defp call_tool("list_photos", _arguments, site, _user),
+    do: {:ok, Enum.map(Photography.list_photos(site), &PhotoJSON.render/1)}
+
+  defp call_tool(
+         "upload_photo",
+         %{"filename" => filename, "content_base64" => encoded, "alt_text" => _alt_text} = args,
+         site,
+         _user
+       ) do
+    with true <- Plans.available?(site, :media_uploads),
+         {:ok, content} <- Base.decode64(encoded),
+         path <- Path.join(System.tmp_dir!(), "gesttalt-mcp-photo-#{Ecto.UUID.generate()}"),
+         :ok <- File.write(path, content) do
+      try do
+        upload = %Plug.Upload{
+          path: path,
+          filename: filename,
+          content_type: args["content_type"]
+        }
+
+        attrs = Map.put_new(args, "status", "draft")
+
+        with {:ok, photo} <- Photography.create_photo(site, upload, attrs),
+             do: {:ok, PhotoJSON.render(photo)}
+      after
+        File.rm(path)
+      end
+    else
+      false -> {:error, :subscription_required}
+      :error -> {:error, :invalid_base64}
+      error -> error
+    end
+  end
+
+  defp call_tool("publish_photo", %{"id" => id}, site, _user) do
+    with photo when not is_nil(photo) <- Photography.get_photo(site, id),
+         {:ok, photo} <- Photography.publish_photo(photo) do
+      {:ok, PhotoJSON.render(photo)}
+    else
+      nil -> {:error, :not_found}
+      error -> error
+    end
+  end
+
+  defp call_tool("unpublish_photo", %{"id" => id}, site, _user) do
+    with photo when not is_nil(photo) <- Photography.get_photo(site, id),
+         {:ok, photo} <- Photography.unpublish_photo(photo) do
+      {:ok, PhotoJSON.render(photo)}
+    else
+      nil -> {:error, :not_found}
+      error -> error
+    end
+  end
+
+  defp call_tool("delete_photo", %{"id" => id}, site, _user) do
+    case Photography.get_photo(site, id) do
+      nil ->
+        {:error, :not_found}
+
+      photo ->
+        with {:ok, photo} <- Photography.delete_photo(site, photo.id),
+             do: {:ok, %{id: photo.id, deleted: true}}
+    end
+  end
+
   defp call_tool("get_theme", _arguments, site, _user),
     do: {:ok, site |> Sites.get_theme!() |> ThemeEditing.theme_attrs()}
 
@@ -414,6 +481,29 @@ defmodule Gesttalt.MCP do
       tool("delete_media", "Permanently delete an image from the media library", %{
         id: integer_schema()
       }),
+      tool("list_photos", "List every draft and published photography feed entry", %{}),
+      tool(
+        "upload_photo",
+        "Upload a photograph as a draft or publish it to the photography feed",
+        %{
+          properties: %{
+            filename: string_schema(),
+            content_base64: string_schema(),
+            content_type: string_schema(),
+            alt_text: string_schema(),
+            caption: string_schema(),
+            status: %{type: "string", enum: ["draft", "published"]}
+          },
+          required: ["filename", "content_base64", "alt_text"]
+        }
+      ),
+      tool("publish_photo", "Publish a photography feed entry", %{id: integer_schema()}),
+      tool("unpublish_photo", "Move a published photography feed entry back to drafts", %{
+        id: integer_schema()
+      }),
+      tool("delete_photo", "Permanently delete a photography feed entry and its image", %{
+        id: integer_schema()
+      }),
       tool("get_theme", "Get the active publication theme", %{}),
       tool(
         "create_theme_editing_session",
@@ -560,6 +650,7 @@ defmodule Gesttalt.MCP do
         "list_content",
         "get_content",
         "list_media",
+        "list_photos",
         "get_theme",
         "get_theme_editing_session",
         "list_theme_preview_clients",
@@ -574,6 +665,7 @@ defmodule Gesttalt.MCP do
       name in [
         "delete_content",
         "delete_media",
+        "delete_photo",
         "publish_theme_editing_session",
         "discard_theme_editing_session",
         "remove_custom_domain",
@@ -615,6 +707,7 @@ defmodule Gesttalt.MCP do
       index_template: string_schema(),
       article_template: string_schema(),
       page_template: string_schema(),
+      photography_template: string_schema(),
       stylesheet: string_schema(),
       variables: Variables.input_schema()
     }

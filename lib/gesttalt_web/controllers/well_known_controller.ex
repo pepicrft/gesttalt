@@ -88,7 +88,7 @@ defmodule GesttaltWeb.WellKnownController do
 
     json(conn, %{
       name: "Gesttalt",
-      description: "Create and publish posts and pages from an agent.",
+      description: "Create and publish posts, pages, and photography feeds from an agent.",
       version: "1.0.0",
       transport: %{
         type: "streamable-http",

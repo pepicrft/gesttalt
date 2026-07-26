@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Photography · {{ site.name }}</title>
+    <meta name="description" content="A photography feed by {{ site.name }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Photography · {{ site.name }}">
+    <meta property="og:description" content="A photography feed by {{ site.name }}">
+    <meta property="og:image" content="{{ og_image }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="{{ og_image }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ site.name }} Really Simple Syndication feed" href="/blog/feed.xml">
+    <link rel="alternate" type="application/atom+xml" title="{{ site.name }} Atom feed" href="/blog/atom.xml">
+    <style>{{ stylesheet }}</style>
+  </head>
+  <body id="site-photography">
+    <header class="site-header">
+      <div class="container header-inner">
+        <div class="site-identity">
+          <a class="site-title" href="/">{{ site.name }}</a>
+          <span class="site-tagline">{{ site.tagline }}</span>
+        </div>
+        <nav>
+          <a href="/">Writing</a>
+          <a href="/photography" aria-current="page">Photography</a>
+          {% for page in pages %}<a href="{{ page.url }}">{{ page.title }}</a>{% endfor %}
+        </nav>
+      </div>
+    </header>
+    <main class="container photography-page">
+      <header class="photography-introduction">
+        <p class="section-label">Visual journal</p>
+        <h1>Photography</h1>
+        <p>Frames from {{ site.name }}, shared in the order they were noticed.</p>
+      </header>
+      {% if photos.size == 0 %}
+      <section class="photography-empty">
+        <p>No photographs have been published yet.</p>
+      </section>
+      {% else %}
+      <section class="photography-feed" aria-label="Photography feed">
+        {% for photo in photos %}
+        <article id="photo-{{ photo.id }}" class="photography-entry">
+          <header class="photography-entry-header">
+            <span class="photography-mark" aria-hidden="true"></span>
+            <div>
+              <strong>{{ site.name }}</strong>
+              <time datetime="{{ photo.published_at }}">{{ photo.published_on }}</time>
+            </div>
+          </header>
+          <img src="{{ photo.image_url }}" alt="{{ photo.alt_text }}" loading="lazy">
+          {% if photo.caption != "" %}
+          <p class="photography-caption"><strong>{{ site.handle }}</strong> {{ photo.caption }}</p>
+          {% endif %}
+        </article>
+        {% endfor %}
+      </section>
+      {% endif %}
+    </main>
+    <footer id="site-footer">
+      <div class="container" data-part="inner">
+        <a href="/">Read the writing</a>
+        <span data-part="powered-by">Powered by <a href="https://gesttalt.org">Gesttalt</a></span>
+      </div>
+    </footer>
+  </body>
+</html>

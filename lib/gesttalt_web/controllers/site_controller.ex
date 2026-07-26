@@ -1,6 +1,7 @@
 defmodule GesttaltWeb.SiteController do
   use GesttaltWeb, :controller
 
+  alias Gesttalt.Photography
   alias Gesttalt.Publishing
   alias Gesttalt.Sites
   alias Gesttalt.Themes.Renderer
@@ -83,6 +84,23 @@ defmodule GesttaltWeb.SiteController do
 
     render_theme(conn, site, fn ->
       Renderer.render_page(site, site.theme, page, Publishing.list_published_pages(site), og)
+    end)
+  end
+
+  def photography(%{assigns: %{current_site: nil}} = conn, _params),
+    do: conn |> put_status(:not_found) |> text("Photography feed not found")
+
+  def photography(%{assigns: %{current_site: site}} = conn, _params) do
+    og = og_context(conn, site)
+
+    render_theme(conn, site, fn ->
+      Renderer.render_photography(
+        site,
+        site.theme,
+        Photography.list_published_photos(site),
+        Publishing.list_published_pages(site),
+        og
+      )
     end)
   end
 

@@ -5,6 +5,7 @@ defmodule Gesttalt.Sites.Site do
   import Ecto.Changeset
 
   alias Gesttalt.Accounts.User
+  alias Gesttalt.Photography.Photo
   alias Gesttalt.Sites.{Domain, Image, Theme}
 
   @type t :: %__MODULE__{}
@@ -24,6 +25,7 @@ defmodule Gesttalt.Sites.Site do
     belongs_to :user, User
     has_many :domains, Domain
     has_many :images, Image
+    has_many :photos, Photo
     has_one :theme, Theme
 
     timestamps(type: :utc_datetime)

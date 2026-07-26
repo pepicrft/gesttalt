@@ -10,6 +10,10 @@ defmodule GesttaltWeb.ThemePreviewController do
     render_preview(conn, session_id, %{"kind" => "home"})
   end
 
+  def photography(conn, %{"session_id" => session_id}) do
+    render_preview(conn, session_id, %{"kind" => "photography"})
+  end
+
   def article(conn, %{"session_id" => session_id, "slug" => slug}) do
     render_preview(conn, session_id, %{"kind" => "article", "slug" => slug})
   end

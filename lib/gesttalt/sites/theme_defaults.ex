@@ -7,6 +7,7 @@ defmodule Gesttalt.Sites.ThemeDefaults do
     index_template: "index.liquid",
     article_template: "article.liquid",
     page_template: "page.liquid",
+    photography_template: "photography.liquid",
     stylesheet: "theme.css"
   }
 
@@ -16,6 +17,8 @@ defmodule Gesttalt.Sites.ThemeDefaults do
         Map.put(attrs, key, read!(filename))
     end)
   end
+
+  def photography_template, do: read!("photography.liquid")
 
   defp read!(filename) do
     :gesttalt

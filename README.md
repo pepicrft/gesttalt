@@ -50,11 +50,12 @@ mix test
 
 ## Themes
 
-A theme has five editable sources:
+A theme has six editable sources:
 
 - `index_template` renders the publication home with Liquid.
 - `article_template` renders a post with Liquid.
 - `page_template` renders a page with Liquid.
+- `photography_template` renders the chronological photography feed.
 - `variables` contains the standard color, typography, spacing, radius, size, and shadow values.
 - `stylesheet` contains all theme styles.
 
@@ -80,7 +81,7 @@ Dynamic clients, including public mobile clients, register through `POST /oauth2
 
 Agents can discover the [auth.md protocol](https://workos.com/auth-md) at `/auth.md` and through the protected-resource metadata under `/.well-known`. An agent sends the user's email to `POST /agent/identity`, shows the returned six-digit code and verification address to the user, and polls the normal token endpoint. Gesttalt creates the account when necessary, the user signs in and confirms the code on Gesttalt, and the agent receives a one-hour publishing token plus a renewable service-signed identity assertion. A code can be renewed during the longer registration window. The assertion never acts as a refresh token and no password is shared with the agent.
 
-The Model Context Protocol server mirrors the dashboard. Its tools manage content, media, live theme sessions, publication settings, custom domains, connected applications, and hosted billing links. Read-only tools report current state, while tool annotations and server instructions tell agents to require an explicit user request before publishing, deleting, changing domains or credentials, or beginning billing.
+The Model Context Protocol server mirrors the dashboard. Its tools manage content, photography feeds, media, live theme sessions, publication settings, custom domains, connected applications, and hosted billing links. Read-only tools report current state, while tool annotations and server instructions tell agents to require an explicit user request before publishing, deleting, changing domains or credentials, or beginning billing.
 
 Production signs those identity assertions with a dedicated Rivest-Shamir-Adleman private key. Generate and store the Privacy-Enhanced Mail value as `GESTTALT_AGENT_AUTH_PRIVATE_KEY_PEM`; the chart reads it from `AGENT_AUTH_PRIVATE_KEY_PEM` in the external secret store. Development and test environments generate an ephemeral key at startup.
 
@@ -111,7 +112,7 @@ GESTTALT_STRIPE_AUTOMATIC_TAX=false
 
 Register `https://gesttalt.org/webhooks/stripe` as the webhook destination for completed checkout sessions and created, updated, or deleted subscriptions. Enable the Stripe customer portal so subscribers can manage their payment method and subscription. Automatic tax collection remains disabled until the business registration and tax treatment have been confirmed.
 
-Uploaded images in the supported web formats are limited to ten megabytes. Development uses local storage, while production stores media under account-and-site-scoped keys in a private Hetzner Object Storage bucket and streams it through tenant-aware application routes.
+Uploaded images in the supported web formats are limited to ten megabytes. Images can remain in the media library or become draft and published entries in the chronological photography feed. Development uses local storage, while production stores media under account-and-site-scoped keys in a private Hetzner Object Storage bucket and streams it through tenant-aware application routes.
 
 ## Localization
 

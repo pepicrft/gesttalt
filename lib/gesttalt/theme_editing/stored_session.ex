@@ -7,7 +7,7 @@ defmodule Gesttalt.ThemeEditing.StoredSession do
   import Ecto.Query
 
   alias Gesttalt.Repo
-  alias Gesttalt.Sites.{Site, Theme}
+  alias Gesttalt.Sites.{Site, Theme, ThemeDefaults}
 
   @max_sessions_per_site 5
   @primary_key {:id, :string, autogenerate: false}
@@ -18,6 +18,7 @@ defmodule Gesttalt.ThemeEditing.StoredSession do
     field :index_template, :string
     field :name, :string
     field :page_template, :string
+    field :photography_template, :string
     field :revision, :integer, default: 0
     field :slot, :integer
     field :stylesheet, :string
@@ -113,6 +114,7 @@ defmodule Gesttalt.ThemeEditing.StoredSession do
       :index_template,
       :name,
       :page_template,
+      :photography_template,
       :revision,
       :site_id,
       :slot,
@@ -127,6 +129,7 @@ defmodule Gesttalt.ThemeEditing.StoredSession do
       :index_template,
       :name,
       :page_template,
+      :photography_template,
       :site_id,
       :slot,
       :stylesheet,
@@ -171,9 +174,11 @@ defmodule Gesttalt.ThemeEditing.StoredSession do
       :index_template,
       :name,
       :page_template,
+      :photography_template,
       :stylesheet,
       :variables
     ])
+    |> Map.update!(:photography_template, &(&1 || ThemeDefaults.photography_template()))
   end
 
   defp to_theme(stored_session) do
@@ -183,6 +188,8 @@ defmodule Gesttalt.ThemeEditing.StoredSession do
       index_template: stored_session.index_template,
       name: stored_session.name,
       page_template: stored_session.page_template,
+      photography_template:
+        stored_session.photography_template || ThemeDefaults.photography_template(),
       site_id: stored_session.site_id,
       stylesheet: stored_session.stylesheet,
       variables: stored_session.variables
