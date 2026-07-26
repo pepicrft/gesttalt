@@ -108,4 +108,15 @@ defmodule Gesttalt.Themes.RendererTest do
       assert html =~ ~s(Powered by <a href="https://gesttalt.org">Gesttalt</a>)
     end
   end
+
+  test "the built-in theme left-aligns its header navigation", %{site: site} do
+    theme = Sites.get_theme!(site)
+
+    assert theme.stylesheet =~
+             ".header-inner { align-items: flex-start; display: flex; flex-direction: column;"
+
+    assert {:ok, html} = Renderer.render_index(site, theme, [], [])
+    assert html =~ ~s(<a href="/">Writing</a>)
+    assert html =~ ~s(<a href="/photography">Photography</a>)
+  end
 end
