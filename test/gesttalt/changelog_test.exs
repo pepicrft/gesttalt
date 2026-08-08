@@ -7,10 +7,10 @@ defmodule Gesttalt.ChangelogTest do
     entries = Changelog.list()
     [latest | _rest] = entries
 
-    assert latest.slug == "photography-feeds"
-    assert latest.published_on == ~D[2026-07-25]
-    assert latest.title == "Publish a photography feed"
-    assert latest.summary =~ "chronological photo feed"
+    assert latest.slug == "open-source"
+    assert latest.published_on == ~D[2026-08-08]
+    assert latest.title == "Gesttalt is now open source"
+    assert latest.summary =~ "available to read, adapt, and run"
 
     assert entries ==
              Enum.sort_by(
@@ -25,7 +25,7 @@ defmodule Gesttalt.ChangelogTest do
     html = entry |> Changelog.body_html() |> Phoenix.HTML.safe_to_string()
 
     assert entry.body == html
-    assert html =~ "<p>Every publication now has a dedicated photography feed"
-    assert html =~ ~s(<a href="https://modelcontextprotocol.io/")
+    assert html =~ "<p>Gesttalt is now developed in public"
+    assert html =~ ~s(<a href="https://github.com/pepicrft/gesttalt")
   end
 end

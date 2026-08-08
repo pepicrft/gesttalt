@@ -32,6 +32,12 @@
       flex-wrap: wrap;
       gap: var(--space-2);
     }
+
+    & > [data-part="source"] {
+      color: var(--muted);
+      font-size: var(--font-size);
+      margin: var(--space-3) 0 0;
+    }
   }
 
   & > [data-part="features"] {

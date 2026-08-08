@@ -45,3 +45,13 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Agent-native publishing for content, media, themes, domains, and the complete publication."
 msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/home.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "Explore the code on GitHub →"
+msgstr ""
+
+#: lib/gesttalt_web/controllers/page_html/home.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "Gesttalt is open source."
+msgstr ""
