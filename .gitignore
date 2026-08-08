@@ -35,3 +35,5 @@ gesttalt-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# Worktree-specific local development ports and database names.
+.gesttalt-dev-instance

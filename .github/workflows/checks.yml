@@ -1,0 +1,240 @@
+name: Gesttalt
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MIX_ENV: test
+
+jobs:
+  compile:
+    name: Compile without warnings
+    runs-on: hetzner-docker
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+        with:
+          install_args: "erlang elixir"
+      - run: mix deps.get
+      - run: mix compile --warnings-as-errors
+
+  test:
+    name: Unit tests
+    runs-on: hetzner-docker
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+        with:
+          install_args: "erlang elixir"
+      - run: mix deps.get
+      - run: mix test
+
+  format:
+    name: Elixir format
+    runs-on: hetzner-docker
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+        with:
+          install_args: "erlang elixir"
+      - run: mix deps.get
+      - run: mix format --check-formatted --dot-formatter .formatter.standard.exs
+
+  quokka:
+    name: Quokka
+    runs-on: hetzner-docker
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+        with:
+          install_args: "erlang elixir"
+      - run: mix deps.get
+      - run: mix format --check-formatted
+
+  gettext:
+    name: Gettext catalogs
+    runs-on: hetzner-docker
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+        with:
+          install_args: "erlang elixir"
+      - run: mix deps.get
+      - name: Check extracted catalogs
+        run: |
+          mix gettext.extract --merge
+          git diff --exit-code -- priv/gettext
+      - name: Check domain catalogs exist
+        run: |
+          for domain in agent_auth billing legal marketing navigation; do
+            test -f "priv/gettext/${domain}.pot"
+            test -f "priv/gettext/en/LC_MESSAGES/${domain}.po"
+          done
+
+  credo:
+    name: Credo
+    runs-on: hetzner-docker
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+        with:
+          install_args: "erlang elixir"
+      - run: mix deps.get
+      - run: mix credo --strict
+
+  chart:
+    name: Helm chart
+    runs-on: hetzner-docker
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+        with:
+          install_args: "ruby helm"
+      - run: helm lint deploy/helm/gesttalt --values deploy/values-production.yaml
+      - name: Render and validate chart
+        run: |
+          helm template gesttalt deploy/helm/gesttalt \
+            --namespace gesttalt \
+            --values deploy/values-production.yaml > /tmp/gesttalt.yaml
+
+          ruby -ryaml <<'RUBY'
+          documents = YAML.load_stream(File.read("/tmp/gesttalt.yaml"))
+          pull_secret = documents.find do |document|
+            document["kind"] == "ExternalSecret" &&
+              document.dig("metadata", "name") == "ghcr-pull-secret"
+          end
+          app_secret = documents.find do |document|
+            document["kind"] == "ExternalSecret" &&
+              document.dig("metadata", "name") == "gesttalt-app-env"
+          end
+          deployment = documents.find { |document| document["kind"] == "Deployment" }
+          migration = documents.find { |document| document["kind"] == "Job" }
+          service = documents.find { |document| document["kind"] == "Service" }
+          disruption_budget = documents.find { |document| document["kind"] == "PodDisruptionBudget" }
+          network_policy = documents.find { |document| document["kind"] == "NetworkPolicy" }
+          scheduled_backup = documents.find { |document| document["kind"] == "ScheduledBackup" }
+          media_claim = documents.find do |document|
+            document["kind"] == "PersistentVolumeClaim" &&
+              document.dig("metadata", "name") == "gesttalt-media"
+          end
+          template = pull_secret&.dig("spec", "target", "template", "data", ".dockerconfigjson")
+          expected_auth = '{{ printf `%s:%s` .GHCR_PULL_USERNAME .GHCR_PULL_TOKEN | b64enc }}'
+          expected_app_keys = %w[
+            gesttalt/AGENT_AUTH_PRIVATE_KEY_PEM
+            gesttalt/POSTGRES_PASSWORD
+            gesttalt/SECRET_KEY_BASE
+            gesttalt/TURNSTILE_SECRET_KEY
+            gesttalt/TURNSTILE_SITE_KEY
+          ]
+          app_keys = app_secret&.dig("spec", "data")&.map { |entry| entry.dig("remoteRef", "key") }&.sort
+          web = deployment&.dig("spec", "template", "spec", "containers")&.find do |container|
+            container["name"] == "web"
+          end
+          environment = web&.fetch("env", [])&.to_h { |entry| [entry["name"], entry["value"]] }
+          console_label = deployment&.dig("metadata", "labels", "hermes.pepicrft.com/production-elixir-console")
+          console_container = deployment&.dig("metadata", "annotations", "hermes.pepicrft.com/elixir-container")
+          console_release = deployment&.dig("metadata", "annotations", "hermes.pepicrft.com/elixir-release")
+          temporary_volume = deployment&.dig("spec", "template", "spec", "volumes")&.find do |volume|
+            volume["name"] == "tmp"
+          end
+
+          abort("registry pull secret template is missing") unless template
+          abort("registry pull secret contains escaped template quotes") if template.include?('\\"')
+          abort("registry pull secret auth template is invalid") unless template.include?(expected_auth)
+          abort("production application secret mappings are invalid") unless app_keys == expected_app_keys
+          abort("Hermes production console opt-in is missing") unless console_label == "enabled"
+          abort("Hermes production console container is invalid") unless console_container == "web"
+          abort("Hermes production console release is invalid") unless console_release == "gesttalt"
+          unless environment&.fetch("GESTTALT_SMTP_RELAY", nil) == "smtp-relay.pepicrft.me"
+            abort("production mail relay host is invalid")
+          end
+          unless environment&.fetch("GESTTALT_SMTP_PORT", nil) == "587"
+            abort("production mail relay port is invalid")
+          end
+          expected_telemetry_endpoint = "http://observability-alloy.observability.svc.cluster.local:4318"
+          unless environment&.fetch("OTEL_EXPORTER_OTLP_ENDPOINT", nil) == expected_telemetry_endpoint
+            abort("production telemetry endpoint is invalid")
+          end
+          unless environment&.fetch("OTEL_EXPORTER_OTLP_PROTOCOL", nil) == "http/protobuf"
+            abort("production telemetry protocol is invalid")
+          end
+          unless environment&.fetch("OTEL_SERVICE_NAME", nil) == "gesttalt"
+            abort("production telemetry service name is invalid")
+          end
+          expected_resource_attributes = "service.namespace=gesttalt,deployment.environment.name=production,k8s.namespace.name=gesttalt"
+          unless environment&.fetch("OTEL_RESOURCE_ATTRIBUTES", nil) == expected_resource_attributes
+            abort("production telemetry resource attributes are invalid")
+          end
+          abort("deployment service links are enabled") unless deployment&.dig("spec", "template", "spec", "enableServiceLinks") == false
+          abort("migration service links are enabled") unless migration&.dig("spec", "template", "spec", "enableServiceLinks") == false
+          unless temporary_volume&.dig("emptyDir", "sizeLimit") == "512Mi"
+            abort("production temporary volume is too small for the browser pool")
+          end
+          abort("production service traffic policy is not local") unless service&.dig("spec", "externalTrafficPolicy") == "Local"
+          rollout = deployment&.dig("spec", "strategy", "rollingUpdate")
+          safe_volume_handover = rollout&.fetch("maxSurge", nil) == 0 &&
+            rollout&.fetch("maxUnavailable", nil) == 1
+          abort("single-node volume rollout handover is unsafe") unless safe_volume_handover
+          abort("production disruption budget is missing") unless disruption_budget
+          abort("production ingress policy is missing") unless network_policy
+          abort("production database backup is missing") unless scheduled_backup&.dig("spec", "cluster", "name") == "gesttalt-postgres"
+          abort("unused production media claim is still rendered") if media_claim
+          ownership_migration = deployment&.dig("spec", "template", "spec", "initContainers")&.find do |container|
+            container["name"] == "migrate-caddy-data-ownership"
+          end
+          abort("retained Caddy data ownership migration is missing") unless ownership_migration&.dig("securityContext", "runAsUser") == 0
+          [deployment, migration].each do |workload|
+            media_volume = workload&.dig("spec", "template", "spec", "volumes")&.find do |volume|
+              volume["name"] == "media"
+            end
+            abort("object storage workload still mounts the legacy media volume") if media_volume
+          end
+          [deployment, migration].each do |workload|
+            pod_spec = workload&.dig("spec", "template", "spec")
+            certificate_volume = pod_spec&.fetch("volumes", [])&.find do |volume|
+              volume["name"] == "database-certificate-authority"
+            end
+            projected_keys = certificate_volume&.dig("secret", "items")&.map { |item| item["key"] }
+            trust_init = pod_spec&.fetch("initContainers", [])&.find do |container|
+              container["name"] == "prepare-database-trust"
+            end
+            abort("database certificate authority projection is unsafe") unless projected_keys == ["ca.crt"]
+            abort("database trust preparation is missing") unless trust_init
+          end
+          RUBY
+
+  container:
+    name: Container image
+    runs-on: hetzner-docker
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build image
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          file: Dockerfile
+          push: false

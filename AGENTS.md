@@ -1,5 +1,19 @@
 # Gesttalt development instructions
 
+## Writing
+
+- Avoid acronyms. When one is necessary, include its full name and a link to a website that explains the concept.
+
+## Elixir
+
+- Minimize explicit raising patterns and raising function variants. Prefer pattern matching on tagged return values and function heads so invalid states fail where they are introduced.
+
+## Tests
+
+- Never modify global state from a test. This includes application environment changes such as `Application.put_env/3`.
+- Pass configuration and dependencies directly to the code under test.
+- Every Elixir test module must run with `async: true`.
+
 ## Changelog
 
 - Keep the public changelog current. Every change that affects what users can see or do must add or update an entry under `priv/changelog`.
@@ -28,3 +42,17 @@ Example:
   }
 }
 ```
+
+## GitHub pull requests
+
+- Do not use em dashes in comments or reviews.
+- Write comments and reviews as if Pepicrft wrote them directly. Do not frame them as assistant output unless explicitly requested.
+- Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for pull request titles in the form `type(gesttalt): summary`.
+- Structure descriptions with the applicable headings `## What changed`, `## Why`, `## Root cause`, `## Approach`, `## Impact`, and `## Validation`.
+- Use concise prose. Bullets are appropriate for concrete changes and validation, but the whole description should not be a terse file list.
+
+## Web application verification
+
+- Run the application locally and verify behavior with [headless Chrome](https://developer.chrome.com/docs/chromium/headless).
+- Capture screenshots during verification.
+- Include verification screenshots in the [GitHub pull request](https://docs.github.com/en/pull-requests) description. For fixes, include before and after screenshots.

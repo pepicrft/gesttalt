@@ -2,9 +2,11 @@
 
 Gesttalt is an agent-native blogging platform. An agent can securely register a user and manage the complete publication, while the user keeps ownership of the account, address, and consequential decisions. It is built with Phoenix, PostgreSQL, Liquid themes, and vanilla Cascading Style Sheets. The browser editor, [Hypertext Transfer Protocol](https://developer.mozilla.org/en-US/docs/Web/HTTP) application programming interface, and [Model Context Protocol](https://modelcontextprotocol.io/) server share the same tenant-scoped publishing model.
 
+Gesttalt is open source under the terms in [LICENSE.md](LICENSE.md).
+
 Browser account creation is protected by Cloudflare Turnstile and local Hammer
 rate limits. Production setup and Cloudflare edge guidance are documented in
-[Gesttalt registration abuse protection](../../infra/docs/gesttalt-registration-abuse.md).
+[Gesttalt registration abuse protection](https://github.com/pepicrft/indie/blob/main/infra/docs/gesttalt-registration-abuse.md).
 
 ## Run locally
 
@@ -128,7 +130,7 @@ The continuous integration workflow verifies that extraction is clean and that e
 
 `deploy/helm/gesttalt` packages Phoenix, Caddy, PostgreSQL through CloudNativePG, migration jobs, object-backed media, and External Secrets. The production values live in `deploy/values-production.yaml`.
 
-The cluster entry point is `infra/k8s/workload-apps/gesttalt-production/gesttalt-helmrelease.yaml`. Flux reconciles that release into the `gesttalt` namespace through the production cluster configuration. Image automation watches `ghcr.io/pepicrft/gesttalt:main`, pins the latest digest in the production values, and commits that update back to the repository.
+The [cluster entry point](https://github.com/pepicrft/indie/blob/main/infra/k8s/workload-apps/gesttalt-production/gesttalt-helmrelease.yaml) lives in the private infrastructure repository. Flux reads the chart and production values from this repository and reconciles the release into the `gesttalt` namespace. GitHub Actions publishes `ghcr.io/pepicrft/gesttalt:main` after the checks pass. Image automation pins each new digest in the infrastructure repository and rolls it out automatically.
 
 Before the first reconciliation, populate these required external secret-store
 entries:

@@ -76,7 +76,7 @@ RUN mix release
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE} AS final
 
-LABEL org.opencontainers.image.source="https://github.com/pepicrft/indie"
+LABEL org.opencontainers.image.source="https://github.com/pepicrft/gesttalt"
 
 # chromium and fonts power the headless-browser rendering of Open Graph images
 # (via the browse_chrome pool). tini reaps the browser's child processes so they

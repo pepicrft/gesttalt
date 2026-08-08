@@ -1,0 +1,42 @@
+name: Publish Production Image
+
+on:
+  workflow_run:
+    workflows:
+      - Gesttalt
+    branches: [main]
+    types:
+      - completed
+
+jobs:
+  publish:
+    name: Publish image
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: hetzner-docker
+    permissions:
+      contents: read
+      packages: write
+    concurrency:
+      group: publish-gesttalt-production-image
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PUSH_TOKEN || secrets.GITHUB_TOKEN }}
+      - name: Build and push image
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          labels: org.opencontainers.image.source=https://github.com/pepicrft/gesttalt
+          tags: |
+            ghcr.io/pepicrft/gesttalt:${{ github.event.workflow_run.head_sha }}
+            ghcr.io/pepicrft/gesttalt:main
+            ghcr.io/pepicrft/gesttalt:main-${{ github.run_number }}-${{ github.event.workflow_run.head_sha }}

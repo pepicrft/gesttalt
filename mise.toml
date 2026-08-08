@@ -1,0 +1,12 @@
+[tools]
+ruby = "3.4"
+erlang = "29.0.2"
+elixir = "1.20.1-otp-29"
+helm = "3"
+
+[env]
+MISE_CONFIG_ROOT = "{{config_root}}"
+_.source = ["{{config_root}}/mise/utilities/gesttalt_dev_instance_env.sh"]
+
+[settings.ruby]
+compile = false
