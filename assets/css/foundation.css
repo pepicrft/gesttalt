@@ -32,14 +32,21 @@ html {
 }
 
 body {
-  display: flex;
-  flex-direction: column;
   font-size: var(--font-size);
   margin: 0;
   min-height: 100vh;
 }
 
-body > main {
+#app-shell {
+  background: var(--paper);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+#app-shell > main {
   flex: 1;
   width: 100%;
 }

@@ -1,5 +1,5 @@
-<Layouts.app flash={@flash} current_scope={@current_scope} admin>
-  <div id="admin-theme">
+<Layouts.app flash={@flash} current_scope={@current_scope} admin admin_theme={@admin_theme}>
+  <div id="admin-theme" data-theme={@active_built_in_theme || "custom"}>
     <header id="page-heading">
       <p data-part="eyebrow">Design</p><h1 data-part="title">Theme</h1><p data-part="description">
         Choose a built-in starting point for your publication. It remains inherited until you or your agent customize it.

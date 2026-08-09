@@ -28,9 +28,11 @@
     }
 
     & [data-part="theme-card"] {
-      background: #fff;
+      background: var(--paper);
       border: 1px solid var(--line);
       display: grid;
+      min-width: 0;
+      overflow: hidden;
 
       &[data-selected="true"] { border: 2px solid var(--blue); }
 
@@ -39,9 +41,12 @@
         border-bottom: 1px solid var(--line);
         display: grid;
         gap: 0.55rem;
+        min-width: 0;
+        overflow: hidden;
         padding: 1.1rem;
 
         & > [data-part="preview-title"] {
+          overflow-wrap: anywhere;
           font-size: 1.2rem;
           font-weight: 700;
         }

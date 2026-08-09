@@ -18,5 +18,9 @@ defmodule GesttaltWeb.ThemeControllerTest do
 
     assert redirected_to(conn) == ~p"/admin/theme"
     assert Sites.get_theme!(site).name == "Ledger"
+
+    response = conn |> recycle() |> get(~p"/admin/theme") |> html_response(200)
+    assert response =~ "--paper: #f5f1e8"
+    assert response =~ "font-family: Georgia, &#39;Times New Roman&#39;, serif"
   end
 end
