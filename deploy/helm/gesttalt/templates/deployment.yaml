@@ -16,7 +16,9 @@ spec:
   selector:
     matchLabels:
       {{- include "gesttalt.selectorLabels" . | nindent 6 }}
+      {{- if eq .Values.postgres.mode "standalone" }}
       app.kubernetes.io/component: web
+      {{- end }}
   template:
     metadata:
       annotations:

@@ -209,6 +209,13 @@ jobs:
           end
           abort("deployment service links are enabled") unless deployment&.dig("spec", "template", "spec", "enableServiceLinks") == false
           abort("migration service links are enabled") unless migration&.dig("spec", "template", "spec", "enableServiceLinks") == false
+          expected_deployment_selector = {
+            "app.kubernetes.io/name" => "gesttalt",
+            "app.kubernetes.io/instance" => "gesttalt"
+          }
+          unless deployment&.dig("spec", "selector", "matchLabels") == expected_deployment_selector
+            abort("production deployment selector is not upgrade-compatible")
+          end
           unless temporary_volume&.dig("emptyDir", "sizeLimit") == "512Mi"
             abort("production temporary volume is too small for the browser pool")
           end
