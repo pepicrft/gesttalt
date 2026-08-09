@@ -1,4 +1,88 @@
 #admin-theme {
+  & > [data-part="built-in-themes"] {
+    display: grid;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+
+    & > [data-part="section-heading"] {
+      max-width: 680px;
+
+      & > [data-part="eyebrow"] {
+        color: var(--blue);
+        font-weight: 700;
+        margin: 0 0 var(--space-1);
+      }
+
+      & > h2 { margin: 0; }
+
+      & > p:last-child {
+        color: var(--muted);
+        margin-bottom: 0;
+      }
+    }
+
+    & > [data-part="theme-grid"] {
+      display: grid;
+      gap: var(--space-3);
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    & [data-part="theme-card"] {
+      background: #fff;
+      border: 1px solid var(--line);
+      display: grid;
+
+      &[data-selected="true"] { border: 2px solid var(--blue); }
+
+      & > [data-part="preview"] {
+        aspect-ratio: 1.45;
+        border-bottom: 1px solid var(--line);
+        display: grid;
+        gap: 0.55rem;
+        padding: 1.1rem;
+
+        & > [data-part="preview-title"] {
+          font-size: 1.2rem;
+          font-weight: 700;
+        }
+
+        & > [data-part="preview-rule"] { border-top: 1px solid currentcolor; }
+
+        & > [data-part="preview-lines"] {
+          background: linear-gradient(currentcolor 0 0) 0 0 / 78% 1px no-repeat,
+            linear-gradient(currentcolor 0 0) 0 50% / 92% 1px no-repeat,
+            linear-gradient(currentcolor 0 0) 0 100% / 64% 1px no-repeat;
+          opacity: 0.55;
+        }
+      }
+
+      &[data-theme="paper"] > [data-part="preview"] { background: #fdfbf7; color: #171411; }
+      &[data-theme="ledger"] > [data-part="preview"] { background: #f5f1e8; color: #1f1d1a; font-family: Georgia, serif; }
+      &[data-theme="darkroom"] > [data-part="preview"] { background: #121211; color: #f5f2ea; }
+      &[data-theme="field-notes"] > [data-part="preview"] { background: #f4eedf; color: #292b24; font-family: "Courier New", monospace; }
+
+      & > [data-part="content"] {
+        align-content: space-between;
+        display: grid;
+        gap: var(--space-3);
+        padding: var(--space-3);
+
+        & h3 { margin: 0; }
+
+        & p {
+          color: var(--muted);
+          margin: var(--space-1) 0 0;
+        }
+      }
+    }
+
+    & > [data-part="custom-theme-note"] {
+      border-left: 3px solid var(--blue);
+      margin: 0;
+      padding-left: var(--space-2);
+    }
+  }
+
   & > [data-part="agent-workflow"] {
     display: grid;
     gap: var(--space-3);

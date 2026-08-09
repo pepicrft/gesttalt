@@ -128,6 +128,7 @@ defmodule GesttaltWeb.Router do
     delete "/media/:id", MediaController, :delete
 
     get "/theme", ThemeController, :edit
+    post "/theme", ThemeController, :select
 
     get "/settings", SiteSettingsController, :show
     put "/settings", SiteSettingsController, :update

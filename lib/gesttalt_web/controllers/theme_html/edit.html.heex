@@ -2,9 +2,56 @@
   <div id="admin-theme">
     <header id="page-heading">
       <p data-part="eyebrow">Design</p><h1 data-part="title">Theme</h1><p data-part="description">
-        Ask an agent to adjust standard design variables, route-specific Liquid templates, and vanilla Cascading Style Sheets while the preview updates beside your conversation.
+        Choose a built-in starting point for your publication. It remains inherited until you or your agent customize it.
       </p>
     </header>
+    <section data-part="built-in-themes" aria-labelledby="built-in-themes-title">
+      <div data-part="section-heading">
+        <p data-part="eyebrow">Built-in themes</p><h2 id="built-in-themes-title">
+          Choose a point of view
+        </h2><p>
+          Changing a theme replaces any current site-owned theme with the selected built-in design.
+        </p>
+      </div>
+      <div data-part="theme-grid">
+        <article
+          :for={built_in_theme <- @built_in_themes}
+          id={"built-in-theme-#{built_in_theme.id}"}
+          data-part="theme-card"
+          data-theme={built_in_theme.id}
+          data-selected={to_string(@active_built_in_theme == built_in_theme.id)}
+        >
+          <div data-part="preview" aria-hidden="true">
+            <span data-part="preview-title">{built_in_theme.name}</span><span data-part="preview-rule"></span><span data-part="preview-lines"></span>
+          </div>
+          <div data-part="content">
+            <div>
+              <h3>{built_in_theme.name}</h3><p>{built_in_theme.description}</p>
+            </div>
+            <form action={~p"/admin/theme"} method="post">
+              <input type="hidden" name="_csrf_token" value={get_csrf_token()} /><input
+                type="hidden"
+                name="built_in_theme"
+                value={built_in_theme.id}
+              />
+              <button class={
+                if @active_built_in_theme == built_in_theme.id,
+                  do: "button",
+                  else: "button button--primary"
+              }>
+                {if @active_built_in_theme == built_in_theme.id,
+                  do: "Selected",
+                  else: "Choose theme"}
+              </button>
+            </form>
+          </div>
+        </article>
+      </div>
+      <p :if={is_nil(@active_built_in_theme)} data-part="custom-theme-note">
+        <strong>Custom theme active.</strong>
+        Choosing a built-in theme replaces its templates, styles, and variables.
+      </p>
+    </section>
     <section class="panel" data-part="agent-workflow">
       <div data-part="workflow-copy">
         <p data-part="eyebrow">Agent workflow</p><h2>Edit without moving theme files around</h2><p>

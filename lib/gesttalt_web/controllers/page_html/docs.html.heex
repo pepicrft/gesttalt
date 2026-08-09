@@ -53,8 +53,14 @@
           </p>
         </section>
         <section id="themes" data-part="section">
-          <h2 data-part="title">Live theme editing</h2><p>
-            Theme editing happens entirely through the <a href="https://modelcontextprotocol.io/">Model Context Protocol</a>. Ask your agent to call <code>create_theme_editing_session</code>. It receives an isolated copy of the active theme, the standard variable contract, and a preview address you can open beside the conversation.
+          <h2 data-part="title">Themes</h2><p>
+            Start in the dashboard’s <strong>Theme</strong>
+            section, where you can choose Paper, Ledger, Darkroom, or Field Notes. Built-in themes remain application-maintained, so improvements arrive automatically until you or an agent customize the theme.
+          </p><p>
+            Selecting a built-in theme replaces an existing custom theme with that theme’s templates, styles, and variables. Use it when you want a deliberate fresh starting point for the publication.
+          </p><h3>Live theme editing</h3><p>
+            Ask your agent to call <code>create_theme_editing_session</code>
+            through the <a href="https://modelcontextprotocol.io/">Model Context Protocol</a>. It receives an isolated copy of the active theme, the standard variable contract, and a preview address you can open beside the conversation.
           </p><p>
             Calls to <code>update_theme_editing_session</code>
             accept partial variable changes, preserve omitted values, store the draft durably across deployments, and refresh every connected preview through Phoenix LiveView. The preview carries a visible editing sign until the session ends. The variables cover semantic colors, font families and scales, spacing, radii, sizes, and shadows. They adapt the

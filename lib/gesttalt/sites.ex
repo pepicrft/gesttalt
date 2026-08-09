@@ -170,9 +170,36 @@ defmodule Gesttalt.Sites do
 
   def get_theme!(%Site{} = site) do
     case Repo.get_by(Theme, site_id: site.id) do
-      %Theme{inherited: true} -> ThemeDefaults.theme(site.id)
-      %Theme{} = theme -> theme
-      nil -> ThemeDefaults.theme(site.id)
+      %Theme{inherited: true, built_in_theme: built_in_theme} ->
+        ThemeDefaults.theme(site.id, built_in_theme)
+
+      %Theme{} = theme ->
+        theme
+
+      nil ->
+        ThemeDefaults.theme(site.id)
+    end
+  end
+
+  def select_built_in_theme(%Site{} = site, built_in_theme) do
+    with {:ok, _theme} <- ThemeDefaults.fetch(built_in_theme) do
+      attrs = ThemeDefaults.attrs(built_in_theme)
+
+      case Repo.get_by(Theme, site_id: site.id) do
+        nil ->
+          %Theme{}
+          |> Theme.changeset(Map.put(attrs, :site_id, site.id))
+          |> Ecto.Changeset.put_change(:built_in_theme, built_in_theme)
+          |> Ecto.Changeset.put_change(:inherited, true)
+          |> Repo.insert()
+
+        theme ->
+          theme
+          |> Theme.changeset(attrs)
+          |> Ecto.Changeset.put_change(:built_in_theme, built_in_theme)
+          |> Ecto.Changeset.put_change(:inherited, true)
+          |> Repo.update()
+      end
     end
   end
 
@@ -187,7 +214,7 @@ defmodule Gesttalt.Sites do
 
       %Theme{inherited: true} = theme ->
         theme
-        |> Theme.changeset(Map.merge(ThemeDefaults.attrs(), attrs))
+        |> Theme.changeset(Map.merge(ThemeDefaults.attrs(theme.built_in_theme), attrs))
         |> Ecto.Changeset.put_change(:inherited, false)
         |> Repo.update()
 
@@ -309,7 +336,11 @@ defmodule Gesttalt.Sites do
     site = Repo.preload(site, [:domains, :theme])
 
     theme =
-      if(site.theme && !site.theme.inherited, do: site.theme, else: ThemeDefaults.theme(site.id))
+      if site.theme && !site.theme.inherited do
+        site.theme
+      else
+        ThemeDefaults.theme(site.id, site.theme && site.theme.built_in_theme)
+      end
 
     %{site | theme: theme}
   end

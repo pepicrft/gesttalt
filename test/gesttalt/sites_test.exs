@@ -27,6 +27,26 @@ defmodule Gesttalt.SitesTest do
     assert Repo.get_by!(Theme, site_id: site.id).name == "Pedro"
   end
 
+  test "inherits a selected built-in theme until it is customized", %{site: site} do
+    assert {:ok, selected_theme} = Sites.select_built_in_theme(site, "darkroom")
+    assert selected_theme.inherited
+    assert selected_theme.built_in_theme == "darkroom"
+
+    inherited_theme = Sites.get_theme!(site)
+    assert inherited_theme.name == "Darkroom"
+    assert inherited_theme.variables["colors"]["background"] == "#121211"
+
+    assert {:ok, custom_theme} = Sites.update_theme(site, %{name: "Pedro after dark"})
+    refute custom_theme.inherited
+    assert custom_theme.name == "Pedro after dark"
+    assert custom_theme.variables["colors"]["background"] == "#121211"
+  end
+
+  test "rejects an unavailable built-in theme", %{site: site} do
+    assert {:error, :not_found} = Sites.select_built_in_theme(site, "unknown")
+    refute Repo.get_by(Theme, site_id: site.id)
+  end
+
   test "uses the current built-in theme for an inherited legacy record", %{site: site} do
     inherited_theme =
       %Theme{}
