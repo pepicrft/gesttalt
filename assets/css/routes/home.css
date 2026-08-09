@@ -71,6 +71,88 @@
     }
   }
 
+  & > [data-part="themes"] {
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    padding-bottom: var(--space-6);
+
+    & > [data-part="heading"] {
+      max-width: 680px;
+
+      & > [data-part="eyebrow"] {
+        color: var(--blue);
+        font-size: var(--font-size);
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        margin: 0 0 var(--space-1);
+      }
+
+      & > h2 {
+        font-size: var(--font-size);
+        margin: 0;
+      }
+
+      & > p:last-child {
+        color: var(--muted);
+        margin: var(--space-1) 0 0;
+      }
+    }
+
+    & > [data-part="theme-grid"] {
+      display: grid;
+      gap: var(--space-2);
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    & [data-part="theme-card"] {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      min-width: 0;
+      overflow: hidden;
+
+      & > [data-part="preview"] {
+        aspect-ratio: 1.45;
+        display: grid;
+        gap: 0.55rem;
+        overflow: hidden;
+        padding: var(--space-2);
+        background: var(--preview-background);
+        color: var(--preview-ink);
+        font-family: var(--preview-font);
+
+        & > [data-part="preview-title"] {
+          font-size: 1.15rem;
+          font-weight: 700;
+          overflow-wrap: anywhere;
+        }
+
+        & > [data-part="preview-rule"] { border-top: 1px solid currentcolor; }
+
+        & > [data-part="preview-lines"] {
+          background: linear-gradient(currentcolor 0 0) 0 0 / 78% 1px no-repeat,
+            linear-gradient(currentcolor 0 0) 0 50% / 92% 1px no-repeat,
+            linear-gradient(currentcolor 0 0) 0 100% / 64% 1px no-repeat;
+          opacity: 0.55;
+        }
+      }
+
+      & > [data-part="content"] {
+        padding: var(--space-2);
+
+        & > h3 { margin: 0; }
+
+        & > p {
+          color: var(--muted);
+          margin: var(--space-1) 0 0;
+        }
+      }
+    }
+
+    & > a { justify-self: start; }
+  }
+
   & > [data-part="manifesto"] {
     border-bottom: 1px solid var(--line);
     margin: var(--space-6) 0;
@@ -111,6 +193,16 @@
         border-bottom: 1px solid var(--line);
         padding-inline: 0;
       }
+    }
+
+    & > [data-part="themes"] {
+      & > [data-part="theme-grid"] { grid-template-columns: repeat(2, 1fr); }
+    }
+  }
+
+  @media (max-width: 480px) {
+    & > [data-part="themes"] {
+      & > [data-part="theme-grid"] { grid-template-columns: 1fr; }
     }
   }
 }
