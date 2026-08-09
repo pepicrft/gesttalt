@@ -1,5 +1,5 @@
 .panel {
-  background: #fff;
+  background: var(--paper);
   border: 1px solid var(--line);
   padding: 1.4rem;
 }

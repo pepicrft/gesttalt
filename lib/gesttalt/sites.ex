@@ -18,7 +18,7 @@ defmodule Gesttalt.Sites do
 
   def list_sites, do: Repo.all(from site in Site, order_by: [asc: site.name])
 
-  def get_site!(id), do: Site |> Repo.get!(id) |> Repo.preload([:domains, :theme])
+  def get_site!(id), do: Site |> Repo.get!(id) |> preload_site()
 
   def get_site(id), do: Site |> Repo.get(id) |> preload_site()
 
@@ -60,9 +60,6 @@ defmodule Gesttalt.Sites do
         verification_token: token(),
         verified_at: now()
       })
-    end)
-    |> Multi.insert(:theme, fn %{site: site} ->
-      Theme.changeset(%Theme{}, Map.put(ThemeDefaults.attrs(), :site_id, site.id))
     end)
     |> Repo.transaction()
     |> case do
@@ -121,7 +118,7 @@ defmodule Gesttalt.Sites do
     |> preload([domain, site], site: {site, [:theme, :domains]})
     |> Repo.one()
     |> case do
-      %Domain{site: site} -> site
+      %Domain{site: site} -> preload_site(site)
       nil -> nil
     end
   end
@@ -171,10 +168,61 @@ defmodule Gesttalt.Sites do
     end
   end
 
-  def get_theme!(%Site{id: site_id}), do: Repo.get_by!(Theme, site_id: site_id)
+  def get_theme!(%Site{} = site) do
+    case Repo.get_by(Theme, site_id: site.id) do
+      %Theme{inherited: true, built_in_theme: built_in_theme} ->
+        ThemeDefaults.theme(site.id, built_in_theme)
+
+      %Theme{} = theme ->
+        theme
+
+      nil ->
+        ThemeDefaults.theme(site.id)
+    end
+  end
+
+  def select_built_in_theme(%Site{} = site, built_in_theme) do
+    with {:ok, _theme} <- ThemeDefaults.fetch(built_in_theme) do
+      attrs = ThemeDefaults.attrs(built_in_theme)
+
+      case Repo.get_by(Theme, site_id: site.id) do
+        nil ->
+          %Theme{}
+          |> Theme.changeset(Map.put(attrs, :site_id, site.id))
+          |> Ecto.Changeset.put_change(:built_in_theme, built_in_theme)
+          |> Ecto.Changeset.put_change(:inherited, true)
+          |> Repo.insert()
+
+        theme ->
+          theme
+          |> Theme.changeset(attrs)
+          |> Ecto.Changeset.put_change(:built_in_theme, built_in_theme)
+          |> Ecto.Changeset.put_change(:inherited, true)
+          |> Repo.update()
+      end
+    end
+  end
 
   def update_theme(%Site{} = site, attrs) do
-    site |> get_theme!() |> Theme.changeset(attrs) |> Repo.update()
+    case Repo.get_by(Theme, site_id: site.id) do
+      nil ->
+        site
+        |> get_theme!()
+        |> Theme.changeset(attrs)
+        |> Ecto.Changeset.put_change(:inherited, false)
+        |> Repo.insert()
+
+      %Theme{inherited: true} = theme ->
+        theme
+        |> Theme.changeset(Map.merge(ThemeDefaults.attrs(theme.built_in_theme), attrs))
+        |> Ecto.Changeset.put_change(:inherited, false)
+        |> Repo.update()
+
+      %Theme{} = theme ->
+        theme
+        |> Theme.changeset(attrs)
+        |> Repo.update()
+    end
   end
 
   def list_images(%Site{id: site_id}) do
@@ -283,7 +331,19 @@ defmodule Gesttalt.Sites do
   end
 
   defp preload_site(nil), do: nil
-  defp preload_site(site), do: Repo.preload(site, [:domains, :theme])
+
+  defp preload_site(site) do
+    site = Repo.preload(site, [:domains, :theme])
+
+    theme =
+      if site.theme && !site.theme.inherited do
+        site.theme
+      else
+        ThemeDefaults.theme(site.id, site.theme && site.theme.built_in_theme)
+      end
+
+    %{site | theme: theme}
+  end
 
   defp available_handle(base, attempt \\ 0) do
     candidate = if attempt == 0, do: base, else: "#{base}-#{attempt + 1}"

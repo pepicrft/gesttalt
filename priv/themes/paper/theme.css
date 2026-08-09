@@ -52,26 +52,9 @@ h1 { font-family: var(--gesttalt-fonts-heading); font-size: var(--gesttalt-font-
     padding-block: 2.5rem 4rem;
   }
 
-  & .photography-introduction {
-    margin: 0 auto 2rem;
-    max-width: 40rem;
-    text-align: center;
-
-    & > h1 {
-      margin-bottom: .5rem;
-    }
-
-    & > p:last-child {
-      color: var(--gesttalt-colors-muted-text);
-      margin: 0;
-    }
-  }
-
   & .photography-feed {
     display: grid;
     gap: 2rem;
-    margin-inline: auto;
-    max-width: 40rem;
   }
 
   & .photography-entry {
@@ -119,10 +102,7 @@ h1 { font-family: var(--gesttalt-fonts-heading); font-size: var(--gesttalt-font-
   }
 
   & .photography-empty {
-    border-block: 1px solid var(--gesttalt-colors-border);
     color: var(--gesttalt-colors-muted-text);
-    margin-inline: auto;
-    max-width: 40rem;
     padding: 3rem 1rem;
     text-align: center;
   }

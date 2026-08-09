@@ -13,6 +13,8 @@ defmodule Gesttalt.Sites.Theme do
     field :name, :string
     field :index_template, :string
     field :article_template, :string
+    field :built_in_theme, :string
+    field :inherited, :boolean, default: false
     field :page_template, :string
     field :photography_template, :string
     field :stylesheet, :string
@@ -30,7 +32,9 @@ defmodule Gesttalt.Sites.Theme do
     |> cast(attrs, [
       :site_id,
       :name,
+      :built_in_theme,
       :index_template,
+      :inherited,
       :article_template,
       :page_template,
       :photography_template,

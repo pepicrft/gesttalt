@@ -20,9 +20,9 @@ input,
 textarea,
 select,
 .input {
-  background: #fff;
-  border: 1px solid #aaa59d;
-  border-radius: 1px;
+  background: var(--control-background);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-small);
   color: var(--ink);
   font-size: var(--font-size);
   font-weight: 400;
@@ -31,7 +31,7 @@ select,
 
   &:focus {
     border-color: var(--blue);
-    box-shadow: 0 0 0 2px rgb(6 89 199 / 14%);
+    box-shadow: 0 0 0 2px var(--focus-ring);
     outline: 0;
   }
 }

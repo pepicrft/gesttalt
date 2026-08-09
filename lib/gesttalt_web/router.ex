@@ -32,6 +32,7 @@ defmodule GesttaltWeb.Router do
 
   pipeline :admin do
     plug :require_authenticated_user
+    plug GesttaltWeb.AdminTheme
   end
 
   pipeline :theme_preview do
@@ -128,6 +129,7 @@ defmodule GesttaltWeb.Router do
     delete "/media/:id", MediaController, :delete
 
     get "/theme", ThemeController, :edit
+    post "/theme", ThemeController, :select
 
     get "/settings", SiteSettingsController, :show
     put "/settings", SiteSettingsController, :update

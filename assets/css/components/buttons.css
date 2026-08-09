@@ -1,9 +1,9 @@
 .button,
 .btn {
   appearance: none;
-  background: #fff;
-  border: 1px solid #aaa59d;
-  border-radius: 2px;
+  background: var(--control-background);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-small);
   color: var(--ink);
   display: inline-block;
   font-size: var(--font-size);
@@ -13,7 +13,7 @@
   text-decoration: none;
 
   &:hover {
-    background: var(--surface);
+    background: var(--control-hover);
     color: var(--ink);
   }
 }
@@ -22,11 +22,11 @@
 .btn-primary {
   background: var(--blue);
   border-color: var(--blue);
-  color: #fff;
+  color: var(--on-primary, #fff);
 
   &:hover {
     background: var(--blue-dark);
-    color: #fff;
+    color: var(--on-primary, #fff);
   }
 }
 
@@ -35,7 +35,7 @@
 }
 
 .button--danger {
-  border-color: #caa;
+  border-color: var(--red);
   color: var(--red);
 }
 

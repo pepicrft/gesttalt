@@ -46,8 +46,7 @@
   & > [data-part="feed"] {
     display: grid;
     gap: var(--space-3);
-    margin: var(--space-4) auto 0;
-    max-width: 42rem;
+    margin-top: var(--space-4);
 
     & > [data-part="empty"] {
       border: 1px solid var(--line);
@@ -72,7 +71,7 @@
     }
 
     & > [data-part="photo-card"] {
-      background: #fff;
+      background: var(--control-background);
       border: 1px solid var(--line);
 
       & > [data-part="image"] {
@@ -101,17 +100,17 @@
         }
 
         & [data-part="status"] {
-          background: #f5f0dc;
-          border: 1px solid #d5c888;
-          color: #695c20;
+          background: var(--status-attention-background);
+          border: 1px solid var(--status-attention-border);
+          color: var(--status-attention-ink);
           font-weight: 700;
           padding: 0.08rem 0.35rem;
           text-transform: capitalize;
 
           &[data-status="published"] {
-            background: #e7f3e8;
-            border-color: #a7c9aa;
-            color: #285e2d;
+            background: var(--status-positive-background);
+            border-color: var(--status-positive-border);
+            color: var(--status-positive-ink);
           }
         }
 

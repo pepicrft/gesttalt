@@ -85,7 +85,7 @@
       }
 
       & > [data-part="model-form"] {
-        background: #fff;
+        background: var(--control-background);
         border: 1px solid var(--line);
         padding: var(--space-2);
 

@@ -1,6 +1,6 @@
 #flash-group {
   background: var(--blue);
-  color: #fff;
+  color: var(--on-primary);
 
   & > [data-part="message"] {
     margin-inline: auto;

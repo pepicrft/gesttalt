@@ -24,24 +24,24 @@
       }
 
       & [data-part="status"] {
-        background: #e8e6e0;
-        border: 1px solid #cfcbc3;
-        color: #4e4a44;
+        background: var(--status-background);
+        border: 1px solid var(--status-border);
+        color: var(--status-ink);
         display: inline-block;
         font-size: var(--font-size);
         font-weight: 700;
         padding: 0.08rem 0.35rem;
 
         &[data-status="published"] {
-          background: #e7f3e8;
-          border-color: #a7c9aa;
-          color: #285e2d;
+          background: var(--status-positive-background);
+          border-color: var(--status-positive-border);
+          color: var(--status-positive-ink);
         }
 
         &[data-status="draft"] {
-          background: #f5f0dc;
-          border-color: #d5c888;
-          color: #695c20;
+          background: var(--status-attention-background);
+          border-color: var(--status-attention-border);
+          color: var(--status-attention-ink);
         }
       }
 

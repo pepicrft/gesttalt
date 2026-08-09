@@ -1,6 +1,6 @@
 #admin-clients {
   & > [data-part="secret-panel"] {
-    border-color: #d5c888;
+    border-color: var(--blue);
     margin-bottom: 1.5rem;
 
     & > [data-part="credentials"] {

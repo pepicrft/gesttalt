@@ -2,7 +2,9 @@ defmodule Gesttalt.SitesTest do
   use Gesttalt.DataCase, async: true
 
   alias Gesttalt.AccountsFixtures
+  alias Gesttalt.Repo
   alias Gesttalt.Sites
+  alias Gesttalt.Sites.{Theme, ThemeDefaults}
 
   setup do
     user = AccountsFixtures.user_fixture()
@@ -10,11 +12,68 @@ defmodule Gesttalt.SitesTest do
     %{site: site, user: user}
   end
 
-  test "creates a publication, active subdomain, and Liquid theme together", %{site: site} do
+  test "creates a publication with the built-in theme and no stored override", %{site: site} do
     assert site.theme.name == "Paper"
+    refute Repo.get_by(Theme, site_id: site.id)
     assert [%{kind: :subdomain, status: :active} = domain] = site.domains
     assert domain.hostname == "#{site.handle}.gesttalt.test"
     assert Sites.get_site_by_host(String.upcase(domain.hostname) <> ":443").id == site.id
+  end
+
+  test "takes over the built-in theme when it is customized", %{site: site} do
+    assert {:ok, theme} = Sites.update_theme(site, %{name: "Pedro"})
+
+    assert theme.name == "Pedro"
+    assert Repo.get_by!(Theme, site_id: site.id).name == "Pedro"
+  end
+
+  test "inherits a selected built-in theme until it is customized", %{site: site} do
+    assert {:ok, selected_theme} = Sites.select_built_in_theme(site, "darkroom")
+    assert selected_theme.inherited
+    assert selected_theme.built_in_theme == "darkroom"
+
+    inherited_theme = Sites.get_theme!(site)
+    assert inherited_theme.name == "Darkroom"
+    assert inherited_theme.variables["colors"]["background"] == "#121211"
+
+    assert {:ok, custom_theme} = Sites.update_theme(site, %{name: "Pedro after dark"})
+    refute custom_theme.inherited
+    assert custom_theme.name == "Pedro after dark"
+    assert custom_theme.variables["colors"]["background"] == "#121211"
+  end
+
+  test "rejects an unavailable built-in theme", %{site: site} do
+    assert {:error, :not_found} = Sites.select_built_in_theme(site, "unknown")
+    refute Repo.get_by(Theme, site_id: site.id)
+  end
+
+  test "keeps the Paper type scale across built-in themes" do
+    paper_font_sizes = ThemeDefaults.attrs("paper").variables["fontSizes"]
+
+    for %{id: id} <- ThemeDefaults.all() do
+      assert ThemeDefaults.attrs(id).variables["fontSizes"] == paper_font_sizes
+    end
+  end
+
+  test "keeps empty photography pages free of internal separators" do
+    for %{id: id} <- ThemeDefaults.all() do
+      refute ThemeDefaults.attrs(id).stylesheet =~ ".photography-empty { border-block"
+    end
+  end
+
+  test "uses the current built-in theme for an inherited legacy record", %{site: site} do
+    inherited_theme =
+      %Theme{}
+      |> Theme.changeset(Map.put(ThemeDefaults.attrs(), :site_id, site.id))
+      |> Ecto.Changeset.put_change(:inherited, true)
+      |> Repo.insert!()
+
+    assert Sites.get_theme!(site).inherited
+    assert Sites.get_theme!(site).stylesheet =~ "#site-photography"
+
+    assert {:ok, override} = Sites.update_theme(site, %{name: "Pedro"})
+    refute override.inherited
+    assert override.id == inherited_theme.id
   end
 
   test "returns the same publication when setup is repeated", %{site: site, user: user} do

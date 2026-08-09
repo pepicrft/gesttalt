@@ -5,7 +5,7 @@
   }
 
   & > [data-part="danger-zone"] {
-    border-top: 1px solid #dab5b5;
+    border-top: 1px solid var(--red);
     margin-top: var(--space-6);
     padding-top: var(--space-3);
   }
