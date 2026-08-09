@@ -129,4 +129,43 @@ defmodule GesttaltWeb.SiteControllerTest do
 
     assert redirected_to(conn) == "/blog"
   end
+
+  test "adds canonical social metadata to every public publication route", %{
+    conn: conn,
+    host: host,
+    site: site
+  } do
+    {:ok, post} =
+      Gesttalt.Publishing.publish_post(
+        PublishingFixtures.post_fixture(%{site: site, title: "An article"})
+      )
+
+    {:ok, page} =
+      Gesttalt.Publishing.publish_post(
+        PublishingFixtures.post_fixture(%{site: site, kind: :page, slug: "about", title: "About"})
+      )
+
+    for {path, type, title} <- [
+          {"/", "website", site.name},
+          {"/blog", "website", "Writing · #{site.name}"},
+          {"/blog/#{post.slug}", "article", post.title},
+          {"/#{page.slug}", "website", page.title},
+          {"/photography", "website", "Photography · #{site.name}"}
+        ] do
+      body = conn |> recycle() |> Map.put(:host, host) |> get(path) |> html_response(200)
+
+      assert body =~ ~s(<meta property="og:type" content="#{type}">)
+      assert body =~ ~s(<meta property="og:title" content="#{title}">)
+
+      assert body =~
+               ~r/<meta property="og:image" content="https?:\/\/#{Regex.escape(host)}\/og-image\?/
+
+      assert body =~ ~s(<meta name="twitter:card" content="summary_large_image">)
+
+      assert body =~
+               ~r/<meta name="twitter:image" content="https?:\/\/#{Regex.escape(host)}\/og-image\?/
+
+      assert length(Regex.scan(~r/<meta property="og:image"/, body)) == 1
+    end
+  end
 end
