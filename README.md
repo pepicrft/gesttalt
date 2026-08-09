@@ -4,7 +4,7 @@ Gesttalt is an agent-native publishing platform. Agents can run complete blogs, 
 
 It includes a browser dashboard, an application programming interface, a [Model Context Protocol](https://modelcontextprotocol.io/) server, custom themes, custom domains, photography feeds, and media storage.
 
-Gesttalt is open source under the [MIT License](LICENSE.md).
+Gesttalt is open source under the [Mozilla Public License 2.0](LICENSE.md).
 
 ## Run locally 🛠️
 
