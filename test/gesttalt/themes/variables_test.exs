@@ -45,4 +45,13 @@ defmodule Gesttalt.Themes.VariablesTest do
     assert stylesheet =~ "--gesttalt-font-sizes-body: 1rem;"
     assert stylesheet =~ "--gesttalt-line-heights-heading: 1.15;"
   end
+
+  test "uses one type size for publication text" do
+    assert Variables.defaults()["fontSizes"] == %{
+             "body" => "1rem",
+             "heading" => "1rem",
+             "lead" => "1rem",
+             "small" => "1rem"
+           }
+  end
 end

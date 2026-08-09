@@ -19,9 +19,9 @@ nav { display: flex; flex-wrap: wrap; gap: 1rem; }
 .article-header { border-bottom: 1px solid var(--gesttalt-colors-border); margin-bottom: 1.75rem; padding-bottom: 1.25rem; }
 h1 { font-family: var(--gesttalt-fonts-heading); font-size: var(--gesttalt-font-sizes-heading); font-weight: var(--gesttalt-font-weights-heading); line-height: var(--gesttalt-line-heights-heading); letter-spacing: -.025em; margin: .25rem 0 .75rem; }
 .lede { color: var(--gesttalt-colors-muted-text); font-size: var(--gesttalt-font-sizes-lead); margin: 0; }
-.prose { font-size: 1.05rem; }
+.prose { font-size: var(--gesttalt-font-sizes-body); }
 .prose > * + * { margin-top: 1.15rem; }
-.prose h2, .prose h3 { font-family: var(--gesttalt-fonts-heading); font-weight: var(--gesttalt-font-weights-heading); line-height: 1.25; margin-top: 2rem; }
+.prose h2, .prose h3 { font-family: var(--gesttalt-fonts-heading); font-size: inherit; font-weight: var(--gesttalt-font-weights-heading); line-height: 1.25; margin-top: 2rem; }
 .prose img { max-width: 100%; height: auto; }
 .prose blockquote { border-left: 3px solid var(--gesttalt-colors-primary); color: var(--gesttalt-colors-muted-text); margin-left: 0; padding-left: 1rem; }
 .prose code { background: var(--gesttalt-colors-surface); font-family: var(--gesttalt-fonts-monospace); font-size: .9em; padding: .1rem .3rem; }
