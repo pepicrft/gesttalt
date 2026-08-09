@@ -10,7 +10,9 @@ defmodule GesttaltWeb.ThemeController do
 
     render(conn, :edit,
       page_title: "Theme",
-      built_in_themes: ThemeDefaults.all(),
+      built_in_themes:
+        ThemeDefaults.all()
+        |> Enum.map(&Map.put(&1, :preview_style, ThemeDefaults.preview_style(&1.id))),
       active_built_in_theme:
         if(theme.inherited, do: theme.built_in_theme || ThemeDefaults.default_id()),
       site: site,

@@ -119,14 +119,34 @@ defmodule GesttaltWeb.Layouts do
       "--line: #{colors["border"]}",
       "--blue: #{colors["primary"]}",
       "--blue-dark: #{colors["secondary"]}",
+      "--on-primary: #{primary_foreground(theme)}",
       "--red: #{colors["accent"]}",
+      "--control-background: #{colors["background"]}",
+      "--control-border: #{colors["border"]}",
+      "--control-hover: #{colors["surface"]}",
+      "--focus-ring: color-mix(in srgb, #{colors["primary"]} 22%, transparent)",
+      "--status-background: #{colors["surface"]}",
+      "--status-border: #{colors["border"]}",
+      "--status-ink: #{colors["mutedText"]}",
+      "--status-positive-background: color-mix(in srgb, #{colors["primary"]} 14%, #{colors["background"]})",
+      "--status-positive-border: #{colors["primary"]}",
+      "--status-positive-ink: #{colors["primary"]}",
+      "--status-attention-background: color-mix(in srgb, #{colors["accent"]} 14%, #{colors["background"]})",
+      "--status-attention-border: #{colors["accent"]}",
+      "--status-attention-ink: #{colors["accent"]}",
       "--font-size: #{font_sizes["body"]}",
+      "--font-heading: #{fonts["heading"]}",
+      "--font-monospace: #{fonts["monospace"]}",
+      "--radius-small: #{theme.variables["radii"]["small"]}",
       "background: #{colors["background"]}",
       "color: #{colors["text"]}",
       "font-family: #{fonts["body"]}"
     ]
     |> Enum.join("; ")
   end
+
+  defp primary_foreground(%{built_in_theme: "darkroom"}), do: "#121211"
+  defp primary_foreground(_theme), do: "#fff"
 
   attr :flash, :map, required: true
   attr :id, :string, default: "flash-group"

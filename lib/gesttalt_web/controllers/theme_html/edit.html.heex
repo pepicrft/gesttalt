@@ -21,14 +21,14 @@
           data-theme={built_in_theme.id}
           data-selected={to_string(@active_built_in_theme == built_in_theme.id)}
         >
-          <div data-part="preview" aria-hidden="true">
+          <div data-part="preview" aria-hidden="true" style={built_in_theme.preview_style}>
             <span data-part="preview-title">{built_in_theme.name}</span><span data-part="preview-rule"></span><span data-part="preview-lines"></span>
           </div>
           <div data-part="content">
             <div>
               <h3>{built_in_theme.name}</h3><p>{built_in_theme.description}</p>
             </div>
-            <form action={~p"/admin/theme"} method="post">
+            <form action={~p"/admin/theme"} method="post" data-preserve-scroll>
               <input type="hidden" name="_csrf_token" value={get_csrf_token()} /><input
                 type="hidden"
                 name="built_in_theme"

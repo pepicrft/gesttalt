@@ -12,7 +12,24 @@
   --line: #dcd8cf;
   --blue: #0659c7;
   --blue-dark: #034699;
+  --on-primary: #fff;
   --red: #a32121;
+  --control-background: var(--paper);
+  --control-border: var(--line);
+  --control-hover: var(--surface);
+  --focus-ring: color-mix(in srgb, var(--blue) 22%, transparent);
+  --status-background: var(--surface);
+  --status-border: var(--line);
+  --status-ink: var(--muted);
+  --status-positive-background: color-mix(in srgb, var(--blue) 14%, var(--paper));
+  --status-positive-border: var(--blue);
+  --status-positive-ink: var(--blue);
+  --status-attention-background: color-mix(in srgb, var(--red) 14%, var(--paper));
+  --status-attention-border: var(--red);
+  --status-attention-ink: var(--red);
+  --font-heading: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-monospace: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --radius-small: 0.2rem;
   --font-size: 0.875rem;
   --space-1: 0.5rem;
   --space-2: 1rem;
@@ -54,6 +71,7 @@ h1,
 h2,
 h3,
 h4 {
+  font-family: var(--font-heading);
   font-size: var(--font-size);
   line-height: 1.3;
 }
@@ -81,7 +99,7 @@ button {
 code,
 pre,
 textarea.theme-code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: var(--font-monospace);
 }
 
 code {
@@ -93,8 +111,8 @@ code {
 }
 
 pre {
-  background: #23282f;
-  color: #edf2f7;
+  background: var(--ink);
+  color: var(--paper);
   margin: 1rem 0;
   overflow: auto;
   padding: 1rem;

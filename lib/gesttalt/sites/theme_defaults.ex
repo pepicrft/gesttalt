@@ -139,6 +139,19 @@ defmodule Gesttalt.Sites.ThemeDefaults do
 
   def photography_template, do: read!("photography.liquid")
 
+  def preview_style(id) when is_binary(id) do
+    variables = attrs(id).variables
+    colors = variables["colors"]
+    fonts = variables["fonts"]
+
+    [
+      "--preview-background: #{colors["background"]}",
+      "--preview-ink: #{colors["text"]}",
+      "--preview-font: #{fonts["heading"]}"
+    ]
+    |> Enum.join("; ")
+  end
+
   @doc "Returns a built-in theme for a site without using its saved implementation as the source."
   def theme(site_id, id \\ default_id()) when is_integer(site_id) do
     id = if match?({:ok, _theme}, fetch(id)), do: id, else: default_id()

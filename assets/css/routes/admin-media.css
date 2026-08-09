@@ -11,7 +11,7 @@
     margin-top: var(--space-4);
 
     & > [data-part="media-card"] {
-      background: #fff;
+      background: var(--control-background);
       border: 1px solid var(--line);
 
       & > [data-part="image"] {

@@ -40,6 +40,23 @@ topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
+const themeScrollPositionKey = "gesttalt:theme-scroll-position"
+
+document.addEventListener("submit", event => {
+  if (event.target.matches("form[data-preserve-scroll]")) {
+    sessionStorage.setItem(themeScrollPositionKey, String(window.scrollY))
+  }
+})
+
+if (window.location.pathname === "/admin/theme") {
+  const savedScrollPosition = sessionStorage.getItem(themeScrollPositionKey)
+
+  if (savedScrollPosition !== null) {
+    sessionStorage.removeItem(themeScrollPositionKey)
+    window.requestAnimationFrame(() => window.scrollTo(0, Number(savedScrollPosition)))
+  }
+}
+
 const flashSelector = "#flash-group > [data-auto-dismiss]"
 const scheduledFlashMessages = new WeakSet()
 

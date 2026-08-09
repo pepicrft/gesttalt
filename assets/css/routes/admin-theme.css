@@ -2,7 +2,7 @@
   & > [data-part="built-in-themes"] {
     display: grid;
     gap: var(--space-3);
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-6);
 
     & > [data-part="section-heading"] {
       max-width: 680px;
@@ -28,7 +28,7 @@
     }
 
     & [data-part="theme-card"] {
-      background: var(--paper);
+      background: var(--surface);
       border: 1px solid var(--line);
       display: grid;
       min-width: 0;
@@ -61,10 +61,11 @@
         }
       }
 
-      &[data-theme="paper"] > [data-part="preview"] { background: #fdfbf7; color: #171411; }
-      &[data-theme="ledger"] > [data-part="preview"] { background: #f5f1e8; color: #1f1d1a; font-family: Georgia, serif; }
-      &[data-theme="darkroom"] > [data-part="preview"] { background: #121211; color: #f5f2ea; }
-      &[data-theme="field-notes"] > [data-part="preview"] { background: #f4eedf; color: #292b24; font-family: "Courier New", monospace; }
+      & > [data-part="preview"] {
+        background: var(--preview-background);
+        color: var(--preview-ink);
+        font-family: var(--preview-font);
+      }
 
       & > [data-part="content"] {
         align-content: space-between;
