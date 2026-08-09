@@ -8,7 +8,6 @@ defmodule Gesttalt.MCP do
   alias Gesttalt.OAuth.ClientsManager
   alias Gesttalt.Photography
   alias Gesttalt.Photography.PhotoJSON
-  alias Gesttalt.Plans
   alias Gesttalt.Publishing
   alias Gesttalt.Publishing.PostJSON
   alias Gesttalt.Sites

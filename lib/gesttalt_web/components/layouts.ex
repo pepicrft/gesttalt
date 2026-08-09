@@ -31,7 +31,7 @@ defmodule GesttaltWeb.Layouts do
             }>{dgettext("navigation", "Settings")}</a><a href={~p"/admin/oauth-clients"}>{dgettext(
               "navigation",
               "Clients"
-            )}
+            )}</a>
           </nav>
           <nav :if={!@admin} data-part="navigation" data-context="public">
             <a href={~p"/docs"}>{dgettext("navigation", "Developers")}</a><a href={~p"/changelog"}>{dgettext(

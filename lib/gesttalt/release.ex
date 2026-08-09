@@ -46,13 +46,6 @@ defmodule Gesttalt.Release do
     end
   end
 
-  defp with_repo(fun) do
-    load_app()
-
-    {:ok, result, _started} = Ecto.Migrator.with_repo(Gesttalt.Repo, fn _repo -> fun.() end)
-    result
-  end
-
   defp repos do
     Application.fetch_env!(@app, :ecto_repos)
   end
