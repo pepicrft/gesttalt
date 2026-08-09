@@ -11,7 +11,9 @@ else
   next_version_number="$(git cliff --config "${repository_root}/cliff.toml" --repository "${repository_root}" --bumped-version 2>/dev/null || true)"
 fi
 
-next_version_number="${next_version_number#v}"
+while [[ "${next_version_number}" == v* ]]; do
+  next_version_number="${next_version_number#v}"
+done
 
 should_release=false
 latest_version_number="${latest_version#v}"
