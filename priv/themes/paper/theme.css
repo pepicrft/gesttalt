@@ -102,7 +102,6 @@ h1 { font-family: var(--gesttalt-fonts-heading); font-size: var(--gesttalt-font-
   }
 
   & .photography-empty {
-    border-block: 1px solid var(--gesttalt-colors-border);
     color: var(--gesttalt-colors-muted-text);
     padding: 3rem 1rem;
     text-align: center;

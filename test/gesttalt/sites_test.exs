@@ -55,6 +55,12 @@ defmodule Gesttalt.SitesTest do
     end
   end
 
+  test "keeps empty photography pages free of internal separators" do
+    for %{id: id} <- ThemeDefaults.all() do
+      refute ThemeDefaults.attrs(id).stylesheet =~ ".photography-empty { border-block"
+    end
+  end
+
   test "uses the current built-in theme for an inherited legacy record", %{site: site} do
     inherited_theme =
       %Theme{}
