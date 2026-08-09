@@ -37,11 +37,12 @@ defmodule GesttaltWeb.SiteSettingsController do
   def create_domain(conn, %{"domain" => attrs}) do
     site = current_site(conn)
 
-    with {:ok, _domain} <- Sites.add_custom_domain(site, attrs) do
-      conn
-      |> put_flash(:info, "Domain added. Add the ownership and routing records shown below.")
-      |> redirect(to: ~p"/admin/settings")
-    else
+    case Sites.add_custom_domain(site, attrs) do
+      {:ok, _domain} ->
+        conn
+        |> put_flash(:info, "Domain added. Add the ownership and routing records shown below.")
+        |> redirect(to: ~p"/admin/settings")
+
       {:error, reason} ->
         conn
         |> put_flash(:error, "Domain could not be added: #{inspect(reason)}")

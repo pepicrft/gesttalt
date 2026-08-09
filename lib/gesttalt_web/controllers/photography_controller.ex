@@ -17,14 +17,15 @@ defmodule GesttaltWeb.PhotographyController do
   def create(conn, %{"photo" => %{"file" => upload} = attrs}) do
     site = current_site(conn)
 
-    with {:ok, photo} <- Photography.create_photo(site, upload, attrs) do
-      message =
-        if photo.status == :published,
-          do: "Photo published.",
-          else: "Photo saved as a draft."
+    case Photography.create_photo(site, upload, attrs) do
+      {:ok, photo} ->
+        message =
+          if photo.status == :published,
+            do: "Photo published.",
+            else: "Photo saved as a draft."
 
-      conn |> put_flash(:info, message) |> redirect(to: ~p"/admin/photography")
-    else
+        conn |> put_flash(:info, message) |> redirect(to: ~p"/admin/photography")
+
       {:error, :alt_text_required} ->
         conn
         |> put_flash(:error, "Describe the photo for people who cannot see it.")

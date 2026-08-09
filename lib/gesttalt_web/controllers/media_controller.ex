@@ -11,9 +11,10 @@ defmodule GesttaltWeb.MediaController do
   def create(conn, %{"image" => %{"file" => upload} = attrs}) do
     site = current_site(conn)
 
-    with {:ok, _image} <- Sites.store_image(site, upload, attrs["alt_text"]) do
-      conn |> put_flash(:info, "Image uploaded.") |> redirect(to: ~p"/admin/media")
-    else
+    case Sites.store_image(site, upload, attrs["alt_text"]) do
+      {:ok, _image} ->
+        conn |> put_flash(:info, "Image uploaded.") |> redirect(to: ~p"/admin/media")
+
       {:error, reason} ->
         conn
         |> put_flash(:error, "Image could not be uploaded: #{inspect(reason)}")
