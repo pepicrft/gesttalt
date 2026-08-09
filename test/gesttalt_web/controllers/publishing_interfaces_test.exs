@@ -25,7 +25,6 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
 
     user = AccountsFixtures.user_fixture()
     {:ok, site} = Sites.ensure_site_for_user(user)
-    {:ok, site} = Sites.update_billing(site, %{subscription_status: :trialing})
     {:ok, token} = access_token(user)
 
     %{site: site, token: token.value, user: user}
@@ -151,8 +150,6 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     site: site,
     token: token
   } do
-    {:ok, _site} = Sites.update_billing(site, %{subscription_status: :inactive})
-
     read_response =
       conn
       |> put_req_header("authorization", "Bearer #{token}")
@@ -259,9 +256,6 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert "list_connected_applications" in names
     assert "create_connected_application" in names
     assert "delete_connected_application" in names
-    assert "get_billing" in names
-    refute "create_billing_checkout" in names
-    assert "create_billing_portal" in names
     refute "publish_theme" in names
 
     update_tool =
@@ -284,7 +278,6 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
   } do
     publication = call_tool(conn, token, 1, "get_publication")
     assert publication["id"] == site.id
-    assert publication["plan"] == "publisher"
 
     updated =
       call_tool(conn, token, 2, "update_publication", %{
@@ -372,11 +365,6 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
              "deleted"
            ]
 
-    billing = call_tool(conn, token, 16, "get_billing")
-    assert billing["plan"] == "publisher"
-    assert billing["early_access"]
-    refute billing["payment_required"]
-    refute Map.has_key?(billing, "monthly_price_euros")
   end
 
   test "supports the streamable transport lifecycle used by agents", %{conn: conn, token: token} do

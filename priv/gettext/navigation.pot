@@ -118,9 +118,6 @@ msgstr ""
 
 #: lib/gesttalt_web/components/layouts.ex:37
 #, elixir-autogen, elixir-format
-msgid "Billing"
-msgstr ""
-
 #: lib/gesttalt_web/components/layouts.ex:41
 #: lib/gesttalt_web/components/layouts.ex:91
 #, elixir-autogen, elixir-format

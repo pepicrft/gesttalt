@@ -5,7 +5,6 @@ defmodule Gesttalt.MCP do
 
   import Plug.Conn
 
-  alias Gesttalt.Billing
   alias Gesttalt.OAuth.ClientsManager
   alias Gesttalt.Photography
   alias Gesttalt.Photography.PhotoJSON
@@ -52,12 +51,7 @@ defmodule Gesttalt.MCP do
   end
 
   defp instructions do
-    billing_instruction =
-      if Plans.early_access?(),
-        do: "",
-        else: ", or begin billing"
-
-    "This server can manage every publication feature exposed by the dashboard. Inspect the current state before changing it. For theme work, create an editing session first. Prefer the standard variables for visual design changes, preserve the stylesheet when possible, and edit Liquid only for route-specific document structure. Never publish, unpublish, delete, change domains or credentials#{billing_instruction} unless the user explicitly asks."
+    "This server can manage every publication feature exposed by the dashboard. Inspect the current state before changing it. For theme work, create an editing session first. Prefer the standard variables for visual design changes, preserve the stylesheet when possible, and edit Liquid only for route-specific document structure. Never publish, unpublish, delete, change domains, or create credentials unless the user explicitly asks."
   end
 
   defp dispatch(conn, %{"method" => "initialize", "id" => id} = request) do
@@ -180,8 +174,7 @@ defmodule Gesttalt.MCP do
          site,
          _user
        ) do
-    with true <- Plans.available?(site, :media_uploads),
-         {:ok, content} <- Base.decode64(encoded),
+    with {:ok, content} <- Base.decode64(encoded),
          path <- Path.join(System.tmp_dir!(), "gesttalt-mcp-#{Ecto.UUID.generate()}"),
          :ok <- File.write(path, content) do
       try do
@@ -197,7 +190,6 @@ defmodule Gesttalt.MCP do
         File.rm(path)
       end
     else
-      false -> {:error, :subscription_required}
       :error -> {:error, :invalid_base64}
       error -> error
     end
@@ -223,8 +215,7 @@ defmodule Gesttalt.MCP do
          site,
          _user
        ) do
-    with true <- Plans.available?(site, :media_uploads),
-         {:ok, content} <- Base.decode64(encoded),
+    with {:ok, content} <- Base.decode64(encoded),
          path <- Path.join(System.tmp_dir!(), "gesttalt-mcp-photo-#{Ecto.UUID.generate()}"),
          :ok <- File.write(path, content) do
       try do
@@ -242,7 +233,6 @@ defmodule Gesttalt.MCP do
         File.rm(path)
       end
     else
-      false -> {:error, :subscription_required}
       :error -> {:error, :invalid_base64}
       error -> error
     end
@@ -379,8 +369,7 @@ defmodule Gesttalt.MCP do
     do: {:ok, Enum.map(Sites.list_domains(site), &present_domain/1)}
 
   defp call_tool("add_custom_domain", %{"hostname" => hostname}, site, _user) do
-    with :ok <- Plans.authorize(site, :custom_domains),
-         {:ok, domain} <- Sites.add_custom_domain(site, %{hostname: hostname}) do
+    with {:ok, domain} <- Sites.add_custom_domain(site, %{hostname: hostname}) do
       {:ok, present_domain(domain)}
     end
   end
@@ -412,30 +401,6 @@ defmodule Gesttalt.MCP do
   defp call_tool("delete_connected_application", %{"id" => id}, _site, user) do
     with {:ok, client} <- ClientsManager.delete_client(user, id),
          do: {:ok, %{id: client.id, name: client.name, deleted: true}}
-  end
-
-  defp call_tool("get_billing", _arguments, site, _user),
-    do: {:ok, present_billing(site)}
-
-  defp call_tool("create_billing_checkout", _arguments, site, user) do
-    if Plans.early_access?() do
-      {:error, :payment_not_required}
-    else
-      with false <- Plans.publisher?(site),
-           true <- Billing.configured?(),
-           {:ok, checkout_url} <- Billing.checkout_url(site, user.email, billing_return_url()) do
-        {:ok, %{checkout_url: checkout_url, requires_user_interaction: true}}
-      else
-        true -> {:error, :publisher_plan_already_active}
-        false -> {:error, :billing_not_configured}
-        error -> error
-      end
-    end
-  end
-
-  defp call_tool("create_billing_portal", _arguments, site, _user) do
-    with {:ok, portal_url} <- Billing.portal_url(site, billing_return_url()),
-         do: {:ok, %{portal_url: portal_url, requires_user_interaction: true}}
   end
 
   defp call_tool(_name, _arguments, _site, _user), do: {:error, :unknown_tool}
@@ -602,24 +567,8 @@ defmodule Gesttalt.MCP do
       ),
       tool("delete_connected_application", "Delete an authorization client", %{
         id: string_schema()
-      }),
-      tool("get_billing", "Get the current publication access state", %{}),
-      tool(
-        "create_billing_checkout",
-        "Create a hosted checkout address for the user to open and confirm",
-        %{}
-      ),
-      tool(
-        "create_billing_portal",
-        "Create a hosted billing portal address for the user to open",
-        %{}
-      )
+      })
     ]
-    |> then(fn tools ->
-      if Plans.early_access?(),
-        do: Enum.reject(tools, &(&1.name == "create_billing_checkout")),
-        else: tools
-    end)
   end
 
   defp tool(name, description, schema) do
@@ -661,8 +610,7 @@ defmodule Gesttalt.MCP do
         "capture_theme_preview",
         "get_publication",
         "list_domains",
-        "list_connected_applications",
-        "get_billing"
+        "list_connected_applications"
       ]
 
     destructive =
@@ -676,8 +624,7 @@ defmodule Gesttalt.MCP do
         "delete_connected_application"
       ]
 
-    open_world =
-      name in ["verify_custom_domain", "create_billing_checkout", "create_billing_portal"]
+    open_world = name == "verify_custom_domain"
 
     %{
       title: tool_title(name),
@@ -738,7 +685,6 @@ defmodule Gesttalt.MCP do
       handle: site.handle,
       tagline: site.tagline,
       description: site.description,
-      plan: Plans.tier(site),
       domains: Enum.map(Sites.list_domains(site), &present_domain/1)
     }
 
@@ -780,29 +726,6 @@ defmodule Gesttalt.MCP do
 
     if Keyword.get(opts, :include_secret), do: Map.put(data, :secret, client.secret), else: data
   end
-
-  defp present_billing(site),
-    do:
-      %{
-        plan: Plans.tier(site),
-        early_access: Plans.early_access?(),
-        payment_required: not Plans.early_access?(),
-        subscription_status: site.subscription_status,
-        complimentary: Plans.comped?(site),
-        cancel_at_period_end: site.cancel_at_period_end,
-        subscription_ends_at: site.subscription_ends_at
-      }
-      |> then(fn billing ->
-        if Plans.early_access?(),
-          do: billing,
-          else:
-            Map.merge(billing, %{
-              monthly_price_euros: Billing.monthly_price_euros(),
-              billing_configured: Billing.configured?()
-            })
-      end)
-
-  defp billing_return_url, do: GesttaltWeb.Endpoint.url() <> "/admin/billing"
 
   defp result(conn, id, value), do: respond(conn, %{jsonrpc: "2.0", id: id, result: value})
 

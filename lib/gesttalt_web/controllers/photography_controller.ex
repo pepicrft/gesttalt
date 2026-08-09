@@ -2,7 +2,6 @@ defmodule GesttaltWeb.PhotographyController do
   use GesttaltWeb, :controller
 
   alias Gesttalt.Photography
-  alias Gesttalt.Plans
   alias Gesttalt.Sites
 
   def index(conn, _params) do
@@ -18,8 +17,7 @@ defmodule GesttaltWeb.PhotographyController do
   def create(conn, %{"photo" => %{"file" => upload} = attrs}) do
     site = current_site(conn)
 
-    with :ok <- Plans.authorize(site, :media_uploads),
-         {:ok, photo} <- Photography.create_photo(site, upload, attrs) do
+    with {:ok, photo} <- Photography.create_photo(site, upload, attrs) do
       message =
         if photo.status == :published,
           do: "Photo published.",
@@ -27,14 +25,6 @@ defmodule GesttaltWeb.PhotographyController do
 
       conn |> put_flash(:info, message) |> redirect(to: ~p"/admin/photography")
     else
-      {:error, :subscription_required} ->
-        conn
-        |> put_flash(
-          :error,
-          dgettext("billing", "Upgrade to the Publisher plan to upload images.")
-        )
-        |> redirect(to: ~p"/admin/billing")
-
       {:error, :alt_text_required} ->
         conn
         |> put_flash(:error, "Describe the photo for people who cannot see it.")

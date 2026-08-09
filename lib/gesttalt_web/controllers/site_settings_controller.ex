@@ -1,7 +1,6 @@
 defmodule GesttaltWeb.SiteSettingsController do
   use GesttaltWeb, :controller
 
-  alias Gesttalt.Plans
   alias Gesttalt.Sites
   alias Gesttalt.Sites.{Domain, Site}
 
@@ -38,20 +37,11 @@ defmodule GesttaltWeb.SiteSettingsController do
   def create_domain(conn, %{"domain" => attrs}) do
     site = current_site(conn)
 
-    with :ok <- Plans.authorize(site, :custom_domains),
-         {:ok, _domain} <- Sites.add_custom_domain(site, attrs) do
+    with {:ok, _domain} <- Sites.add_custom_domain(site, attrs) do
       conn
       |> put_flash(:info, "Domain added. Add the ownership and routing records shown below.")
       |> redirect(to: ~p"/admin/settings")
     else
-      {:error, :subscription_required} ->
-        conn
-        |> put_flash(
-          :error,
-          dgettext("billing", "Upgrade to the Publisher plan to connect a custom domain.")
-        )
-        |> redirect(to: ~p"/admin/billing")
-
       {:error, reason} ->
         conn
         |> put_flash(:error, "Domain could not be added: #{inspect(reason)}")
