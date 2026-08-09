@@ -70,4 +70,10 @@ defmodule Gesttalt.OpenGraph.CardTest do
     assert html =~ "1200px"
     assert html =~ "630px"
   end
+
+  test "includes the theme fingerprint in the rendered document" do
+    html = Card.html(%{variables: %{}, theme_fingerprint: "darkroom-v1"})
+
+    assert html =~ "<!-- Theme: darkroom-v1 -->"
+  end
 end

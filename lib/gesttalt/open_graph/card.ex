@@ -38,12 +38,14 @@ defmodule Gesttalt.OpenGraph.Card do
     title = Map.get(assigns, :title, "")
     subtitle = Map.get(assigns, :subtitle, "")
     meta = Map.get(assigns, :meta, "")
+    theme_fingerprint = Map.get(assigns, :theme_fingerprint, "")
 
     """
     <!doctype html>
     <html lang="en">
       <head>
         <meta charset="utf-8">
+        <!-- Theme: #{escape(theme_fingerprint)} -->
         <style>
           * { margin: 0; padding: 0; box-sizing: border-box; }
           html, body { width: #{@width}px; height: #{@height}px; }

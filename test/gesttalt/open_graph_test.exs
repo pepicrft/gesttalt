@@ -4,6 +4,7 @@ defmodule Gesttalt.OpenGraphTest do
 
   alias Gesttalt.MediaStorage
   alias Gesttalt.OpenGraph
+  alias Gesttalt.Sites.ThemeDefaults
 
   import Gesttalt.AccountsFixtures
   import Gesttalt.PublishingFixtures
@@ -94,6 +95,15 @@ defmodule Gesttalt.OpenGraphTest do
         |> Map.put("id", Ecto.UUID.generate())
 
       refute OpenGraph.verify_signature(params)
+    end
+
+    test "changes the image URL when the selected theme changes", %{site: site} do
+      post = published_post(site)
+      base_context = %{site: site, theme: site.theme, base_url: "https://example.test"}
+      darkroom_context = %{base_context | theme: ThemeDefaults.theme(site.id, "darkroom")}
+
+      refute OpenGraph.image_url({:post, post}, base_context) ==
+               OpenGraph.image_url({:post, post}, darkroom_context)
     end
   end
 end

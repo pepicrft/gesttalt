@@ -63,14 +63,29 @@ defmodule Gesttalt.OpenGraph do
   end
 
   # The version binds the URL (and therefore its signature) to the current
-  # content and theme so crawlers refetch a fresh image after an edit. It does
-  # not affect what gets rendered; the endpoint always renders live data.
+  # content and full theme definition so crawlers refetch a fresh image after
+  # an edit or theme change. It does not affect what gets rendered; the endpoint
+  # always renders live data.
   defp version(subject_updated_at, theme) do
-    "#{unix(subject_updated_at)}-#{unix(theme_updated_at(theme))}"
+    "#{unix(subject_updated_at)}-#{theme_fingerprint(theme)}"
   end
 
-  defp theme_updated_at(%{updated_at: updated_at}), do: updated_at
-  defp theme_updated_at(_theme), do: nil
+  defp theme_fingerprint(theme) do
+    theme
+    |> Map.from_struct()
+    |> Map.take([
+      :built_in_theme,
+      :variables,
+      :stylesheet,
+      :index_template,
+      :article_template,
+      :page_template,
+      :photography_template
+    ])
+    |> :erlang.term_to_binary([:deterministic])
+    |> then(&:crypto.hash(:sha256, &1))
+    |> Base.url_encode64(padding: false)
+  end
 
   defp unix(%DateTime{} = datetime), do: Integer.to_string(DateTime.to_unix(datetime))
   defp unix(_other), do: "0"
@@ -90,6 +105,7 @@ defmodule Gesttalt.OpenGraph do
     with {:ok, subject} <- subject(site, params) do
       subject
       |> card_assigns(site)
+      |> Map.put(:theme_fingerprint, theme_fingerprint(site.theme))
       |> Card.html()
       |> fetch_or_render()
     end

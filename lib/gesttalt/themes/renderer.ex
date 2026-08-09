@@ -21,36 +21,43 @@ defmodule Gesttalt.Themes.Renderer do
     archive? = Keyword.get(options, :archive, false)
     archive_path = Keyword.get(options, :archive_path, "/blog")
 
-    render(
-      theme.index_template,
+    context =
       base_context(site, theme, pages, og)
       |> Map.put("posts", Enum.map(posts, &post_context(&1, og)))
       |> Map.put("archive_url", archive_path)
       |> Map.put("is_archive", archive?)
       |> Map.put("pagination", pagination_context(pagination, length(posts), archive_path))
-    )
+
+    render(theme.index_template, context, index_metadata(site, og, archive?))
   end
 
   def render_article(%Site{} = site, %Theme{} = theme, %Post{} = post, pages, og \\ nil) do
     render(
       theme.article_template,
-      base_context(site, theme, pages, og) |> Map.put("post", post_context(post, og))
+      base_context(site, theme, pages, og) |> Map.put("post", post_context(post, og)),
+      post_metadata(post, og, "article")
     )
   end
 
   def render_page(%Site{} = site, %Theme{} = theme, %Post{} = page, pages, og \\ nil) do
     render(
       theme.page_template,
-      base_context(site, theme, pages, og) |> Map.put("page", post_context(page, og))
+      base_context(site, theme, pages, og) |> Map.put("page", post_context(page, og)),
+      post_metadata(page, og, "website")
     )
   end
 
   def render_photography(%Site{} = site, %Theme{} = theme, photos, pages, og \\ nil) do
-    render(
-      theme.photography_template || ThemeDefaults.photography_template(),
+    context =
       base_context(site, theme, pages, og)
       |> Map.put("photos", Enum.map(photos, &photo_context/1))
-    )
+
+    render(theme.photography_template || ThemeDefaults.photography_template(), context, %{
+      type: "website",
+      title: "Photography · #{site.name}",
+      description: "A photography feed by #{site.name}",
+      image: home_og_image(site, og)
+    })
   end
 
   def render_string(template, context) when is_binary(template) and is_map(context),
@@ -98,15 +105,74 @@ defmodule Gesttalt.Themes.Renderer do
     |> Map.put("pagination", pagination_context(nil, 1, "/blog"))
   end
 
-  defp render(template, context) do
+  defp render(template, context, metadata \\ nil) do
     with {:ok, parsed} <- Solid.parse(template),
          {:ok, output, _context} <- Solid.render(parsed, context) do
-      {:ok, IO.iodata_to_binary(output)}
+      {:ok, output |> IO.iodata_to_binary() |> inject_metadata(metadata)}
     else
       {:error, errors, output} -> {:error, {errors, IO.iodata_to_binary(output)}}
       {:error, reason} -> {:error, reason}
     end
   end
+
+  defp index_metadata(site, og, true) do
+    %{
+      type: "website",
+      title: "Writing · #{site.name}",
+      description: site.description || site.tagline || "",
+      image: home_og_image(site, og)
+    }
+  end
+
+  defp index_metadata(site, og, false) do
+    %{
+      type: "website",
+      title: site.name,
+      description: site.tagline || site.description || "",
+      image: home_og_image(site, og)
+    }
+  end
+
+  defp post_metadata(post, og, type) do
+    %{
+      type: type,
+      title: post.title,
+      description: post.excerpt || "",
+      image: post_og_image(post, og)
+    }
+  end
+
+  defp inject_metadata(html, nil), do: html
+
+  defp inject_metadata(html, metadata) do
+    metadata_html =
+      [
+        {"property", "og:type", metadata.type},
+        {"property", "og:title", metadata.title},
+        {"property", "og:description", metadata.description},
+        {"property", "og:image", metadata.image},
+        {"name", "twitter:card", "summary_large_image"},
+        {"name", "twitter:image", metadata.image}
+      ]
+      |> Enum.map_join("\n", fn {attribute, name, content} ->
+        ~s(    <meta #{attribute}="#{name}" content="#{html_escape(content)}">)
+      end)
+
+    html
+    |> String.replace(
+      ~r/<meta\b[^>]*\b(?:property|name)\s*=\s*["'](?:og:(?:type|title|description|image)|twitter:(?:card|image))["'][^>]*>\s*/i,
+      ""
+    )
+    |> String.replace(~r|</head\s*>|i, "#{metadata_html}\n  </head>", global: false)
+  end
+
+  defp html_escape(value) when is_binary(value) do
+    value
+    |> Phoenix.HTML.html_escape()
+    |> Phoenix.HTML.safe_to_string()
+  end
+
+  defp html_escape(_value), do: ""
 
   defp base_context(site, theme, pages, og \\ nil) do
     variables = Variables.normalize(theme.variables)
