@@ -10,4 +10,5 @@ spec:
   selector:
     matchLabels:
       {{- include "gesttalt.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: web
 {{- end }}

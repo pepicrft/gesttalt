@@ -26,8 +26,23 @@ mix credo --strict
 mix test
 ```
 
-## Deploy 🚀
+## Run with Docker Compose 🐳
 
-GitHub Actions runs checks on cluster-provisioned `hetzner-docker` runners and publishes a container image after every successful change to `main`.
+Start Gesttalt and PostgreSQL with:
 
-[Flux](https://fluxcd.io/) watches the published images, updates the pinned digest in the [infrastructure repository](https://github.com/pepicrft/indie), and deploys each new version to the cluster automatically.
+```sh
+docker compose up --build
+```
+
+Open `http://localhost:4000` and sign in with `demo@gesttalt.local` and `gesttalt-development`.
+
+## Install with Helm ⛵
+
+Each [GitHub release](https://github.com/pepicrft/gesttalt/releases) includes a versioned container image and Helm chart. Inspect the chart values and install it from the GitHub Container Registry:
+
+```sh
+helm show values oci://ghcr.io/pepicrft/charts/gesttalt > values.yaml
+helm install gesttalt oci://ghcr.io/pepicrft/charts/gesttalt \
+  --values values.yaml \
+  --set env.GESTTALT_HOST=blog.example.com
+```

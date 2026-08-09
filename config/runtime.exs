@@ -65,24 +65,33 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
-  database_certificate_authority_file =
-    System.get_env("GESTTALT_DATABASE_CERTIFICATE_AUTHORITY_FILE") ||
-      raise "environment variable GESTTALT_DATABASE_CERTIFICATE_AUTHORITY_FILE is missing"
+  database_transport_security =
+    case System.get_env("GESTTALT_DATABASE_SSL", "true") do
+      value when value in ~w(false 0) ->
+        false
 
-  database_host =
-    database_url
-    |> URI.parse()
-    |> Map.fetch!(:host)
+      _value ->
+        database_certificate_authority_file =
+          System.get_env("GESTTALT_DATABASE_CERTIFICATE_AUTHORITY_FILE") ||
+            raise "environment variable GESTTALT_DATABASE_CERTIFICATE_AUTHORITY_FILE is missing"
 
-  database_transport_security_options = [
-    verify: :verify_peer,
-    cacertfile: database_certificate_authority_file,
-    server_name_indication: String.to_charlist(database_host),
-    customize_hostname_check: [match_fun: :public_key.pkix_verify_hostname_match_fun(:https)]
-  ]
+        database_host =
+          database_url
+          |> URI.parse()
+          |> Map.fetch!(:host)
+
+        [
+          verify: :verify_peer,
+          cacertfile: database_certificate_authority_file,
+          server_name_indication: String.to_charlist(database_host),
+          customize_hostname_check: [
+            match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+          ]
+        ]
+    end
 
   config :gesttalt, Gesttalt.Repo,
-    ssl: database_transport_security_options,
+    ssl: database_transport_security,
     url: database_url,
     pool_size: String.to_integer(System.get_env("GESTTALT_POOL_SIZE") || "10"),
     # For machines with several cores, consider starting multiple pools of `pool_size`
@@ -187,7 +196,8 @@ if config_env() == :prod do
       poll_interval_seconds: 5,
       assertion_ttl_seconds: 86_400,
       private_key_pem: System.get_env("GESTTALT_AGENT_AUTH_PRIVATE_KEY_PEM"),
-      allow_ephemeral_signing_key: false
+      allow_ephemeral_signing_key:
+        System.get_env("GESTTALT_AGENT_AUTH_ALLOW_EPHEMERAL_KEY", "false") in ~w(true 1)
     ],
     stripe: [
       secret_key: System.get_env("GESTTALT_STRIPE_SECRET_KEY"),

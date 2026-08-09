@@ -16,12 +16,14 @@ spec:
   selector:
     matchLabels:
       {{- include "gesttalt.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: web
   template:
     metadata:
       annotations:
         checksum/caddy: {{ include (print $.Template.BasePath "/caddy-config.yaml") . | sha256sum }}
       labels:
         {{- include "gesttalt.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: web
     spec:
       automountServiceAccountToken: false
       enableServiceLinks: false
@@ -36,6 +38,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+        {{- if .Values.postgres.tls.enabled }}
         # Preserve the image's public certificate authorities while adding the
         # private authority used by the in-cluster PostgreSQL service. This also
         # keeps images built before the explicit Repo option compatible.
@@ -62,6 +65,75 @@ spec:
               readOnly: true
             - name: database-trust
               mountPath: /combined
+        {{- end }}
+        {{- if .Values.migrationJob.runAsInitContainer }}
+        - name: wait-for-postgres
+          image: {{ .Values.postgres.waitImage | quote }}
+          command:
+            - sh
+            - -ec
+            - until pg_isready --host "$PGHOST" --username "$PGUSER" --dbname "$PGDATABASE"; do sleep 2; done
+          env:
+            - name: PGHOST
+              value: {{ include "gesttalt.postgresHost" . | quote }}
+            - name: PGUSER
+              value: {{ .Values.postgres.user | quote }}
+            - name: PGDATABASE
+              value: {{ .Values.postgres.database | quote }}
+          resources:
+            {{- toYaml .Values.migrationJob.waitResources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+        - name: migrate
+          image: {{ include "gesttalt.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [/app/bin/gesttalt, eval, Gesttalt.Release.migrate_and_seed]
+          env:
+            - name: GESTTALT_DATABASE_SSL
+              value: {{ .Values.postgres.tls.enabled | quote }}
+            {{- if .Values.postgres.tls.enabled }}
+            - name: GESTTALT_DATABASE_CERTIFICATE_AUTHORITY_FILE
+              value: /etc/database-certificate-authority/ca.crt
+            {{- end }}
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secrets.envSecretName }}
+            {{- if .Values.media.objectStorage.enabled }}
+            - secretRef:
+                name: {{ .Values.media.objectStorage.secretName }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.migrationJob.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+          volumeMounts:
+            {{- if or .Values.media.persistence.enabled (not .Values.media.objectStorage.enabled) }}
+            - name: media
+              mountPath: /app/uploads
+            {{- end }}
+            {{- if .Values.postgres.tls.enabled }}
+            - name: database-certificate-authority
+              mountPath: /etc/database-certificate-authority
+              readOnly: true
+            - name: database-trust
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              subPath: ca-certificates.crt
+              readOnly: true
+            {{- end }}
+        {{- end }}
         # The upstream image grants the Caddy executable permission to bind low
         # ports. Copying it without that file capability lets the non-root
         # container execute it under the no-privilege-escalation policy. The
@@ -85,6 +157,7 @@ spec:
           volumeMounts:
             - name: caddy-bin
               mountPath: /caddy-bin
+        {{- if .Values.caddy.persistence.enabled }}
         - name: migrate-caddy-data-ownership
           image: {{ .Values.caddy.permissionsImage | quote }}
           command:
@@ -111,6 +184,7 @@ spec:
           volumeMounts:
             - name: caddy-data
               mountPath: /data
+        {{- end }}
       containers:
         - name: web
           image: {{ include "gesttalt.image" . | quote }}
@@ -121,8 +195,12 @@ spec:
           env:
             - name: ERL_CRASH_DUMP
               value: /tmp/erl_crash.dump
+            - name: GESTTALT_DATABASE_SSL
+              value: {{ .Values.postgres.tls.enabled | quote }}
+            {{- if .Values.postgres.tls.enabled }}
             - name: GESTTALT_DATABASE_CERTIFICATE_AUTHORITY_FILE
               value: /etc/database-certificate-authority/ca.crt
+            {{- end }}
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
@@ -162,12 +240,13 @@ spec:
             runAsUser: 65534
             runAsGroup: 65534
           volumeMounts:
-            {{- if .Values.media.persistence.enabled }}
+            {{- if or .Values.media.persistence.enabled (not .Values.media.objectStorage.enabled) }}
             - name: media
               mountPath: /app/uploads
             {{- end }}
             - name: tmp
               mountPath: /tmp
+            {{- if .Values.postgres.tls.enabled }}
             - name: database-certificate-authority
               mountPath: /etc/database-certificate-authority
               readOnly: true
@@ -175,6 +254,7 @@ spec:
               mountPath: /etc/ssl/certs/ca-certificates.crt
               subPath: ca-certificates.crt
               readOnly: true
+            {{- end }}
         - name: caddy
           image: {{ .Values.caddy.image | quote }}
           imagePullPolicy: IfNotPresent
@@ -188,14 +268,20 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.caddy.httpPort }}
+            {{- if .Values.caddy.tls.enabled }}
             - name: https
               containerPort: {{ .Values.caddy.httpsPort }}
+            {{- end }}
           env:
             - name: XDG_CONFIG_HOME
               value: /data/config
           readinessProbe:
             tcpSocket:
+              {{- if .Values.caddy.tls.enabled }}
               port: https
+              {{- else }}
+              port: http
+              {{- end }}
             initialDelaySeconds: 5
             periodSeconds: 10
           resources:
@@ -226,14 +312,22 @@ spec:
               mountPath: /caddy-bin
               readOnly: true
       volumes:
-        {{- if .Values.media.persistence.enabled }}
+        {{- if or .Values.media.persistence.enabled (not .Values.media.objectStorage.enabled) }}
         - name: media
+          {{- if .Values.media.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ include "gesttalt.fullname" . }}-media
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
         {{- end }}
         - name: caddy-data
+          {{- if .Values.caddy.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ include "gesttalt.fullname" . }}-caddy
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
         - name: caddy-config
           configMap:
             name: {{ include "gesttalt.fullname" . }}-caddy
@@ -243,6 +337,7 @@ spec:
         - name: caddy-bin
           emptyDir:
             sizeLimit: 64Mi
+        {{- if .Values.postgres.tls.enabled }}
         - name: database-certificate-authority
           secret:
             secretName: {{ default (printf "%s-ca" .Values.postgres.clusterName) .Values.postgres.certificateAuthoritySecretName }}
@@ -253,6 +348,7 @@ spec:
         - name: database-trust
           emptyDir:
             sizeLimit: 8Mi
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

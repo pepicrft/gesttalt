@@ -9,12 +9,15 @@ spec:
   podSelector:
     matchLabels:
       {{- include "gesttalt.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: web
   policyTypes:
     - Ingress
   ingress:
     - ports:
         - port: {{ .Values.caddy.httpPort }}
           protocol: TCP
+        {{- if .Values.caddy.tls.enabled }}
         - port: {{ .Values.caddy.httpsPort }}
           protocol: TCP
+        {{- end }}
 {{- end }}

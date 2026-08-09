@@ -106,16 +106,30 @@ jobs:
       - run: mix deps.get
       - run: mix credo --strict
 
-  chart:
-    name: Helm chart
+  chart_lint:
+    name: Helm chart lint
+    runs-on: hetzner-docker
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+        with:
+          install_args: "helm"
+      - name: Lint default values
+        run: helm lint deploy/helm/gesttalt
+      - name: Lint local Kind values
+        run: helm lint deploy/helm/gesttalt --values deploy/helm/gesttalt/values-kind.yaml
+      - name: Lint production values
+        run: helm lint deploy/helm/gesttalt --values deploy/values-production.yaml
+
+  chart_render:
+    name: Helm chart rendering
     runs-on: hetzner-docker
     steps:
       - uses: actions/checkout@v6
       - uses: jdx/mise-action@v4
         with:
           install_args: "ruby helm"
-      - run: helm lint deploy/helm/gesttalt --values deploy/values-production.yaml
-      - name: Render and validate chart
+      - name: Render and validate production chart
         run: |
           helm template gesttalt deploy/helm/gesttalt \
             --namespace gesttalt \
@@ -140,6 +154,10 @@ jobs:
           media_claim = documents.find do |document|
             document["kind"] == "PersistentVolumeClaim" &&
               document.dig("metadata", "name") == "gesttalt-media"
+          end
+          caddy_claim = documents.find do |document|
+            document["kind"] == "PersistentVolumeClaim" &&
+              document.dig("metadata", "name") == "gesttalt-caddy"
           end
           template = pull_secret&.dig("spec", "target", "template", "data", ".dockerconfigjson")
           expected_auth = '{{ printf `%s:%s` .GHCR_PULL_USERNAME .GHCR_PULL_TOKEN | b64enc }}'
@@ -203,6 +221,7 @@ jobs:
           abort("production ingress policy is missing") unless network_policy
           abort("production database backup is missing") unless scheduled_backup&.dig("spec", "cluster", "name") == "gesttalt-postgres"
           abort("unused production media claim is still rendered") if media_claim
+          abort("production Caddy data claim is missing") unless caddy_claim
           ownership_migration = deployment&.dig("spec", "template", "spec", "initContainers")&.find do |container|
             container["name"] == "migrate-caddy-data-ownership"
           end
@@ -227,11 +246,40 @@ jobs:
           end
           RUBY
 
+      - name: Render and validate local chart
+        run: |
+          helm template gesttalt deploy/helm/gesttalt \
+            --namespace gesttalt \
+            --values deploy/helm/gesttalt/values-kind.yaml > /tmp/gesttalt-kind.yaml
+
+          ruby -ryaml <<'RUBY'
+          documents = YAML.load_stream(File.read("/tmp/gesttalt-kind.yaml"))
+          deployment = documents.find { |document| document["kind"] == "Deployment" }
+          database = documents.find { |document| document["kind"] == "StatefulSet" }
+          migration = documents.find { |document| document["kind"] == "Job" }
+          cloud_database = documents.find { |document| document["kind"] == "Cluster" }
+          selector = deployment&.dig("spec", "selector", "matchLabels", "app.kubernetes.io/component")
+          init_containers = deployment&.dig("spec", "template", "spec", "initContainers") || []
+          init_names = init_containers.map { |container| container["name"] }
+
+          abort("local PostgreSQL StatefulSet is missing") unless database
+          abort("local deployment selector does not isolate the web pods") unless selector == "web"
+          abort("local deployment does not wait for PostgreSQL") unless init_names.include?("wait-for-postgres")
+          abort("local deployment does not run migrations") unless init_names.include?("migrate")
+          abort("local chart unexpectedly renders a migration Job") if migration
+          abort("local chart unexpectedly renders a CloudNativePG Cluster") if cloud_database
+          RUBY
+
+      - name: Package chart
+        run: helm package deploy/helm/gesttalt --destination /tmp
+
   container:
     name: Container image
     runs-on: hetzner-docker
     steps:
       - uses: actions/checkout@v6
+      - name: Validate Docker Compose configuration
+        run: docker compose config --quiet
       - name: Build image
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:

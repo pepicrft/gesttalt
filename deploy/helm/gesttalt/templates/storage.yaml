@@ -13,8 +13,9 @@ spec:
   resources:
     requests:
       storage: {{ .Values.media.persistence.size }}
----
 {{- end }}
+{{- if .Values.caddy.persistence.enabled }}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -29,3 +30,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.caddy.persistence.size }}
+{{- end }}

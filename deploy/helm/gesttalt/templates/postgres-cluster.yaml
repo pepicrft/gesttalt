@@ -1,3 +1,4 @@
+{{- if eq .Values.postgres.mode "cloudnative" }}
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
@@ -38,3 +39,4 @@ spec:
       parameters:
         barmanObjectName: {{ .Values.postgres.backup.objectStoreName | quote }}
   {{- end }}
+{{- end }}

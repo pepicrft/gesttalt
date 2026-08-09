@@ -10,7 +10,14 @@ app.kubernetes.io/name: {{ .Chart.Name }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 {{- define "gesttalt.image" -}}
-{{- $image := printf "%s:%s" .Values.image.repository .Values.image.tag -}}
+{{- $tag := default .Chart.AppVersion .Values.image.tag -}}
+{{- $image := printf "%s:%s" .Values.image.repository $tag -}}
 {{- if .Values.image.digest -}}{{- printf "%s@%s" $image .Values.image.digest -}}{{- else -}}{{- $image -}}{{- end -}}
 {{- end -}}
-{{- define "gesttalt.postgresHost" -}}{{ printf "%s-rw" .Values.postgres.clusterName }}{{- end -}}
+{{- define "gesttalt.postgresHost" -}}
+{{- if eq .Values.postgres.mode "standalone" -}}
+{{- printf "%s-postgres" (include "gesttalt.fullname" .) -}}
+{{- else -}}
+{{- printf "%s-rw" .Values.postgres.clusterName -}}
+{{- end -}}
+{{- end -}}

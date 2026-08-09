@@ -1,0 +1,75 @@
+fullnameOverride: gesttalt
+
+image:
+  repository: gesttalt
+  tag: kind
+  pullPolicy: Never
+
+env:
+  GESTTALT_AGENT_AUTH_ALLOW_EPHEMERAL_KEY: "true"
+  GESTTALT_EARLY_ACCESS: "true"
+  GESTTALT_HOST: gesttalt.localhost
+  GESTTALT_MEDIA_STORAGE: local
+  GESTTALT_OG_BROWSER_POOL_SIZE: "1"
+  GESTTALT_PHX_SERVER: "true"
+  GESTTALT_SEED_EMAIL: demo@gesttalt.local
+  GESTTALT_SEED_PASSWORD: gesttalt-development
+  GESTTALT_SEED_SITE_NAME: Gesttalt
+  GESTTALT_SMTP_PORT: "1025"
+  GESTTALT_SMTP_RELAY: localhost
+  GESTTALT_UPLOADS_DIR: /app/uploads
+
+secrets:
+  create: true
+  secretKeyBase: kind-only-secret-key-base-kind-only-secret-key-base-0000000000000000
+  turnstileSiteKey: 1x00000000000000000000AA
+  turnstileSecretKey: 1x0000000000000000000000000000000AA
+
+service:
+  type: ClusterIP
+
+caddy:
+  tls:
+    enabled: false
+  persistence:
+    enabled: false
+
+media:
+  persistence:
+    enabled: false
+
+pdb:
+  enabled: false
+
+postgres:
+  mode: standalone
+  password: gesttalt-kind
+  tls:
+    enabled: false
+  standalone:
+    persistence:
+      enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 384Mi
+  limits:
+    cpu: "1"
+    memory: 4Gi
+
+migrationJob:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 384Mi
+    limits:
+      cpu: "1"
+      memory: 4Gi

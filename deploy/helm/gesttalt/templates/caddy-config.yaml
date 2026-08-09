@@ -6,6 +6,7 @@ metadata:
     {{- include "gesttalt.labels" . | nindent 4 }}
 data:
   Caddyfile: |
+    {{- if .Values.caddy.tls.enabled }}
     {
       email {{ .Values.caddy.email }}
       {{- if .Values.caddy.trustedProxies }}
@@ -32,3 +33,10 @@ data:
         header_up X-Forwarded-For {client_ip}
       }
     }
+    {{- else }}
+    http://:{{ .Values.caddy.httpPort }} {
+      reverse_proxy 127.0.0.1:4000 {
+        header_up X-Forwarded-For {client_ip}
+      }
+    }
+    {{- end }}

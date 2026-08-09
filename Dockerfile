@@ -84,7 +84,7 @@ LABEL org.opencontainers.image.source="https://github.com/pepicrft/gesttalt"
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     libstdc++6 openssl libncurses6 locales ca-certificates \
-    chromium fonts-liberation fontconfig tini \
+    chromium curl fonts-liberation fontconfig tini \
   && rm -rf /var/lib/apt/lists/*
 
 # Set the locale

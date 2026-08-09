@@ -1,0 +1,65 @@
+name: gesttalt
+
+x-gesttalt-environment: &gesttalt-environment
+  GESTTALT_AGENT_AUTH_ALLOW_EPHEMERAL_KEY: "true"
+  GESTTALT_DATABASE_SSL: "false"
+  GESTTALT_DATABASE_URL: ecto://gesttalt:gesttalt@postgres/gesttalt
+  GESTTALT_EARLY_ACCESS: "true"
+  GESTTALT_HOST: localhost
+  GESTTALT_MEDIA_STORAGE: local
+  GESTTALT_OG_BROWSER_POOL_SIZE: "1"
+  GESTTALT_PHX_SERVER: "true"
+  GESTTALT_SECRET_KEY_BASE: compose-only-secret-key-base-compose-only-secret-key-base-000000000000
+  GESTTALT_SEED_EMAIL: demo@gesttalt.local
+  GESTTALT_SEED_PASSWORD: gesttalt-development
+  GESTTALT_SEED_SITE_NAME: Gesttalt
+  GESTTALT_TURNSTILE_SECRET_KEY: 1x0000000000000000000000000000000AA
+  GESTTALT_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+  GESTTALT_UPLOADS_DIR: /app/uploads
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: gesttalt
+      POSTGRES_PASSWORD: gesttalt
+      POSTGRES_USER: gesttalt
+    healthcheck:
+      test: [CMD-SHELL, pg_isready --username gesttalt --dbname gesttalt]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  migrate:
+    build: .
+    image: gesttalt:local
+    command: [/app/bin/gesttalt, eval, Gesttalt.Release.migrate_and_seed]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment: *gesttalt-environment
+    volumes:
+      - uploads:/app/uploads
+
+  gesttalt:
+    build: .
+    image: gesttalt:local
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment: *gesttalt-environment
+    healthcheck:
+      test: [CMD, /usr/bin/curl, --fail, http://localhost:4000/health]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    ports:
+      - "4000:4000"
+    volumes:
+      - uploads:/app/uploads
+
+volumes:
+  postgres-data:
+  uploads:

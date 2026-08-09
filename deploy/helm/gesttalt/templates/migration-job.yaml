@@ -1,3 +1,4 @@
+{{- if not .Values.migrationJob.runAsInitContainer }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -28,6 +29,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+        {{- if .Values.postgres.tls.enabled }}
         - name: prepare-database-trust
           image: {{ include "gesttalt.image" . | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -51,6 +53,7 @@ spec:
               readOnly: true
             - name: database-trust
               mountPath: /combined
+        {{- end }}
         - name: wait-for-postgres
           image: {{ .Values.postgres.waitImage | quote }}
           command:
@@ -77,8 +80,12 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: [/app/bin/gesttalt, eval, Gesttalt.Release.migrate_and_seed]
           env:
+            - name: GESTTALT_DATABASE_SSL
+              value: {{ .Values.postgres.tls.enabled | quote }}
+            {{- if .Values.postgres.tls.enabled }}
             - name: GESTTALT_DATABASE_CERTIFICATE_AUTHORITY_FILE
               value: /etc/database-certificate-authority/ca.crt
+            {{- end }}
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
@@ -101,10 +108,11 @@ spec:
             runAsUser: 65534
             runAsGroup: 65534
           volumeMounts:
-            {{- if .Values.media.persistence.enabled }}
+            {{- if or .Values.media.persistence.enabled (not .Values.media.objectStorage.enabled) }}
             - name: media
               mountPath: /app/uploads
             {{- end }}
+            {{- if .Values.postgres.tls.enabled }}
             - name: database-certificate-authority
               mountPath: /etc/database-certificate-authority
               readOnly: true
@@ -112,12 +120,18 @@ spec:
               mountPath: /etc/ssl/certs/ca-certificates.crt
               subPath: ca-certificates.crt
               readOnly: true
+            {{- end }}
       volumes:
-        {{- if .Values.media.persistence.enabled }}
+        {{- if or .Values.media.persistence.enabled (not .Values.media.objectStorage.enabled) }}
         - name: media
+          {{- if .Values.media.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ include "gesttalt.fullname" . }}-media
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
         {{- end }}
+        {{- if .Values.postgres.tls.enabled }}
         - name: database-certificate-authority
           secret:
             secretName: {{ default (printf "%s-ca" .Values.postgres.clusterName) .Values.postgres.certificateAuthoritySecretName }}
@@ -128,3 +142,5 @@ spec:
         - name: database-trust
           emptyDir:
             sizeLimit: 8Mi
+        {{- end }}
+{{- end }}

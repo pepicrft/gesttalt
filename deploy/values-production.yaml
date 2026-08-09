@@ -1,6 +1,7 @@
 fullnameOverride: gesttalt
 
 env:
+  GESTTALT_AGENT_AUTH_ALLOW_EPHEMERAL_KEY: "false"
   GESTTALT_MEDIA_STORAGE: s3
   GESTTALT_OG_BROWSER_POOL_SIZE: "2"
   OTEL_EXPORTER_OTLP_ENDPOINT: http://observability-alloy.observability.svc.cluster.local:4318
@@ -15,6 +16,7 @@ analytics:
   enabled: true
 
 service:
+  type: LoadBalancer
   externalTrafficPolicy: Local
   annotations:
     external-dns.alpha.kubernetes.io/hostname: "gesttalt.org,*.gesttalt.org"
@@ -23,6 +25,8 @@ service:
     load-balancer.hetzner.cloud/uses-proxyprotocol: "false"
 
 caddy:
+  tls:
+    enabled: true
   trustedProxies:
     - 173.245.48.0/20
     - 103.21.244.0/22
@@ -47,6 +51,7 @@ caddy:
     - 2a06:98c0::/29
     - 2c0f:f248::/32
   persistence:
+    enabled: true
     storageClass: hcloud-volumes
 
 media:
@@ -68,6 +73,9 @@ strategy:
     maxUnavailable: 1
 
 postgres:
+  mode: cloudnative
+  tls:
+    enabled: true
   storage:
     storageClass: hcloud-volumes
     size: 50Gi
@@ -82,6 +90,9 @@ postgres:
     enabled: true
     endpointURL: https://fsn1.your-objectstorage.com
     bucketName: pepicrft-gesttalt-postgres-backups
+
+migrationJob:
+  runAsInitContainer: false
 
 externalSecrets:
   enabled: true

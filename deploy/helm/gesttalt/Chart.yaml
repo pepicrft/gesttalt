@@ -4,3 +4,11 @@ description: Helm chart for the Gesttalt publishing platform.
 type: application
 version: 0.1.0
 appVersion: "0.1.0"
+home: https://gesttalt.org
+sources:
+  - https://github.com/pepicrft/gesttalt
+maintainers:
+  - name: Pedro Piñera Buendía
+    url: https://github.com/pepicrft
+annotations:
+  artifacthub.io/license: MIT
