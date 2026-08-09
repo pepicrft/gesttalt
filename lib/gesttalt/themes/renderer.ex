@@ -9,12 +9,25 @@ defmodule Gesttalt.Themes.Renderer do
   alias Gesttalt.Sites.{Image, Site, Theme, ThemeDefaults}
   alias Gesttalt.Themes.Variables
 
-  def render_index(%Site{} = site, %Theme{} = theme, posts, pages, pagination \\ nil, og \\ nil) do
+  def render_index(
+        %Site{} = site,
+        %Theme{} = theme,
+        posts,
+        pages,
+        pagination \\ nil,
+        og \\ nil,
+        options \\ []
+      ) do
+    archive? = Keyword.get(options, :archive, false)
+    archive_path = Keyword.get(options, :archive_path, "/blog")
+
     render(
       theme.index_template,
       base_context(site, theme, pages, og)
       |> Map.put("posts", Enum.map(posts, &post_context(&1, og)))
-      |> Map.put("pagination", pagination_context(pagination, length(posts)))
+      |> Map.put("archive_url", archive_path)
+      |> Map.put("is_archive", archive?)
+      |> Map.put("pagination", pagination_context(pagination, length(posts), archive_path))
     )
   end
 
@@ -80,7 +93,9 @@ defmodule Gesttalt.Themes.Renderer do
     |> Map.put("photos", [photo_context(photo)])
     |> Map.put("post", post_context(post))
     |> Map.put("page", post_context(%{post | title: "About", slug: "about", kind: :page}))
-    |> Map.put("pagination", pagination_context(nil, 1))
+    |> Map.put("archive_url", "/blog")
+    |> Map.put("is_archive", false)
+    |> Map.put("pagination", pagination_context(nil, 1, "/blog"))
   end
 
   defp render(template, context) do
@@ -97,7 +112,14 @@ defmodule Gesttalt.Themes.Renderer do
     variables = Variables.normalize(theme.variables)
 
     %{
-      "site" => %{"name" => site.name, "handle" => site.handle, "tagline" => site.tagline || ""},
+      "site" => %{
+        "name" => site.name,
+        "handle" => site.handle,
+        "tagline" => site.tagline || "",
+        "description" => site.description || "",
+        "description_html" => site.description |> to_html(),
+        "has_description" => has_description?(site.description)
+      },
       "pages" => Enum.map(pages, &post_context(&1, og)),
       "theme_variables" => variables,
       "og_image" => home_og_image(site, og),
@@ -123,6 +145,7 @@ defmodule Gesttalt.Themes.Renderer do
       "title" => post.title,
       "slug" => post.slug,
       "excerpt" => post.excerpt || "",
+      "has_excerpt" => has_excerpt?(post.excerpt),
       "tags" => post.tags || [],
       "body" => post.body,
       "body_html" => post.body |> Markdown.to_html() |> Phoenix.HTML.safe_to_string(),
@@ -151,7 +174,7 @@ defmodule Gesttalt.Themes.Renderer do
   defp escape(value),
     do: value |> then(&(&1 || "")) |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
 
-  defp pagination_context(%Flop.Meta{} = pagination, _post_count) do
+  defp pagination_context(%Flop.Meta{} = pagination, _post_count, archive_path) do
     current_page = pagination.current_page || 1
 
     %{
@@ -161,12 +184,14 @@ defmodule Gesttalt.Themes.Renderer do
       "page_size" => pagination.page_size || 0,
       "has_previous_page" => pagination.has_previous_page?,
       "has_next_page" => pagination.has_next_page?,
-      "previous_url" => if(pagination.has_previous_page?, do: pagination_url(current_page - 1)),
-      "next_url" => if(pagination.has_next_page?, do: pagination_url(current_page + 1))
+      "previous_url" =>
+        if(pagination.has_previous_page?, do: pagination_url(current_page - 1, archive_path)),
+      "next_url" =>
+        if(pagination.has_next_page?, do: pagination_url(current_page + 1, archive_path))
     }
   end
 
-  defp pagination_context(_pagination, post_count) do
+  defp pagination_context(_pagination, post_count, _archive_path) do
     %{
       "current_page" => 1,
       "total_pages" => if(post_count > 0, do: 1, else: 0),
@@ -179,6 +204,17 @@ defmodule Gesttalt.Themes.Renderer do
     }
   end
 
-  defp pagination_url(1), do: "/"
-  defp pagination_url(page), do: "/?page=#{page}"
+  defp pagination_url(1, archive_path), do: archive_path
+  defp pagination_url(page, archive_path), do: "#{archive_path}?page=#{page}"
+
+  defp to_html(nil), do: ""
+  defp to_html(markdown), do: markdown |> Markdown.to_html() |> Phoenix.HTML.safe_to_string()
+
+  defp has_description?(description) when is_binary(description),
+    do: String.trim(description) != ""
+
+  defp has_description?(_description), do: false
+
+  defp has_excerpt?(excerpt) when is_binary(excerpt), do: String.trim(excerpt) != ""
+  defp has_excerpt?(_excerpt), do: false
 end

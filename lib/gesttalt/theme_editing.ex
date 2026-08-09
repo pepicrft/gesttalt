@@ -148,6 +148,7 @@ defmodule Gesttalt.ThemeEditing do
 
   @doc false
   def public_page_path(%{"kind" => "home"}), do: "/"
+  def public_page_path(%{"kind" => "archive"}), do: "/blog"
   def public_page_path(%{"kind" => "photography"}), do: "/photography"
 
   def public_page_path(%{"kind" => "article", "slug" => slug}),
@@ -161,6 +162,9 @@ defmodule Gesttalt.ThemeEditing do
       case path |> String.trim("/") |> String.split("/", trim: true) do
         [] ->
           {:ok, %{"kind" => "home", "title" => site.name}}
+
+        ["blog"] ->
+          {:ok, %{"kind" => "archive", "page" => 1, "title" => "Writing"}}
 
         ["blog", slug] ->
           page_for_slug(Publishing.list_published_posts(site), "article", URI.decode(slug))

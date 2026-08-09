@@ -60,6 +60,30 @@ if bootstrap_email do
         site
     end
 
+  site =
+    if Application.get_env(:gesttalt, :seed_demo) and is_nil(site.description) do
+      {:ok, site} =
+        Sites.update_site(site, %{
+          description: """
+          ## Hello, I’m writing from Gesttalt
+
+          A small independent publication about making software, paying attention, and leaving room for curiosity.
+
+          I use this space for:
+
+          - Notes from building products
+          - Essays on tools, teams, and craft
+          - Photographs and observations from everyday life
+
+          New writing arrives when there is something worth sharing. Start with the latest notes below, or browse the complete archive.
+          """
+        })
+
+      site
+    else
+      site
+    end
+
   if domain_name = System.get_env("GESTTALT_SEED_DOMAIN") do
     if !Enum.any?(Sites.list_domains(site), &(&1.hostname == domain_name)) do
       {:ok, domain} = Sites.add_custom_domain(site, %{hostname: domain_name})
@@ -102,10 +126,24 @@ if bootstrap_email do
     {:ok, _page} =
       Publishing.create_post(site, %{
         title: "About",
-        excerpt: "An independent publication.",
         body: "This is a standalone page, rendered by the same Liquid theme.",
         status: :published,
         kind: :page
       })
+
+    Enum.each(1..20, fn index ->
+      {:ok, _post} =
+        Publishing.create_post(site, %{
+          title: "Field note #{index}",
+          excerpt: "A short observation from the workbench.",
+          body: "A brief note for the development publication.",
+          status: :published,
+          kind: :post,
+          published_at:
+            DateTime.utc_now()
+            |> DateTime.add(-(index + 2) * 86_400, :second)
+            |> DateTime.truncate(:second)
+        })
+    end)
   end
 end

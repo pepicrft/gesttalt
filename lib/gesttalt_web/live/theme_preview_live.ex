@@ -320,14 +320,27 @@ defmodule GesttaltWeb.ThemePreviewLive do
   end
 
   defp render_page(site, theme, %{"kind" => "home"}) do
-    {posts, pagination} = Publishing.paginate_published_posts(site)
+    Renderer.render_index(
+      site,
+      theme,
+      Publishing.list_recent_published_posts(site),
+      Publishing.list_published_pages(site),
+      nil
+    )
+  end
+
+  defp render_page(site, theme, %{"kind" => "archive", "page" => page}) do
+    {posts, pagination} = Publishing.paginate_published_posts(site, page)
 
     Renderer.render_index(
       site,
       theme,
       posts,
       Publishing.list_published_pages(site),
-      pagination
+      pagination,
+      nil,
+      archive: true,
+      archive_path: "/blog"
     )
   end
 
@@ -404,6 +417,8 @@ defmodule GesttaltWeb.ThemePreviewLive do
     </html>
     """
   end
+
+  defp enrich_page(_site, %{"kind" => "archive"} = page), do: page
 
   defp enrich_page(site, page) do
     case ThemeEditing.page_for_path(site, "", ThemeEditing.public_page_path(page)) do

@@ -53,7 +53,35 @@ defmodule GesttaltWeb.SiteControllerTest do
     refute body =~ ~s(id="gesttalt-owner-controls")
   end
 
-  test "paginates published posts and links between archive pages", %{
+  test "shows a Markdown description and the three newest posts on the home page", %{
+    conn: conn,
+    host: host,
+    site: site
+  } do
+    {:ok, site} =
+      Gesttalt.Sites.update_site(site, %{description: "## Hello\n\nI write about **software**."})
+
+    Enum.each(1..4, fn index ->
+      PublishingFixtures.post_fixture(%{
+        site: site,
+        title: "Article #{index}",
+        status: :published,
+        published_at: DateTime.add(~U[2026-01-01 00:00:00Z], index, :day)
+      })
+    end)
+
+    home = conn |> Map.put(:host, host) |> get(~p"/") |> html_response(200)
+
+    assert home =~ ~s(id="site-home")
+    assert home =~ "<h2>Hello</h2>"
+    assert home =~ "<strong>software</strong>"
+    assert home =~ ">Article 4</a>"
+    assert home =~ ">Article 2</a>"
+    refute home =~ ">Article 1</a>"
+    assert home =~ ~s(href="/blog">View all writing</a>)
+  end
+
+  test "paginates published posts in the writing archive", %{
     conn: conn,
     host: host,
     site: site
@@ -67,25 +95,26 @@ defmodule GesttaltWeb.SiteControllerTest do
       })
     end)
 
-    first_page = conn |> Map.put(:host, host) |> get(~p"/") |> html_response(200)
+    first_page = conn |> Map.put(:host, host) |> get(~p"/blog") |> html_response(200)
 
+    assert first_page =~ ~s(id="site-blog")
     assert first_page =~ ">Article 21</a>"
     assert first_page =~ ">Article 2</a>"
     refute first_page =~ ">Article 1</a>"
     assert first_page =~ ~s(id="posts-pagination")
-    assert first_page =~ ~s(href="/?page=2")
+    assert first_page =~ ~s(href="/blog?page=2")
     assert first_page =~ "Page 1 of 2"
 
     second_page =
       conn
       |> recycle()
       |> Map.put(:host, host)
-      |> get(~p"/?page=2")
+      |> get(~p"/blog?page=2")
       |> html_response(200)
 
     assert second_page =~ ">Article 1</a>"
     refute second_page =~ ">Article 2</a>"
-    assert second_page =~ ~s(href="/")
+    assert second_page =~ ~s(href="/blog")
     assert second_page =~ "Page 2 of 2"
   end
 
@@ -96,8 +125,8 @@ defmodule GesttaltWeb.SiteControllerTest do
   } do
     PublishingFixtures.post_fixture(%{site: site, status: :published})
 
-    conn = conn |> Map.put(:host, host) |> get(~p"/?page=3")
+    conn = conn |> Map.put(:host, host) |> get(~p"/blog?page=3")
 
-    assert redirected_to(conn) == "/"
+    assert redirected_to(conn) == "/blog"
   end
 end

@@ -27,6 +27,13 @@
           value={form[:tagline].value}
         />
       </div>
+      <div class="field" data-part="field">
+        <label for={form[:description].id}>Homepage description</label><textarea
+          id={form[:description].id}
+          name={form[:description].name}
+          rows="8"
+        >{form[:description].value}</textarea><p data-part="hint">Markdown is supported.</p>
+      </div>
       <button class="button button--primary">Save publication</button>
     </.form>
     <section id="settings-list">

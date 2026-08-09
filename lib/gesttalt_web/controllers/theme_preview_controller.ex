@@ -14,6 +14,10 @@ defmodule GesttaltWeb.ThemePreviewController do
     render_preview(conn, session_id, %{"kind" => "photography"})
   end
 
+  def archive(conn, %{"session_id" => session_id} = params) do
+    render_preview(conn, session_id, %{"kind" => "archive", "page" => page_number(params)})
+  end
+
   def article(conn, %{"session_id" => session_id, "slug" => slug}) do
     render_preview(conn, session_id, %{"kind" => "article", "slug" => slug})
   end
@@ -68,4 +72,13 @@ defmodule GesttaltWeb.ThemePreviewController do
 
   defp not_found(conn),
     do: conn |> put_status(:not_found) |> text("Theme editing session not found or expired.")
+
+  defp page_number(%{"page" => value}) do
+    case Integer.parse(to_string(value)) do
+      {page, ""} when page in 1..1_000_000 -> page
+      _invalid -> 1
+    end
+  end
+
+  defp page_number(_params), do: 1
 end
