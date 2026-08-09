@@ -364,7 +364,6 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert call_tool(conn, token, 15, "delete_connected_application", %{id: client["id"]})[
              "deleted"
            ]
-
   end
 
   test "supports the streamable transport lifecycle used by agents", %{conn: conn, token: token} do
