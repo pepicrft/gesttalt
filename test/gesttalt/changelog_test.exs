@@ -7,10 +7,10 @@ defmodule Gesttalt.ChangelogTest do
     entries = Changelog.list()
     [latest | _rest] = entries
 
-    assert latest.slug == "photography-feed-layout"
+    assert latest.slug == "uniform-publication-type-size"
     assert latest.published_on == ~D[2026-08-09]
-    assert latest.title == "Default themes receive layout improvements"
-    assert latest.summary =~ "New sites inherit"
+    assert latest.title == "Use one text size across built-in themes"
+    assert latest.summary =~ "Headings, introductory text"
 
     assert entries ==
              Enum.sort_by(
