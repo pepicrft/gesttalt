@@ -176,6 +176,7 @@ defmodule GesttaltWeb.Router do
 
     get "/:session_id/media/:id/:filename", ThemePreviewController, :media
     get "/:session_id/photography", ThemePreviewController, :photography
+    get "/:session_id/blog", ThemePreviewController, :archive
     get "/:session_id/blog/:slug", ThemePreviewController, :article
     get "/:session_id/:slug", ThemePreviewController, :page
     get "/:session_id", ThemePreviewController, :home
@@ -224,6 +225,7 @@ defmodule GesttaltWeb.Router do
     pipe_through [:browser, :tenant]
     get "/", SiteController, :home
     get "/photography", SiteController, :photography
+    get "/blog", SiteController, :archive
     get "/blog/:slug", SiteController, :article
     get "/media/:id/:filename", SiteController, :media
     get "/og-image", OpenGraphController, :show

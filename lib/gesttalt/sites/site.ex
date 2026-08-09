@@ -16,6 +16,7 @@ defmodule Gesttalt.Sites.Site do
     field :name, :string
     field :handle, :string
     field :tagline, :string
+    field :description, :string
     field :subscription_status, Ecto.Enum, values: @subscription_statuses, default: :inactive
     field :stripe_customer_id, :string
     field :stripe_subscription_id, :string
@@ -33,11 +34,12 @@ defmodule Gesttalt.Sites.Site do
 
   def changeset(site, attrs) do
     site
-    |> cast(attrs, [:user_id, :name, :handle, :tagline])
+    |> cast(attrs, [:user_id, :name, :handle, :tagline, :description])
     |> update_change(:handle, &normalize_handle/1)
     |> validate_required([:user_id, :name, :handle])
     |> validate_length(:name, max: 100)
     |> validate_length(:handle, min: 2, max: 40)
+    |> validate_length(:description, max: 20_000)
     |> validate_format(:handle, ~r/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
     |> unique_constraint(:user_id)
     |> unique_constraint(:handle)

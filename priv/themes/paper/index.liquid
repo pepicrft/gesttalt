@@ -15,7 +15,7 @@
     <link rel="alternate" type="application/atom+xml" title="{{ site.name }} Atom feed" href="/blog/atom.xml">
     <style>{{ stylesheet }}</style>
   </head>
-  <body id="site-home">
+  <body id="{% if is_archive %}site-blog{% else %}site-home{% endif %}">
     <header class="site-header">
       <div class="container header-inner">
         <div class="site-identity">
@@ -23,14 +23,15 @@
           <span class="site-tagline">{{ site.tagline }}</span>
         </div>
         <nav>
-          <a href="/">Writing</a>
+          <a href="/blog">Writing</a>
           <a href="/photography">Photography</a>
           {% for page in pages %}<a href="{{ page.url }}">{{ page.title }}</a>{% endfor %}
         </nav>
       </div>
     </header>
     <main class="container page">
-      <p class="section-label">Recent writing</p>
+      {% if site.has_description %}{% unless is_archive %}<section data-part="description" class="prose">{{ site.description_html }}</section>{% endunless %}{% endif %}
+      <p class="section-label">{% if is_archive %}Writing{% else %}Recent writing{% endif %}</p>
       <section class="posts-list">
         {% for post in posts %}
         <article class="post-row">
@@ -49,6 +50,7 @@
         {% if pagination.next_url %}<a data-part="next" href="{{ pagination.next_url }}">Older posts</a>{% endif %}
       </nav>
       {% endif %}
+      {% unless is_archive %}<p data-part="archive-link"><a href="{{ archive_url }}">View all writing</a></p>{% endunless %}
     </main>
     <footer id="site-footer">
       <div class="container" data-part="inner">

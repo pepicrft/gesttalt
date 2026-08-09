@@ -58,19 +58,19 @@ defmodule Gesttalt.Themes.Variables do
     },
     %{
       key: "fontSizes",
-      description: "Portable type sizes from supporting text through page headings.",
+      description: "One shared type size for publication text, including headings.",
       variables: [
-        %{key: "small", description: "Supporting and metadata text size.", default: "0.875rem"},
+        %{key: "small", description: "Supporting and metadata text size.", default: "1rem"},
         %{key: "body", description: "Default body text size.", default: "1rem"},
         %{
           key: "lead",
           description: "Introductory and emphasized body text size.",
-          default: "1.1rem"
+          default: "1rem"
         },
         %{
           key: "heading",
           description: "Primary page heading size.",
-          default: "clamp(1.75rem, 5vw, 2.6rem)"
+          default: "1rem"
         }
       ]
     },

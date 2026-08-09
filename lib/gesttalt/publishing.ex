@@ -22,6 +22,15 @@ defmodule Gesttalt.Publishing do
     published_query(site_id, :post) |> Repo.all()
   end
 
+  @doc "Lists the most recent public articles for a site."
+  def list_recent_published_posts(%Site{id: site_id}, limit \\ 3)
+      when is_integer(limit) and limit > 0 do
+    site_id
+    |> published_query(:post)
+    |> limit(^limit)
+    |> Repo.all()
+  end
+
   @doc "Lists one page of public articles and its pagination metadata."
   def paginate_published_posts(%Site{id: site_id}, page \\ 1) when is_integer(page) do
     published_query(site_id, :post)

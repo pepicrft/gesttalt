@@ -34,6 +34,18 @@ defmodule Gesttalt.Themes.RendererTest do
     refute html =~ "<script>"
   end
 
+  test "makes a sanitized publication description available to Liquid themes", %{site: site} do
+    {:ok, site} =
+      Sites.update_site(site, %{description: "## Hello\n\n<script>alert('no')</script>"})
+
+    {:ok, theme} =
+      Sites.update_theme(site, %{index_template: "<main>{{ site.description_html }}</main>"})
+
+    assert {:ok, html} = Renderer.render_index(site, theme, [], [])
+    assert html =~ "<h2>Hello</h2>"
+    refute html =~ "<script>"
+  end
+
   test "returns an error for invalid Liquid instead of crashing the request", %{site: site} do
     assert {:error, _reason} = Renderer.render_string("{% if site.name %}", %{"site" => site})
   end
@@ -75,10 +87,15 @@ defmodule Gesttalt.Themes.RendererTest do
       has_next_page?: true
     }
 
-    assert {:ok, html} = Renderer.render_index(site, theme, [], [], pagination)
+    assert {:ok, html} =
+             Renderer.render_index(site, theme, [], [], pagination, nil,
+               archive: true,
+               archive_path: "/blog"
+             )
+
     assert html =~ "<p>2 of 3</p>"
-    assert html =~ ~s(href="/")
-    assert html =~ ~s(href="/?page=3")
+    assert html =~ ~s(href="/blog")
+    assert html =~ ~s(href="/blog?page=3")
   end
 
   test "the built-in theme links every footer to Gesttalt", %{site: site} do
@@ -116,7 +133,7 @@ defmodule Gesttalt.Themes.RendererTest do
              ".header-inner { align-items: flex-start; display: flex; flex-direction: column; gap: 1.5rem; }"
 
     assert {:ok, html} = Renderer.render_index(site, theme, [], [])
-    assert html =~ ~s(<a href="/">Writing</a>)
+    assert html =~ ~s(<a href="/blog">Writing</a>)
     assert html =~ ~s(<a href="/photography">Photography</a>)
   end
 end

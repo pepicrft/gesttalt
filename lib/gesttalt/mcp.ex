@@ -561,9 +561,13 @@ defmodule Gesttalt.MCP do
       tool("get_publication", "Get publication identity, plan, and address settings", %{}),
       tool(
         "update_publication",
-        "Update the publication name or tagline",
+        "Update the publication name, tagline, or homepage description written in Markdown",
         %{
-          properties: %{name: string_schema(), tagline: string_schema()},
+          properties: %{
+            name: string_schema(),
+            tagline: string_schema(),
+            description: string_schema()
+          },
           required: []
         }
       ),
@@ -733,6 +737,7 @@ defmodule Gesttalt.MCP do
       name: site.name,
       handle: site.handle,
       tagline: site.tagline,
+      description: site.description,
       plan: Plans.tier(site),
       domains: Enum.map(Sites.list_domains(site), &present_domain/1)
     }
