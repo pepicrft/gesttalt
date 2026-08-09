@@ -53,6 +53,7 @@ jobs:
       - name: Generate release notes
         id: release-notes
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           NEXT_VERSION: ${{ needs.check.outputs.next-version }}
         run: |
           latest_version=$(git tag --list 'v[0-9]*' | sort -V | tail -n1)
@@ -105,12 +106,12 @@ jobs:
         with:
           draft: false
           target_commitish: ${{ github.event.workflow_run.head_sha }}
-          name: Gesttalt ${{ needs.check.outputs.next-version-number }}
+          name: ${{ needs.check.outputs.next-version-number }}
           tag_name: ${{ needs.check.outputs.next-version }}
           body: |
-            Container image: `ghcr.io/pepicrft/gesttalt:${{ needs.check.outputs.next-version-number }}`
+            Container image: [`ghcr.io/pepicrft/gesttalt:${{ needs.check.outputs.next-version-number }}`](https://github.com/users/pepicrft/packages/container/package/gesttalt)
 
-            Helm chart: `oci://ghcr.io/pepicrft/charts/gesttalt`
+            Helm chart: [`oci://ghcr.io/pepicrft/charts/gesttalt`](https://github.com/users/pepicrft/packages/container/package/charts%2Fgesttalt)
 
             ${{ steps.release-notes.outputs.notes }}
           files: dist/gesttalt-${{ needs.check.outputs.next-version-number }}.tgz
