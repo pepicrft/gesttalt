@@ -34,7 +34,9 @@ jobs:
         with:
           install_args: git-cliff
       - id: check
-        run: mise run release:check
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: mise exec git-cliff -- ./mise/tasks/release/check.sh
 
   release:
     name: Release Gesttalt
