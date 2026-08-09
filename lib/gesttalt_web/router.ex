@@ -100,11 +100,6 @@ defmodule GesttaltWeb.Router do
     get "/authorize", AuthorizeController, :authorize
   end
 
-  scope "/webhooks", GesttaltWeb do
-    pipe_through :oauth_json
-    post "/stripe", BillingController, :webhook
-  end
-
   scope "/admin", GesttaltWeb do
     pipe_through [:browser, :admin]
 
@@ -140,10 +135,6 @@ defmodule GesttaltWeb.Router do
     get "/oauth-clients", OAuthClientController, :index
     post "/oauth-clients", OAuthClientController, :create
     delete "/oauth-clients/:id", OAuthClientController, :delete
-
-    get "/billing", BillingController, :show
-    post "/billing/checkout", BillingController, :checkout
-    post "/billing/portal", BillingController, :portal
   end
 
   scope "/api" do

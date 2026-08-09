@@ -4,7 +4,6 @@ defmodule GesttaltWeb.ApiPhotoController do
 
   alias Gesttalt.Photography
   alias Gesttalt.Photography.PhotoJSON
-  alias Gesttalt.Plans
   alias GesttaltWeb.API.Schemas.Photo
 
   tags ["Photography"]
@@ -12,7 +11,6 @@ defmodule GesttaltWeb.ApiPhotoController do
 
   plug GesttaltWeb.OAuthAuth, [scopes: ["content:read"]] when action in [:index, :show]
   plug GesttaltWeb.OAuthAuth, [scopes: ["media:write"]] when action not in [:index, :show]
-  plug :require_publisher_plan when action in [:create]
 
   operation :index,
     summary: "List photography feed entries",
@@ -134,15 +132,4 @@ defmodule GesttaltWeb.ApiPhotoController do
 
   defp error_response(conn, reason),
     do: conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(reason)})
-
-  defp require_publisher_plan(conn, _opts) do
-    if Plans.available?(site(conn), :media_uploads) do
-      conn
-    else
-      conn
-      |> put_status(:payment_required)
-      |> json(%{error: "subscription_required", upgrade_url: url(~p"/admin/billing")})
-      |> halt()
-    end
-  end
 end

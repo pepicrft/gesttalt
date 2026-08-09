@@ -2,13 +2,11 @@ defmodule GesttaltWeb.ApiMediaController do
   use GesttaltWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias Gesttalt.Plans
   alias Gesttalt.Sites
 
   tags ["Media"]
   security [%{"oauth2" => []}]
   plug GesttaltWeb.OAuthAuth, scopes: ["media:write"]
-  plug :require_publisher_plan when action in [:create]
 
   operation :index,
     summary: "List images",
@@ -56,15 +54,4 @@ defmodule GesttaltWeb.ApiMediaController do
       alt_text: image.alt_text,
       url: Sites.image_url(image)
     }
-
-  defp require_publisher_plan(conn, _opts) do
-    if Plans.available?(conn.assigns.current_site, :media_uploads) do
-      conn
-    else
-      conn
-      |> put_status(:payment_required)
-      |> json(%{error: "subscription_required", upgrade_url: url(~p"/admin/billing")})
-      |> halt()
-    end
-  end
 end

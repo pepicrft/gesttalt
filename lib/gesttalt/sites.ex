@@ -72,42 +72,8 @@ defmodule Gesttalt.Sites do
     site |> Site.changeset(attrs) |> Repo.update()
   end
 
-  def get_site_by_stripe_customer(customer_id) when is_binary(customer_id),
-    do: Repo.get_by(Site, stripe_customer_id: customer_id)
-
-  def get_site_by_stripe_customer(_customer_id), do: nil
-
-  def update_billing(%Site{} = site, attrs),
-    do: site |> Site.billing_changeset(attrs) |> Repo.update()
-
   def get_site_by_handle(handle) when is_binary(handle),
     do: Site |> Repo.get_by(handle: handle) |> preload_site()
-
-  @doc """
-  Grants Publisher features to a site without a Stripe subscription.
-
-  Meant to be run by an operator, either from `iex` or through `Gesttalt.Release.comp_site/1`.
-  """
-  def comp_site(handle) when is_binary(handle) do
-    case get_site_by_handle(handle) do
-      nil -> {:error, :not_found}
-      %Site{} = site -> update_billing(site, %{subscription_status: :comped})
-    end
-  end
-
-  @doc "Takes a complimentary site back to the free plan. Sites paying through Stripe are left alone."
-  def uncomp_site(handle) when is_binary(handle) do
-    case get_site_by_handle(handle) do
-      nil ->
-        {:error, :not_found}
-
-      %Site{subscription_status: :comped} = site ->
-        update_billing(site, %{subscription_status: :inactive})
-
-      %Site{} ->
-        {:error, :not_comped}
-    end
-  end
 
   def get_site_by_host(host) when is_binary(host) do
     hostname = normalize_host(host)

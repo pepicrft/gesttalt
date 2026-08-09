@@ -1,7 +1,6 @@
 defmodule GesttaltWeb.MediaController do
   use GesttaltWeb, :controller
 
-  alias Gesttalt.Plans
   alias Gesttalt.Sites
 
   def index(conn, _params) do
@@ -12,17 +11,9 @@ defmodule GesttaltWeb.MediaController do
   def create(conn, %{"image" => %{"file" => upload} = attrs}) do
     site = current_site(conn)
 
-    with :ok <- Plans.authorize(site, :media_uploads),
-         {:ok, _image} <- Sites.store_image(site, upload, attrs["alt_text"]) do
-      conn |> put_flash(:info, "Image uploaded.") |> redirect(to: ~p"/admin/media")
-    else
-      {:error, :subscription_required} ->
-        conn
-        |> put_flash(
-          :error,
-          dgettext("billing", "Upgrade to the Publisher plan to upload images.")
-        )
-        |> redirect(to: ~p"/admin/billing")
+    case Sites.store_image(site, upload, attrs["alt_text"]) do
+      {:ok, _image} ->
+        conn |> put_flash(:info, "Image uploaded.") |> redirect(to: ~p"/admin/media")
 
       {:error, reason} ->
         conn

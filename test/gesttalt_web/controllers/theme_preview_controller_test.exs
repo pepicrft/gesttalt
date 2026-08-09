@@ -10,7 +10,6 @@ defmodule GesttaltWeb.ThemePreviewControllerTest do
 
   setup do
     site = AccountsFixtures.site_fixture()
-    {:ok, site} = Sites.update_billing(site, %{subscription_status: :trialing})
 
     post =
       PublishingFixtures.post_fixture(%{

@@ -4,7 +4,6 @@ x-gesttalt-environment: &gesttalt-environment
   GESTTALT_AGENT_AUTH_ALLOW_EPHEMERAL_KEY: "true"
   GESTTALT_DATABASE_SSL: "false"
   GESTTALT_DATABASE_URL: ecto://gesttalt:gesttalt@postgres/gesttalt
-  GESTTALT_EARLY_ACCESS: "true"
   GESTTALT_HOST: localhost
   GESTTALT_MEDIA_STORAGE: local
   GESTTALT_OG_BROWSER_POOL_SIZE: "1"

@@ -26,7 +26,7 @@ msgstr ""
 msgid "Accounts"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:72
+#: lib/gesttalt_web/controllers/page_controller.ex:76
 #: lib/gesttalt_web/controllers/page_html/cancel.html.heex:6
 #, elixir-autogen, elixir-format
 msgid "Cancel a subscription"
@@ -84,7 +84,7 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:73
+#: lib/gesttalt_web/controllers/page_controller.ex:77
 #, elixir-autogen, elixir-format
 msgid "End an ongoing Gesttalt subscription."
 msgstr ""
@@ -94,7 +94,7 @@ msgstr ""
 msgid "Hosting safety"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:47
+#: lib/gesttalt_web/controllers/page_controller.ex:51
 #, elixir-autogen, elixir-format
 msgid "How Gesttalt handles personal information."
 msgstr ""
@@ -114,12 +114,12 @@ msgstr ""
 msgid "Information about the person responsible for operating Gesttalt and how to contact them."
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:63
+#: lib/gesttalt_web/controllers/page_controller.ex:67
 #, elixir-autogen, elixir-format
 msgid "Information about withdrawing from a recent Gesttalt consumer contract."
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:39
+#: lib/gesttalt_web/controllers/page_controller.ex:43
 #: lib/gesttalt_web/controllers/page_html/legal_notice.html.heex:6
 #, elixir-autogen, elixir-format
 msgid "Legal notice"
@@ -135,13 +135,13 @@ msgstr ""
 msgid "Ongoing subscriptions"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:46
+#: lib/gesttalt_web/controllers/page_controller.ex:50
 #: lib/gesttalt_web/controllers/page_html/privacy.html.heex:6
 #, elixir-autogen, elixir-format
 msgid "Privacy policy"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:40
+#: lib/gesttalt_web/controllers/page_controller.ex:44
 #, elixir-autogen, elixir-format
 msgid "Provider and contact information for Gesttalt."
 msgstr ""
@@ -151,13 +151,13 @@ msgstr ""
 msgid "Provider information"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:149
+#: lib/gesttalt_web/controllers/page_controller.ex:153
 #: lib/gesttalt_web/controllers/page_html/report_illegal_content.html.heex:6
 #, elixir-autogen, elixir-format
 msgid "Report illegal content"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:151
+#: lib/gesttalt_web/controllers/page_controller.ex:155
 #, elixir-autogen, elixir-format
 msgid "Report specific content that may be illegal on a Gesttalt publication."
 msgstr ""
@@ -172,7 +172,7 @@ msgstr ""
 msgid "Retention"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:61
+#: lib/gesttalt_web/controllers/page_controller.ex:65
 #: lib/gesttalt_web/controllers/page_html/withdrawal.html.heex:6
 #, elixir-autogen, elixir-format
 msgid "Right of withdrawal"
@@ -183,7 +183,7 @@ msgstr ""
 msgid "Service providers and international transfers"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:53
+#: lib/gesttalt_web/controllers/page_controller.ex:57
 #: lib/gesttalt_web/controllers/page_html/terms.html.heex:6
 #, elixir-autogen, elixir-format
 msgid "Terms of service"
@@ -194,7 +194,7 @@ msgstr ""
 msgid "The exact internet address of the content."
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:55
+#: lib/gesttalt_web/controllers/page_controller.ex:59
 #, elixir-autogen, elixir-format
 msgid "The terms that govern use of the Gesttalt publishing platform."
 msgstr ""
@@ -406,7 +406,7 @@ msgstr ""
 msgid "Submitting report..."
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:106
+#: lib/gesttalt_web/controllers/page_controller.ex:110
 #, elixir-autogen, elixir-format
 msgid "The security check could not be verified. Please try again."
 msgstr ""
@@ -426,7 +426,7 @@ msgstr ""
 msgid "This report concerns suspected child sexual abuse or exploitation, so I am submitting it without contact details."
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:98
+#: lib/gesttalt_web/controllers/page_controller.ex:102
 #, elixir-autogen, elixir-format
 msgid "Too many reports. Please try again later."
 msgstr ""
@@ -461,12 +461,12 @@ msgstr ""
 msgid "Your name"
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:118
+#: lib/gesttalt_web/controllers/page_controller.ex:122
 #, elixir-autogen, elixir-format
 msgid "Your report was received. Keep reference %{reference} for follow-up."
 msgstr ""
 
-#: lib/gesttalt_web/controllers/page_controller.ex:136
+#: lib/gesttalt_web/controllers/page_controller.ex:140
 #, elixir-autogen, elixir-format
 msgid "The report could not be recorded. Please email gesttalt@pepicrft.me."
 msgstr ""
