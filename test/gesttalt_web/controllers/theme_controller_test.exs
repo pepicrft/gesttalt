@@ -22,5 +22,14 @@ defmodule GesttaltWeb.ThemeControllerTest do
     response = conn |> recycle() |> get(~p"/admin/theme") |> html_response(200)
     assert response =~ "--paper: #f5f1e8"
     assert response =~ "font-family: Georgia, &#39;Times New Roman&#39;, serif"
+
+    assert element_position(response, "id=\"app-header\"") <
+             element_position(response, "id=\"flash-group\"")
+
+    assert element_position(response, "id=\"flash-group\"") < element_position(response, "<main")
+  end
+
+  defp element_position(html, selector) do
+    :binary.match(html, selector) |> elem(0)
   end
 end

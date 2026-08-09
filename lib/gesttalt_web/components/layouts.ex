@@ -67,10 +67,10 @@ defmodule GesttaltWeb.Layouts do
           </form>
         </div>
       </header>
+      <.flash_group flash={@flash} />
       <main class={["shell", @admin && "dashboard"]}>
         {render_slot(@inner_block)}
       </main>
-      <.flash_group flash={@flash} />
       <footer id="app-footer">
         <div class="shell" data-part="inner">
           <p data-part="identity">
