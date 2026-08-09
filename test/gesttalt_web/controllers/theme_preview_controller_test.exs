@@ -10,6 +10,7 @@ defmodule GesttaltWeb.ThemePreviewControllerTest do
 
   setup do
     site = AccountsFixtures.site_fixture()
+
     post =
       PublishingFixtures.post_fixture(%{
         site: site,

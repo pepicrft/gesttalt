@@ -54,5 +54,4 @@ defmodule GesttaltWeb.ApiMediaController do
       alt_text: image.alt_text,
       url: Sites.image_url(image)
     }
-
 end

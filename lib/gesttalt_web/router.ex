@@ -135,7 +135,6 @@ defmodule GesttaltWeb.Router do
     get "/oauth-clients", OAuthClientController, :index
     post "/oauth-clients", OAuthClientController, :create
     delete "/oauth-clients/:id", OAuthClientController, :delete
-
   end
 
   scope "/api" do

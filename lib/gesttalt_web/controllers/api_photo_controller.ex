@@ -132,5 +132,4 @@ defmodule GesttaltWeb.ApiPhotoController do
 
   defp error_response(conn, reason),
     do: conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(reason)})
-
 end
