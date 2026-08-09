@@ -327,11 +327,16 @@ defmodule Gesttalt.ThemeEditingTest do
     assert {:error, :not_found} = ThemeEditing.fetch(session.id, site)
   end
 
-  test "unlocks a draft when persistence raises", %{session: session, site: site} do
-    site |> Sites.get_theme!() |> Repo.delete!()
+  test "creates an override when a saved theme is removed before publication", %{
+    session: session,
+    site: site
+  } do
+    {:ok, theme} = Sites.update_theme(site, %{})
+    Repo.delete!(theme)
 
-    assert_raise Ecto.NoResultsError, fn -> ThemeEditing.publish(session.id, site) end
-    assert {:ok, _session} = ThemeEditing.update(session.id, site, %{name: "Still editable"})
+    assert {:ok, published_theme} = ThemeEditing.publish(session.id, site)
+    assert published_theme.id
+    assert {:error, :not_found} = ThemeEditing.fetch(session.id)
   end
 
   test "expires a session and tells connected previews to close", %{session: session} do

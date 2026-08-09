@@ -7,10 +7,10 @@ defmodule Gesttalt.ChangelogTest do
     entries = Changelog.list()
     [latest | _rest] = entries
 
-    assert latest.slug == "open-source"
-    assert latest.published_on == ~D[2026-08-08]
-    assert latest.title == "Gesttalt is now open source"
-    assert latest.summary =~ "available to read, adapt, and run"
+    assert latest.slug == "photography-feed-layout"
+    assert latest.published_on == ~D[2026-08-09]
+    assert latest.title == "Default themes receive layout improvements"
+    assert latest.summary =~ "New sites inherit"
 
     assert entries ==
              Enum.sort_by(
@@ -21,7 +21,7 @@ defmodule Gesttalt.ChangelogTest do
   end
 
   test "returns the pre-rendered entry body as safe HTML" do
-    [entry | _rest] = Changelog.list()
+    entry = Enum.find(Changelog.list(), &(&1.slug == "open-source"))
     html = entry |> Changelog.body_html() |> Phoenix.HTML.safe_to_string()
 
     assert entry.body == html

@@ -2,7 +2,9 @@ defmodule Gesttalt.SitesTest do
   use Gesttalt.DataCase, async: true
 
   alias Gesttalt.AccountsFixtures
+  alias Gesttalt.Repo
   alias Gesttalt.Sites
+  alias Gesttalt.Sites.{Theme, ThemeDefaults}
 
   setup do
     user = AccountsFixtures.user_fixture()
@@ -10,11 +12,34 @@ defmodule Gesttalt.SitesTest do
     %{site: site, user: user}
   end
 
-  test "creates a publication, active subdomain, and Liquid theme together", %{site: site} do
+  test "creates a publication with the built-in theme and no stored override", %{site: site} do
     assert site.theme.name == "Paper"
+    refute Repo.get_by(Theme, site_id: site.id)
     assert [%{kind: :subdomain, status: :active} = domain] = site.domains
     assert domain.hostname == "#{site.handle}.gesttalt.test"
     assert Sites.get_site_by_host(String.upcase(domain.hostname) <> ":443").id == site.id
+  end
+
+  test "takes over the built-in theme when it is customized", %{site: site} do
+    assert {:ok, theme} = Sites.update_theme(site, %{name: "Pedro"})
+
+    assert theme.name == "Pedro"
+    assert Repo.get_by!(Theme, site_id: site.id).name == "Pedro"
+  end
+
+  test "uses the current built-in theme for an inherited legacy record", %{site: site} do
+    inherited_theme =
+      %Theme{}
+      |> Theme.changeset(Map.put(ThemeDefaults.attrs(), :site_id, site.id))
+      |> Ecto.Changeset.put_change(:inherited, true)
+      |> Repo.insert!()
+
+    assert Sites.get_theme!(site).inherited
+    assert Sites.get_theme!(site).stylesheet =~ "#site-photography"
+
+    assert {:ok, override} = Sites.update_theme(site, %{name: "Pedro"})
+    refute override.inherited
+    assert override.id == inherited_theme.id
   end
 
   test "returns the same publication when setup is repeated", %{site: site, user: user} do
