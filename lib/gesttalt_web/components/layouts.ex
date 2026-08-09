@@ -109,7 +109,6 @@ defmodule GesttaltWeb.Layouts do
   defp dashboard_style(theme) do
     colors = theme.variables["colors"]
     fonts = theme.variables["fonts"]
-    font_sizes = theme.variables["fontSizes"]
 
     [
       "--paper: #{colors["background"]}",
@@ -134,7 +133,6 @@ defmodule GesttaltWeb.Layouts do
       "--status-attention-background: color-mix(in srgb, #{colors["accent"]} 14%, #{colors["background"]})",
       "--status-attention-border: #{colors["accent"]}",
       "--status-attention-ink: #{colors["accent"]}",
-      "--font-size: #{font_sizes["body"]}",
       "--font-heading: #{fonts["heading"]}",
       "--font-monospace: #{fonts["monospace"]}",
       "--radius-small: #{theme.variables["radii"]["small"]}",

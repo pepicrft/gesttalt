@@ -5,15 +5,15 @@
 }
 
 :root {
-  --paper: #fbfaf7;
-  --surface: #f3f1eb;
-  --ink: #181715;
-  --muted: #66615a;
-  --line: #dcd8cf;
-  --blue: #0659c7;
-  --blue-dark: #034699;
+  --paper: #fdfbf7;
+  --surface: #f7f4ef;
+  --ink: #171411;
+  --muted: #5c5751;
+  --line: #e4ddd2;
+  --blue: #0062cc;
+  --blue-dark: #5b4b8a;
   --on-primary: #fff;
-  --red: #a32121;
+  --red: #b45309;
   --control-background: var(--paper);
   --control-border: var(--line);
   --control-hover: var(--surface);
@@ -30,7 +30,7 @@
   --font-heading: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-monospace: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --radius-small: 0.2rem;
-  --font-size: 0.875rem;
+  --font-size: 1rem;
   --space-1: 0.5rem;
   --space-2: 1rem;
   --space-3: 1.5rem;

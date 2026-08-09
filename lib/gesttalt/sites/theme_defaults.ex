@@ -85,7 +85,7 @@ defmodule Gesttalt.Sites.ThemeDefaults do
     "ledger" => """
     .site-header { border-top: 0; padding-block: .75rem; }
     .header-inner { gap: .8rem; }
-    .site-title { font-size: 2rem; letter-spacing: -.035em; }
+    .site-title { letter-spacing: -.035em; }
     nav { border-block: 1px solid var(--gesttalt-colors-border); justify-content: space-between; padding-block: .6rem; width: 100%; }
     .post-row { grid-template-columns: 8rem 1fr; }
     #site-photography .photography-entry { border-inline: 0; box-shadow: none; }
@@ -94,9 +94,8 @@ defmodule Gesttalt.Sites.ThemeDefaults do
     """,
     "darkroom" => """
     .site-header { border-top-width: 2px; }
-    .site-title { font-size: 1.15rem; letter-spacing: .03em; text-transform: uppercase; }
-    .site-tagline { font-size: .9rem; }
-    nav { gap: 1.5rem; text-transform: uppercase; font-size: .8rem; letter-spacing: .08em; }
+    .site-title { letter-spacing: .03em; text-transform: uppercase; }
+    nav { gap: 1.5rem; text-transform: uppercase; letter-spacing: .08em; }
     .post-row { grid-template-columns: 1fr; gap: .4rem; }
     .post-row time { order: 2; }
     #site-photography .photography-page { padding-top: 1rem; }
@@ -107,13 +106,13 @@ defmodule Gesttalt.Sites.ThemeDefaults do
     """,
     "field-notes" => """
     .site-header { border-top-width: 8px; }
-    .site-title { font-family: var(--gesttalt-fonts-monospace); font-size: 1.1rem; text-transform: uppercase; }
-    nav a { font-family: var(--gesttalt-fonts-monospace); font-size: .85rem; }
-    .section-label { font-family: var(--gesttalt-fonts-monospace); font-size: .8rem; text-transform: uppercase; }
+    .site-title { font-family: var(--gesttalt-fonts-monospace); text-transform: uppercase; }
+    nav a { font-family: var(--gesttalt-fonts-monospace); }
+    .section-label { font-family: var(--gesttalt-fonts-monospace); text-transform: uppercase; }
     .post-row { grid-template-columns: 1fr; gap: .35rem; }
-    .post-row time { font-family: var(--gesttalt-fonts-monospace); font-size: .82rem; }
+    .post-row time { font-family: var(--gesttalt-fonts-monospace); }
     #site-photography .photography-entry { border-radius: var(--gesttalt-radii-small); }
-    #site-photography .photography-entry-header { font-family: var(--gesttalt-fonts-monospace); font-size: .85rem; }
+    #site-photography .photography-entry-header { font-family: var(--gesttalt-fonts-monospace); }
     """
   }
 

@@ -47,6 +47,14 @@ defmodule Gesttalt.SitesTest do
     refute Repo.get_by(Theme, site_id: site.id)
   end
 
+  test "keeps the Paper type scale across built-in themes" do
+    paper_font_sizes = ThemeDefaults.attrs("paper").variables["fontSizes"]
+
+    for %{id: id} <- ThemeDefaults.all() do
+      assert ThemeDefaults.attrs(id).variables["fontSizes"] == paper_font_sizes
+    end
+  end
+
   test "uses the current built-in theme for an inherited legacy record", %{site: site} do
     inherited_theme =
       %Theme{}
