@@ -48,7 +48,6 @@ body {
 
 #app-shell > main {
   flex: 1;
-  width: 100%;
 }
 
 h1,
