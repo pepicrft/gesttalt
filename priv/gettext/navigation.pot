@@ -11,123 +11,123 @@
 msgid ""
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:89
+#: lib/gesttalt_web/components/layouts.ex:96
 #, elixir-autogen, elixir-format
 msgid "Cancel contract"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:29
+#: lib/gesttalt_web/components/layouts.ex:31
 #, elixir-autogen, elixir-format
 msgid "Clients"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:22
+#: lib/gesttalt_web/components/layouts.ex:24
 #, elixir-autogen, elixir-format
 msgid "Content"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:52
+#: lib/gesttalt_web/components/layouts.ex:54
 #, elixir-autogen, elixir-format
 msgid "Dashboard"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:39
+#: lib/gesttalt_web/components/layouts.ex:41
 #, elixir-autogen, elixir-format
 msgid "Developers"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:73
+#: lib/gesttalt_web/components/layouts.ex:77
 #, elixir-autogen, elixir-format
 msgid "Independent publishing."
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:77
+#: lib/gesttalt_web/components/layouts.ex:84
 #, elixir-autogen, elixir-format
 msgid "Legal and service information"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:79
+#: lib/gesttalt_web/components/layouts.ex:86
 #, elixir-autogen, elixir-format
 msgid "Legal notice"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:45
+#: lib/gesttalt_web/components/layouts.ex:47
 #, elixir-autogen, elixir-format
 msgid "Log in"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:64
+#: lib/gesttalt_web/components/layouts.ex:66
 #, elixir-autogen, elixir-format
 msgid "Log out"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:24
+#: lib/gesttalt_web/components/layouts.ex:26
 #, elixir-autogen, elixir-format
 msgid "Media"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:81
+#: lib/gesttalt_web/components/layouts.ex:88
 #, elixir-autogen, elixir-format
 msgid "Privacy"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:20
+#: lib/gesttalt_web/components/layouts.ex:22
 #, elixir-autogen, elixir-format
 msgid "Publishing"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:89
+#: lib/gesttalt_web/components/layouts.ex:96
 #, elixir-autogen, elixir-format
 msgid "Report illegal content"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:29
+#: lib/gesttalt_web/components/layouts.ex:31
 #, elixir-autogen, elixir-format
 msgid "Settings"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:92
+#: lib/gesttalt_web/components/layouts.ex:99
 #, elixir-autogen, elixir-format
 msgid "Sitemap"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:49
+#: lib/gesttalt_web/components/layouts.ex:51
 #, elixir-autogen, elixir-format
 msgid "Start publishing"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:81
+#: lib/gesttalt_web/components/layouts.ex:88
 #, elixir-autogen, elixir-format
 msgid "Terms"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:27
+#: lib/gesttalt_web/components/layouts.ex:29
 #, elixir-autogen, elixir-format
 msgid "Theme"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:87
+#: lib/gesttalt_web/components/layouts.ex:94
 #, elixir-autogen, elixir-format
 msgid "Withdrawal"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:34
+#: lib/gesttalt_web/components/layouts.ex:36
 #, elixir-autogen, elixir-format
 msgid "Access"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:35
+#: lib/gesttalt_web/components/layouts.ex:37
 #, elixir-autogen, elixir-format
 msgid "Billing"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:39
-#: lib/gesttalt_web/components/layouts.ex:84
+#: lib/gesttalt_web/components/layouts.ex:41
+#: lib/gesttalt_web/components/layouts.ex:91
 #, elixir-autogen, elixir-format
 msgid "Changelog"
 msgstr ""
 
-#: lib/gesttalt_web/components/layouts.ex:24
+#: lib/gesttalt_web/components/layouts.ex:26
 #, elixir-autogen, elixir-format
 msgid "Photography"
 msgstr ""
