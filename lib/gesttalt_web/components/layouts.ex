@@ -26,9 +26,12 @@ defmodule GesttaltWeb.Layouts do
             }>{dgettext("navigation", "Photography")}</a><a href={~p"/admin/media"}>{dgettext(
               "navigation",
               "Media"
-            )}</a><a href={~p"/admin/theme"}>{dgettext("navigation", "Theme")}</a><a href={
-              ~p"/admin/settings"
-            }>{dgettext("navigation", "Settings")}</a><a href={~p"/admin/oauth-clients"}>{dgettext(
+            )}</a><a href={~p"/admin/analytics"}>{dgettext("navigation", "Analytics")}</a><a href={
+              ~p"/admin/theme"
+            }>{dgettext("navigation", "Theme")}</a><a href={~p"/admin/settings"}>{dgettext(
+              "navigation",
+              "Settings"
+            )}</a><a href={~p"/admin/oauth-clients"}>{dgettext(
               "navigation",
               "Clients"
             )}</a><a href={~p"/admin/billing"}>

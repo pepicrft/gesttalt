@@ -22,6 +22,10 @@ defmodule GesttaltWeb.Router do
     plug OpenApiSpex.Plug.PutApiSpec, module: GesttaltWeb.API.Spec
   end
 
+  pipeline :analytics do
+    plug :accepts, ["json"]
+  end
+
   pipeline :feed do
     plug :put_secure_browser_headers
   end
@@ -109,6 +113,7 @@ defmodule GesttaltWeb.Router do
     pipe_through [:browser, :admin]
 
     get "/", AdminController, :index
+    get "/analytics", AdminController, :analytics
     get "/posts/new", AdminController, :new
     post "/posts", AdminController, :create
     get "/posts/:id/edit", AdminController, :edit
@@ -219,6 +224,12 @@ defmodule GesttaltWeb.Router do
     get "/blog/feed.xml", FeedController, :rss
     get "/blog/rss.xml", FeedController, :rss
     get "/blog/atom.xml", FeedController, :atom
+  end
+
+  scope "/", GesttaltWeb do
+    pipe_through [:analytics, :tenant]
+
+    post "/analytics/pageview", AnalyticsController, :create
   end
 
   scope "/", GesttaltWeb do

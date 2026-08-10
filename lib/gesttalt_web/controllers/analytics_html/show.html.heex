@@ -1,0 +1,69 @@
+<Layouts.app flash={@flash} current_scope={@current_scope} admin admin_theme={@admin_theme}>
+  <div id="admin-analytics">
+    <header id="page-heading">
+      <div data-part="heading-copy">
+        <p data-part="eyebrow">Publication insights</p>
+        <h1 data-part="title">Analytics</h1>
+        <p data-part="description">
+          Cookie-free page-view counts. No visitors are identified or tracked.
+        </p>
+      </div>
+      <form data-part="period" action={~p"/admin/analytics"} method="get">
+        <label data-part="period-label" for="analytics-period">Period</label>
+        <select id="analytics-period" name="period" onchange="this.form.requestSubmit()">
+          <option :for={days <- [7, 30, 90]} value={days} selected={days == @summary.period}>
+            Last {days} days
+          </option>
+        </select>
+      </form>
+    </header>
+
+    <section data-part="summary" aria-label="Page-view total">
+      <p data-part="label">Page views</p>
+      <p data-part="value">{@summary.page_views}</p>
+      <p data-part="detail">Across the last {@summary.period} days.</p>
+    </section>
+
+    <section data-part="locations" aria-labelledby="analytics-locations">
+      <h2 id="analytics-locations">Locations</h2>
+      <p :if={@summary.locations == []} data-part="empty">
+        No coarse country locations have been recorded yet.
+      </p>
+      <div
+        :if={@summary.locations != []}
+        id="analytics-world-map"
+        data-part="map"
+        role="application"
+        aria-label="Interactive page views by country"
+      >
+        <template
+          :for={location <- @summary.locations}
+          data-country={location.country}
+          data-latitude={location.latitude}
+          data-label={location.label}
+          data-longitude={location.longitude}
+          data-views={location.views}
+        ></template>
+      </div>
+      <ol :if={@summary.locations != []} data-part="location-list">
+        <li :for={location <- @summary.locations}>
+          <span>{location.label}</span><span>{location.views}</span>
+        </li>
+      </ol>
+    </section>
+
+    <section data-part="pages" aria-labelledby="analytics-top-pages">
+      <h2 id="analytics-top-pages">Most viewed pages</h2>
+      <p :if={@summary.top_pages == []} data-part="empty">
+        No page views have been recorded yet.
+      </p>
+      <ol :if={@summary.top_pages != []} data-part="list">
+        <li :for={page <- @summary.top_pages}>
+          <code>{page.path}</code><span>{page.views}</span>
+        </li>
+      </ol>
+    </section>
+  </div>
+  <script defer phx-track-static type="text/javascript" src={~p"/assets/js/analytics_map.js"}>
+  </script>
+</Layouts.app>

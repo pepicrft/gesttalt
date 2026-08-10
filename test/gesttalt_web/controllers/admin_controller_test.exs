@@ -23,4 +23,19 @@ defmodule GesttaltWeb.AdminControllerTest do
     assert response =~ "25 Dec 2017, 12:00"
     assert response =~ ~s(datetime="2017-12-25T12:00:00Z")
   end
+
+  test "shows cookie-free page-view counts", %{conn: conn, user: user} do
+    {:ok, site} = Sites.ensure_site_for_user(user)
+    {:ok, _page_view} = Gesttalt.Analytics.record_page_view(site, %{path: "/", country: "ES"})
+
+    response = conn |> get(~p"/admin/analytics") |> html_response(200)
+
+    assert response =~ "Cookie-free page-view counts. No visitors are identified or tracked."
+    assert response =~ ~s(value="30" selected)
+    assert response =~ ~s(id="analytics-world-map")
+    assert response =~ ~s(data-country="ES")
+    assert response =~ ~s(data-longitude="-4")
+    assert response =~ ~s(src="/assets/js/analytics_map.js")
+    assert response =~ ~s(<code>/</code><span>1</span>)
+  end
 end
