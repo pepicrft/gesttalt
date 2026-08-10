@@ -1,0 +1,40 @@
+<Layouts.app flash={@flash} current_scope={@current_scope} admin admin_theme={@admin_theme}>
+  <div id="admin-idea-editor">
+    <header id="page-heading">
+      <p data-part="eyebrow">Conversation desk</p>
+      <h1 data-part="title">Edit idea</h1>
+      <p data-part="description">
+        Keep the prompt clear and add the context that will make it useful later.
+      </p>
+    </header>
+
+    <.form
+      :let={form}
+      for={@changeset}
+      action={~p"/admin/ideas/#{@idea}"}
+      method="put"
+      data-part="form"
+    >
+      <div class="field" data-part="field">
+        <label for={form[:title].id}>Idea</label>
+        <input
+          id={form[:title].id}
+          name={form[:title].name}
+          value={form[:title].value}
+          maxlength="160"
+          required
+          autofocus
+        />
+        <p :for={error <- form[:title].errors} class="field-error">{translate_error(error)}</p>
+      </div>
+      <div class="field" data-part="field">
+        <label for={form[:notes].id}>Notes <span>Optional</span></label>
+        <textarea id={form[:notes].id} name={form[:notes].name} rows="8">{form[:notes].value}</textarea>
+      </div>
+      <div class="form-actions" data-part="actions">
+        <button class="button button--primary" type="submit">Save idea</button>
+        <a class="button" href={~p"/admin/ideas"}>Cancel</a>
+      </div>
+    </.form>
+  </div>
+</Layouts.app>

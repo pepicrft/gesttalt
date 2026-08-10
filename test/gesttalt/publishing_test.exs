@@ -5,6 +5,7 @@ defmodule Gesttalt.PublishingTest do
   import Gesttalt.PublishingFixtures
 
   alias Gesttalt.Publishing
+  alias Gesttalt.Publishing.Idea
   alias Gesttalt.Publishing.Post
 
   setup do
@@ -105,6 +106,30 @@ defmodule Gesttalt.PublishingTest do
 
   test "returns a changeset", %{site: site} do
     assert %Ecto.Changeset{} = site |> post_fixture_for_site() |> Publishing.change_post()
+  end
+
+  test "creates, updates, and deletes an idea within its publication", %{site: site} do
+    assert {:ok, %Idea{} = idea} =
+             Publishing.create_idea(site, %{
+               title: "Ask about turning points",
+               notes: "Start with 2018."
+             })
+
+    assert Publishing.list_ideas(site) == [idea]
+    assert Publishing.get_idea(site, idea.id) == idea
+
+    assert {:ok, updated_idea} = Publishing.update_idea(idea, %{notes: "Start with 2019."})
+    assert updated_idea.notes == "Start with 2019."
+    assert {:ok, %Idea{}} = Publishing.delete_idea(updated_idea)
+    assert Publishing.get_idea(site, idea.id) == nil
+  end
+
+  test "does not expose ideas from another publication", %{site: site} do
+    other_site = site_fixture()
+    {:ok, idea} = Publishing.create_idea(other_site, %{title: "Private prompt"})
+
+    assert Publishing.list_ideas(site) == []
+    assert Publishing.get_idea(site, idea.id) == nil
   end
 
   defp post_fixture_for_site(site), do: post_fixture(%{site: site})
