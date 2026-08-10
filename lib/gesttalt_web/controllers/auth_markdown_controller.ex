@@ -4,25 +4,6 @@ defmodule GesttaltWeb.AuthMarkdownController do
   alias Gesttalt.AgentAuth
 
   def show(conn, _params) do
-    early_access = Gesttalt.Plans.early_access?()
-
-    management_capabilities =
-      if early_access,
-        do: "custom domains, and connected applications",
-        else: "custom domains, connected applications, and billing actions"
-
-    billing_guard =
-      if early_access,
-        do: "",
-        else: ", or begin a billing action"
-
-    media_scope =
-      if early_access,
-        do: "manage images and photography feed entries.",
-        else: "manage images and photography feed entries on a paid publishing plan."
-
-    access_label = if early_access, do: "Access", else: "Pricing"
-
     document = """
     # Gesttalt agent authentication
 
@@ -71,9 +52,9 @@ defmodule GesttaltWeb.AuthMarkdownController do
 
     ## 4. Connect and manage the publication
 
-    Connect the access token to the Model Context Protocol server at #{url(~p"/mcp")} with `Authorization: Bearer <access_token>`. Start with `tools/list`; the server exposes content, photography, media, theme, publication settings, #{management_capabilities} available in the dashboard.
+    Connect the access token to the Model Context Protocol server at #{url(~p"/mcp")} with `Authorization: Bearer <access_token>`. Start with `tools/list`; the server exposes content, photography, media, theme, publication settings, custom domains, and connected applications available in the dashboard.
 
-    Never publish, delete, change a custom domain, create credentials#{billing_guard} unless the user explicitly asks.
+    Never publish, delete, change a custom domain, or create credentials unless the user explicitly asks.
 
     ## 5. Renew or revoke
 
@@ -92,13 +73,12 @@ defmodule GesttaltWeb.AuthMarkdownController do
 
     - `content:read`: read posts, pages, and photography feed entries.
     - `content:write`: create, edit, publish, unpublish, and delete posts and pages.
-    - `media:write`: #{media_scope}
+    - `media:write`: manage images and photography feed entries.
     - `mcp`: use the complete agent management server.
 
     ## Service information
 
     - Documentation: #{url(~p"/docs")}
-    - #{access_label}: #{url(~p"/admin/billing")}
     - Terms: #{url(~p"/terms")}
     - Privacy: #{url(~p"/privacy")}
     - Integration help: gesttalt@pepicrft.me

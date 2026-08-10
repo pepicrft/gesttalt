@@ -4,6 +4,7 @@ defmodule GesttaltWeb.PageController do
   alias Gesttalt.Changelog
   alias Gesttalt.IllegalContentReportProtection
   alias Gesttalt.Legal
+  alias Gesttalt.Sites.ThemeDefaults
   alias GesttaltWeb.ClientAddress
 
   def home(conn, _params) do
@@ -13,7 +14,10 @@ defmodule GesttaltWeb.PageController do
         dgettext(
           "marketing",
           "Agent-native publishing for content, media, themes, domains, and the complete publication."
-        )
+        ),
+      built_in_themes:
+        ThemeDefaults.all()
+        |> Enum.map(&Map.put(&1, :preview_style, ThemeDefaults.preview_style(&1.id)))
     )
   end
 

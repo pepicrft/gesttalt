@@ -7,6 +7,12 @@ defmodule GesttaltWeb.PageControllerTest do
 
     assert html =~ "A blog your agents can run. A publication you own."
     assert html =~ "Manage the whole publication"
+    assert html =~ ~s(id="built-in-themes-title")
+
+    for theme <- ["Paper", "Ledger", "Darkroom", "Field Notes"] do
+      assert html =~ theme
+    end
+
     assert html =~ "Gesttalt is open source."
     assert html =~ ~s(href="https://github.com/pepicrft/gesttalt")
     refute html =~ ~r/pricing|payment|free|€|per month|upgrade/i

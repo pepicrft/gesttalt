@@ -38,7 +38,6 @@ config :gesttalt,
   ecto_repos: [Gesttalt.Repo],
   generators: [timestamp_type: :utc_datetime],
   observability_enabled: false,
-  early_access: true,
   platform_host: "gesttalt.org",
   seed_demo: false,
   media_storage: [
@@ -84,8 +83,7 @@ config :gesttalt,
     poll_interval_seconds: 5,
     assertion_ttl_seconds: 86_400,
     allow_ephemeral_signing_key: true
-  ],
-  stripe: [monthly_price_euros: 5, automatic_tax: false]
+  ]
 
 config :gesttalt, Gesttalt.Mailer, adapter: Swoosh.Adapters.Local
 config :swoosh, :api_client, Swoosh.ApiClient.Req

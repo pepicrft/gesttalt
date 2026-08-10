@@ -153,7 +153,6 @@ if config_env() == :prod do
 
   config :gesttalt,
     dns_cluster_query: System.get_env("GESTTALT_DNS_CLUSTER_QUERY"),
-    early_access: System.get_env("GESTTALT_EARLY_ACCESS", "true") in ~w(true 1),
     platform_host: host,
     custom_domain_target: System.get_env("GESTTALT_CUSTOM_DOMAIN_TARGET", "domains.#{host}"),
     media_storage: media_storage,
@@ -198,14 +197,6 @@ if config_env() == :prod do
       private_key_pem: System.get_env("GESTTALT_AGENT_AUTH_PRIVATE_KEY_PEM"),
       allow_ephemeral_signing_key:
         System.get_env("GESTTALT_AGENT_AUTH_ALLOW_EPHEMERAL_KEY", "false") in ~w(true 1)
-    ],
-    stripe: [
-      secret_key: System.get_env("GESTTALT_STRIPE_SECRET_KEY"),
-      price_id: System.get_env("GESTTALT_STRIPE_PRICE_ID"),
-      webhook_secret: System.get_env("GESTTALT_STRIPE_WEBHOOK_SECRET"),
-      monthly_price_euros:
-        String.to_integer(System.get_env("GESTTALT_STRIPE_MONTHLY_PRICE_EUROS", "5")),
-      automatic_tax: System.get_env("GESTTALT_STRIPE_AUTOMATIC_TAX", "false") in ~w(true 1)
     ]
 
   config :boruta, Boruta.Oauth, issuer: "https://#{host}"

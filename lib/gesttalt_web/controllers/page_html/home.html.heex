@@ -47,6 +47,30 @@
         </p>
       </article>
     </section>
+    <section data-part="themes" aria-labelledby="built-in-themes-title">
+      <div data-part="heading">
+        <p data-part="eyebrow">Built-in themes</p><h2 id="built-in-themes-title">
+          Start with a point of view
+        </h2><p>
+          Every publication begins with a complete, editable design. Choose the one that feels closest to your work, then make it your own.
+        </p>
+      </div>
+      <div data-part="theme-grid">
+        <article
+          :for={theme <- @built_in_themes}
+          id={"marketing-theme-#{theme.id}"}
+          data-part="theme-card"
+        >
+          <div data-part="preview" aria-hidden="true" style={theme.preview_style}>
+            <span data-part="preview-title">{theme.name}</span><span data-part="preview-rule"></span><span data-part="preview-lines"></span>
+          </div>
+          <div data-part="content">
+            <h3>{theme.name}</h3><p>{theme.description}</p>
+          </div>
+        </article>
+      </div>
+      <a href={~p"/docs#themes"}>Learn about themes →</a>
+    </section>
     <section data-part="manifesto">
       <p data-part="eyebrow">Themes are code</p><h2 data-part="title">
         Design the publication in the same conversation that runs it.
