@@ -17,11 +17,18 @@ data:
       }
       {{- end }}
       on_demand_tls {
-        ask http://{{ include "gesttalt.fullname" . }}-web:4000/internal/domains/allow
+        ask http://127.0.0.1:{{ .Values.caddy.httpPort }}/internal/domains/allow
       }
     }
 
     http://:{{ .Values.caddy.httpPort }} {
+      @domain_allow path /internal/domains/allow
+      handle @domain_allow {
+        reverse_proxy {{ include "gesttalt.fullname" . }}-web:4000 {
+          header_up X-Forwarded-For {client_ip}
+          header_up X-Forwarded-Proto https
+        }
+      }
       redir https://{host}{uri} permanent
     }
 
