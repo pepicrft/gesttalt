@@ -37,6 +37,14 @@ defmodule GesttaltWeb.SiteControllerTest do
     assert get_resp_header(conn, "vary") == ["accept, cookie"]
   end
 
+  test "adds the cookie-free analytics script to public pages", %{conn: conn, host: host} do
+    body = conn |> Map.put(:host, host) |> get(~p"/") |> html_response(200)
+
+    assert body =~ ~s(data-gesttalt-analytics)
+    assert body =~ ~s(credentials: "omit")
+    assert body =~ ~s|JSON.stringify({path: window.location.pathname})|
+  end
+
   test "does not show publication controls to another signed-in user", %{
     conn: conn,
     host: host

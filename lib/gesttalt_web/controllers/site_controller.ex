@@ -44,6 +44,22 @@ defmodule GesttaltWeb.SiteController do
   </aside>
   """
 
+  @analytics_script """
+  <script data-gesttalt-analytics>
+    (() => {
+      if (navigator.webdriver) return
+
+      fetch("/analytics/pageview", {
+        method: "POST",
+        credentials: "omit",
+        keepalive: true,
+        headers: {"content-type": "application/json"},
+        body: JSON.stringify({path: window.location.pathname})
+      }).catch(() => {})
+    })()
+  </script>
+  """
+
   def home(%{assigns: %{current_site: nil}} = conn, params),
     do: conn |> put_view(html: GesttaltWeb.PageHTML) |> GesttaltWeb.PageController.home(params)
 
@@ -263,6 +279,8 @@ defmodule GesttaltWeb.SiteController do
   end
 
   defp maybe_add_owner_controls(conn, html, site) do
+    html = inject_before_body_end(html, @analytics_script)
+
     if owner?(conn, site) do
       conn = put_resp_header(conn, "cache-control", "private, no-store")
       {conn, inject_before_body_end(html, @owner_controls)}
