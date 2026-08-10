@@ -7,10 +7,10 @@ defmodule Gesttalt.ChangelogTest do
     entries = Changelog.list()
     [latest | _rest] = entries
 
-    assert latest.slug == "uniform-publication-type-size"
-    assert latest.published_on == ~D[2026-08-09]
-    assert latest.title == "Use one text size across built-in themes"
-    assert latest.summary =~ "Headings, introductory text"
+    assert latest.slug == "short-notes"
+    assert latest.published_on == ~D[2026-08-10]
+    assert latest.title == "Publish short notes"
+    assert latest.summary =~ "brief updates"
 
     assert entries ==
              Enum.sort_by(

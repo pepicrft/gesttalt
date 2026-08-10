@@ -99,7 +99,7 @@ defmodule Gesttalt.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.setup": ["esbuild.install --if-missing"],
+      "assets.setup": ["esbuild.install --if-missing", "cmd npm ci --prefix assets"],
       "assets.build": ["compile", "esbuild gesttalt"],
       "assets.deploy": [
         "esbuild gesttalt --minify",

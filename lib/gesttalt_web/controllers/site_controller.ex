@@ -108,6 +108,30 @@ defmodule GesttaltWeb.SiteController do
     end
   end
 
+  def notes(%{assigns: %{current_site: site}} = conn, params) do
+    page = page_number(params)
+    {notes, pagination} = Publishing.paginate_published_notes(site, page)
+    last_page = max(pagination.total_pages, 1)
+
+    if page > last_page do
+      redirect(conn, to: notes_path(last_page))
+    else
+      render_notes(conn, site, notes, pagination)
+    end
+  end
+
+  def notes_markdown(%{assigns: %{current_site: site}} = conn, params) do
+    page = page_number(params)
+    {notes, pagination} = Publishing.paginate_published_notes(site, page)
+    last_page = max(pagination.total_pages, 1)
+
+    if page > last_page do
+      redirect(conn, to: notes_markdown_path(last_page))
+    else
+      markdown(conn, markdown_notes(site, notes, pagination))
+    end
+  end
+
   defp render_archive(conn, site, posts, pagination) do
     if markdown_requested?(conn) do
       markdown(conn, markdown_archive(site, posts, pagination))
@@ -129,6 +153,28 @@ defmodule GesttaltWeb.SiteController do
     end
   end
 
+  defp render_notes(conn, site, notes, pagination) do
+    if markdown_requested?(conn) do
+      markdown(conn, markdown_notes(site, notes, pagination))
+    else
+      og = og_context(conn, site)
+
+      render_theme(conn, site, fn ->
+        Renderer.render_index(
+          site,
+          site.theme,
+          notes,
+          Publishing.list_published_pages(site),
+          pagination,
+          og,
+          archive: true,
+          archive_path: "/notes",
+          collection: :notes
+        )
+      end)
+    end
+  end
+
   def article(%{assigns: %{current_site: site}} = conn, %{"slug" => slug}) do
     {slug, markdown?} = markdown_path?(slug, conn)
     post = Publishing.get_published_post_by_slug!(site, :post, slug)
@@ -141,6 +187,20 @@ defmodule GesttaltWeb.SiteController do
       render_theme(conn, site, fn ->
         Renderer.render_article(site, site.theme, post, Publishing.list_published_pages(site), og)
       end)
+    end
+  end
+
+  def note(%{assigns: %{current_site: site}} = conn, %{"id" => id}) do
+    note = Publishing.get_published_post(site, :note, id)
+
+    if note do
+      og = og_context(conn, site)
+
+      render_theme(conn, site, fn ->
+        Renderer.render_article(site, site.theme, note, Publishing.list_published_pages(site), og)
+      end)
+    else
+      send_resp(conn, :not_found, "Note not found")
     end
   end
 
@@ -196,7 +256,8 @@ defmodule GesttaltWeb.SiteController do
       markdown_index(
         site,
         Publishing.list_published_pages(site),
-        Publishing.list_published_posts(site)
+        Publishing.list_published_posts(site),
+        Publishing.list_published_notes(site)
       )
     )
   end
@@ -323,6 +384,12 @@ defmodule GesttaltWeb.SiteController do
   defp archive_markdown_path(1), do: "/blog.md"
   defp archive_markdown_path(page), do: "/blog.md?page=#{page}"
 
+  defp notes_path(1), do: "/notes"
+  defp notes_path(page), do: "/notes?page=#{page}"
+
+  defp notes_markdown_path(1), do: "/notes.md"
+  defp notes_markdown_path(page), do: "/notes.md?page=#{page}"
+
   defp markdown_home(site, posts) do
     [
       "# #{site.name}",
@@ -341,6 +408,19 @@ defmodule GesttaltWeb.SiteController do
     [
       "# Writing from #{site.name}",
       markdown_post_links(nil, posts),
+      "Page #{page} of #{max(pages, 1)}."
+    ]
+    |> Enum.reject(&blank_markdown?/1)
+    |> Enum.join("\n\n")
+  end
+
+  defp markdown_notes(site, notes, pagination) do
+    page = Map.get(pagination, :current_page, 1)
+    pages = Map.get(pagination, :total_pages, 1)
+
+    [
+      "# Notes from #{site.name}",
+      Enum.map_join(notes, "\n\n", fn note -> "- [#{note.body}](/notes/#{note.id})" end),
       "Page #{page} of #{max(pages, 1)}."
     ]
     |> Enum.reject(&blank_markdown?/1)
@@ -369,13 +449,14 @@ defmodule GesttaltWeb.SiteController do
     |> Enum.join("\n\n")
   end
 
-  defp markdown_index(site, pages, posts) do
+  defp markdown_index(site, pages, posts, notes) do
     document =
       [
         "# #{site.name}",
         site.tagline,
         "## Pages\n\n" <> markdown_link_list(pages, &"/#{&1.slug}.md"),
         "## Writing\n\n" <> markdown_link_list(posts, &"/blog/#{&1.slug}.md"),
+        "## Notes\n\n" <> markdown_link_list(notes, &"/notes/#{&1.id}"),
         "## Other\n\n- [Photography](/photography.md)"
       ]
       |> Enum.reject(&blank_markdown?/1)

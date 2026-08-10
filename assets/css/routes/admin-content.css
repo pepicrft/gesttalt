@@ -1,4 +1,9 @@
 #admin-content {
+  & > #page-heading > [data-part="actions"] {
+    display: flex;
+    gap: 0.5rem;
+  }
+
   & > [data-part="list"] {
     & > [data-part="empty"] {
       color: var(--muted);

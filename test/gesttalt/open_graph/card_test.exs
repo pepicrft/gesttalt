@@ -11,13 +11,13 @@ defmodule Gesttalt.OpenGraph.CardTest do
         eyebrow: "Field Notes",
         title: "A quiet place for lasting words",
         subtitle: "On writing that endures",
-        meta: "May 1, 2026 · 4 min read"
+        meta: "May 1, 2026"
       })
 
     assert html =~ "Field Notes"
     assert html =~ "A quiet place for lasting words"
     assert html =~ "On writing that endures"
-    assert html =~ "May 1, 2026 · 4 min read"
+    assert html =~ "May 1, 2026"
   end
 
   test "uses the theme's colors and fonts" do

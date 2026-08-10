@@ -12,9 +12,18 @@ defmodule GesttaltWeb.AdminHTML do
     end
   end
 
-  def public_url(site, post) do
+  def public_url(origin, site, post) do
     domain = Enum.find(site.domains, &(&1.status == :active))
-    path = if post.kind == :post, do: "/blog/#{post.slug}/", else: "/#{post.slug}/"
-    if domain, do: "https://#{domain.hostname}#{path}", else: path
+
+    path =
+      case post.kind do
+        :post -> "/blog/#{post.slug}/"
+        :note -> "/notes/#{post.id}/"
+        :page -> "/#{post.slug}/"
+      end
+
+    if domain,
+      do: "#{origin |> URI.parse() |> Map.put(:host, domain.hostname) |> URI.to_string()}#{path}",
+      else: path
   end
 end

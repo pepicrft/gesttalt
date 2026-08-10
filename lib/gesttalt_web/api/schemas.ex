@@ -13,7 +13,7 @@ defmodule GesttaltWeb.API.Schemas.Post do
       excerpt: %OpenApiSpex.Schema{type: :string, nullable: true},
       tags: %OpenApiSpex.Schema{type: :array, items: %OpenApiSpex.Schema{type: :string}},
       body: %OpenApiSpex.Schema{type: :string},
-      kind: %OpenApiSpex.Schema{type: :string, enum: ["post", "page"]},
+      kind: %OpenApiSpex.Schema{type: :string, enum: ["post", "page", "note"]},
       status: %OpenApiSpex.Schema{type: :string, enum: ["draft", "published"]},
       published_at: %OpenApiSpex.Schema{type: :string, format: :date_time, nullable: true},
       url: %OpenApiSpex.Schema{type: :string, nullable: true}
@@ -36,7 +36,7 @@ defmodule GesttaltWeb.API.Schemas.PostParams do
       excerpt: %OpenApiSpex.Schema{type: :string},
       tags: %OpenApiSpex.Schema{type: :array, items: %OpenApiSpex.Schema{type: :string}},
       body: %OpenApiSpex.Schema{type: :string},
-      kind: %OpenApiSpex.Schema{type: :string, enum: ["post", "page"]},
+      kind: %OpenApiSpex.Schema{type: :string, enum: ["post", "page", "note"]},
       status: %OpenApiSpex.Schema{type: :string, enum: ["draft", "published"]},
       published_at: %OpenApiSpex.Schema{type: :string, format: :date_time}
     },

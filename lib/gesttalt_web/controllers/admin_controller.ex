@@ -8,7 +8,13 @@ defmodule GesttaltWeb.AdminController do
 
   def index(conn, _params) do
     site = current_site(conn)
-    render(conn, :index, page_title: "Editor", posts: Publishing.list_posts(site), site: site)
+
+    render(conn, :index,
+      page_title: "Editor",
+      posts: Publishing.list_posts(site),
+      public_origin: public_origin(conn),
+      site: site
+    )
   end
 
   def analytics(conn, params) do
@@ -26,6 +32,10 @@ defmodule GesttaltWeb.AdminController do
 
   def new(conn, _params),
     do: render_form(conn, Publishing.change_post(%Post{}), "New post", ~p"/admin/posts")
+
+  def new_note(conn, _params),
+    do:
+      render_form(conn, Publishing.change_post(%Post{kind: :note}), "New note", ~p"/admin/posts")
 
   def create(conn, %{"post" => attrs}) do
     case Publishing.create_post(current_site(conn), attrs) do
@@ -92,5 +102,10 @@ defmodule GesttaltWeb.AdminController do
   defp current_site(conn) do
     {:ok, site} = Sites.ensure_site_for_user(conn.assigns.current_scope.user)
     site
+  end
+
+  defp public_origin(conn) do
+    port = if conn.port in [80, 443], do: "", else: ":#{conn.port}"
+    "#{conn.scheme}://#{conn.host}#{port}"
   end
 end

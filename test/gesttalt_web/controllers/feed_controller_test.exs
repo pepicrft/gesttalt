@@ -115,6 +115,33 @@ defmodule GesttaltWeb.FeedControllerTest do
     assert body =~ ~s(href="/blog/atom.xml")
   end
 
+  test "serves Really Simple Syndication and Atom feeds for short notes", %{
+    conn: conn,
+    host: host,
+    site: site
+  } do
+    note =
+      post_fixture(%{
+        site: site,
+        kind: :note,
+        title: "Note",
+        body: "A **short** update.",
+        status: :published,
+        published_at: ~U[2026-07-21 12:00:00Z]
+      })
+
+    rss = conn |> Map.put(:host, host) |> get("/notes/feed.xml") |> response(200)
+
+    assert rss =~ "Notes from #{site.name}"
+    assert rss =~ "http://#{host}/notes/#{note.id}/"
+    assert rss =~ "<strong>short</strong>"
+
+    atom = build_conn() |> Map.put(:host, host) |> get("/notes/atom.xml") |> response(200)
+
+    assert atom =~ ~s(<link href="http://#{host}/notes/atom.xml" rel="self")
+    assert atom =~ "http://#{host}/notes/#{note.id}/"
+  end
+
   defp before?(body, first, second) do
     {first_position, _length} = :binary.match(body, first)
     {second_position, _length} = :binary.match(body, second)

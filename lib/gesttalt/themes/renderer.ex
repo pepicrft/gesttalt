@@ -4,7 +4,6 @@ defmodule Gesttalt.Themes.Renderer do
   alias Gesttalt.Markdown
   alias Gesttalt.OpenGraph
   alias Gesttalt.Photography.Photo
-  alias Gesttalt.Publishing
   alias Gesttalt.Publishing.Post
   alias Gesttalt.Sites.{Image, Site, Theme, ThemeDefaults}
   alias Gesttalt.Themes.Variables
@@ -20,15 +19,17 @@ defmodule Gesttalt.Themes.Renderer do
       ) do
     archive? = Keyword.get(options, :archive, false)
     archive_path = Keyword.get(options, :archive_path, "/blog")
+    collection = Keyword.get(options, :collection, :posts)
 
     context =
       base_context(site, theme, pages, og)
       |> Map.put("posts", Enum.map(posts, &post_context(&1, og)))
       |> Map.put("archive_url", archive_path)
       |> Map.put("is_archive", archive?)
+      |> Map.put("is_notes", collection == :notes)
       |> Map.put("pagination", pagination_context(pagination, length(posts), archive_path))
 
-    render(theme.index_template, context, index_metadata(site, og, archive?))
+    render(theme.index_template, context, index_metadata(site, og, archive?, collection))
   end
 
   def render_article(%Site{} = site, %Theme{} = theme, %Post{} = post, pages, og \\ nil) do
@@ -115,7 +116,16 @@ defmodule Gesttalt.Themes.Renderer do
     end
   end
 
-  defp index_metadata(site, og, true) do
+  defp index_metadata(site, og, true, :notes) do
+    %{
+      type: "website",
+      title: "Notes · #{site.name}",
+      description: site.description || site.tagline || "",
+      image: home_og_image(site, og)
+    }
+  end
+
+  defp index_metadata(site, og, true, _collection) do
     %{
       type: "website",
       title: "Writing · #{site.name}",
@@ -124,7 +134,7 @@ defmodule Gesttalt.Themes.Renderer do
     }
   end
 
-  defp index_metadata(site, og, false) do
+  defp index_metadata(site, og, false, _collection) do
     %{
       type: "website",
       title: site.name,
@@ -217,10 +227,9 @@ defmodule Gesttalt.Themes.Renderer do
       "body_html" => post.body |> Markdown.to_html() |> Phoenix.HTML.safe_to_string(),
       "kind" => to_string(post.kind),
       "og_image" => post_og_image(post, og),
-      "url" => if(post.kind == :page, do: "/#{post.slug}/", else: "/blog/#{post.slug}/"),
+      "url" => publication_url(post),
       "published_at" => DateTime.to_iso8601(published_at),
-      "published_on" => Calendar.strftime(published_at, "%B %-d, %Y"),
-      "reading_time" => Publishing.Post.reading_time(post)
+      "published_on" => Calendar.strftime(published_at, "%B %-d, %Y")
     }
   end
 
@@ -236,6 +245,10 @@ defmodule Gesttalt.Themes.Renderer do
       "published_on" => Calendar.strftime(published_at, "%B %-d, %Y")
     }
   end
+
+  defp publication_url(%{kind: :post, slug: slug}), do: "/blog/#{slug}/"
+  defp publication_url(%{kind: :page, slug: slug}), do: "/#{slug}/"
+  defp publication_url(%{kind: :note, id: id}), do: "/notes/#{id}/"
 
   defp escape(value),
     do: value |> then(&(&1 || "")) |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()

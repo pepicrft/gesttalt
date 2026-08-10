@@ -406,16 +406,20 @@ defmodule Gesttalt.MCP do
 
   defp tools do
     [
-      tool("list_content", "List every post and page for the authenticated publication", %{}),
-      tool("get_content", "Get one post or page", %{id: integer_schema()}),
+      tool(
+        "list_content",
+        "List every post, page, and note for the authenticated publication",
+        %{}
+      ),
+      tool("get_content", "Get one post, page, or note", %{id: integer_schema()}),
       tool(
         "create_content",
-        "Create a draft or published post or page",
-        content_schema(["title", "body"])
+        "Create a draft or published post, page, or short note. Notes only require body text and are limited to 500 characters.",
+        content_schema(["body"])
       ),
       tool(
         "update_content",
-        "Update a post or page",
+        "Update a post, page, or note",
         Map.put(
           content_schema([]),
           :properties,
@@ -423,11 +427,11 @@ defmodule Gesttalt.MCP do
         )
         |> Map.put(:required, ["id"])
       ),
-      tool("publish_content", "Publish a post or page", %{id: integer_schema()}),
-      tool("unpublish_content", "Move a published post or page back to drafts", %{
+      tool("publish_content", "Publish a post, page, or note", %{id: integer_schema()}),
+      tool("unpublish_content", "Move a published post, page, or note back to drafts", %{
         id: integer_schema()
       }),
-      tool("delete_content", "Permanently delete a post or page", %{id: integer_schema()}),
+      tool("delete_content", "Permanently delete a post, page, or note", %{id: integer_schema()}),
       tool("list_media", "List every image in the publication media library", %{}),
       tool(
         "upload_media",
@@ -642,7 +646,7 @@ defmodule Gesttalt.MCP do
         excerpt: string_schema(),
         tags: %{type: "array", items: string_schema()},
         body: string_schema(),
-        kind: %{type: "string", enum: ["post", "page"]},
+        kind: %{type: "string", enum: ["post", "page", "note"]},
         status: %{type: "string", enum: ["draft", "published"]},
         published_at: %{type: "string", format: "date-time"}
       },

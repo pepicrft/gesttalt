@@ -8,12 +8,14 @@ a:hover { color: var(--gesttalt-colors-primary); }
 .header-inner { align-items: flex-start; display: flex; flex-direction: column; gap: 1.5rem; }
 .site-identity { display: flex; flex-direction: column; }
 .site-title, nav a, .post-link { font-weight: var(--gesttalt-font-weights-bold); text-decoration: none; }
+.note-link { font-weight: var(--gesttalt-font-weights-body); text-decoration: none; }
 .site-tagline, time, .post-copy p, #site-footer { color: var(--gesttalt-colors-muted-text); }
 nav { display: flex; flex-wrap: wrap; gap: 1rem; }
 .page { padding-block: 2.5rem; }
 .section-label { color: var(--gesttalt-colors-muted-text); font-weight: 650; letter-spacing: .04em; margin: 0 0 1rem; }
 .posts-list { display: grid; }
 .post-row { display: grid; grid-template-columns: 11rem 1fr; gap: 1rem; padding: 1.25rem 0; border-bottom: 1px solid var(--gesttalt-colors-border); }
+.post-row:last-child { border-bottom: 0; }
 .post-copy { display: grid; gap: .25rem; }
 .post-copy p { margin: 0; }
 .article-header { border-bottom: 1px solid var(--gesttalt-colors-border); margin-bottom: 1.75rem; padding-bottom: 1.25rem; }
@@ -27,7 +29,7 @@ h1 { font-family: var(--gesttalt-fonts-heading); font-size: var(--gesttalt-font-
 .prose code { background: var(--gesttalt-colors-surface); font-family: var(--gesttalt-fonts-monospace); font-size: .9em; padding: .1rem .3rem; }
 .prose pre { background: var(--gesttalt-colors-surface); border: 1px solid var(--gesttalt-colors-border); overflow-x: auto; padding: 1rem; }
 .prose pre code { padding: 0; }
-#site-home, #site-blog {
+#site-home, #site-blog, #site-notes {
   & [data-part="description"] {
     border-bottom: 1px solid var(--gesttalt-colors-border);
     margin-bottom: 2.5rem;

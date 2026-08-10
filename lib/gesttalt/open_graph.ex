@@ -198,8 +198,7 @@ defmodule Gesttalt.OpenGraph do
     date =
       if published_at, do: Calendar.strftime(published_at, "%B %-d, %Y"), else: ""
 
-    minutes = Post.reading_time(post)
-    String.trim("#{date} · #{minutes} min read", " · ")
+    date
   end
 
   defp post_meta(:page, %Post{} = post) do

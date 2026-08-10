@@ -23,14 +23,13 @@ defmodule Gesttalt.Themes.RendererTest do
 
     {:ok, theme} =
       Sites.update_theme(site, %{
-        article_template:
-          "<title>{{ post.title }}</title><main>{{ post.body_html }}</main><small>{{ post.reading_time }}</small>"
+        article_template: "<title>{{ post.title }}</title><main>{{ post.body_html }}</main>"
       })
 
     assert {:ok, html} = Renderer.render_article(site, theme, post, [])
     assert html =~ "<title>Safe themes</title>"
     assert html =~ "<h2>A heading</h2>"
-    assert html =~ "<small>1</small>"
+    refute html =~ "min read"
     refute html =~ "<script>"
   end
 

@@ -27,7 +27,7 @@ defmodule Gesttalt.OpenGraph.Card do
     * `:eyebrow` - small label above the title (usually the publication name)
     * `:title` - the primary heading
     * `:subtitle` - supporting line below the title (may be empty)
-    * `:meta` - footer metadata line, e.g. date and reading time (may be empty)
+    * `:meta` - footer metadata line, e.g. publication date (may be empty)
   """
   @spec html(map()) :: String.t()
   def html(%{variables: variables} = assigns) do

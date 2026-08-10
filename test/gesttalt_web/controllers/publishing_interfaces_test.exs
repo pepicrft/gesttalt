@@ -145,11 +145,7 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert [%{"title" => "From anywhere"}] = response
   end
 
-  test "keeps programmatic text publishing free", %{
-    conn: conn,
-    site: site,
-    token: token
-  } do
+  test "keeps programmatic text publishing free", %{conn: conn, token: token} do
     read_response =
       conn
       |> put_req_header("authorization", "Bearer #{token}")
@@ -167,6 +163,22 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
       |> json_response(201)
 
     assert write_response["title"] == "Free draft"
+  end
+
+  test "creates titleless short notes through the application interface", %{
+    conn: conn,
+    token: token
+  } do
+    response =
+      conn
+      |> put_req_header("authorization", "Bearer #{token}")
+      |> put_req_header("content-type", "application/json")
+      |> post(~p"/api/posts", JSON.encode!(%{body: "An application note.", kind: "note"}))
+      |> json_response(201)
+
+    assert response["kind"] == "note"
+    assert response["title"] == "Note"
+    assert response["url"] == nil
   end
 
   test "uploads and manages photography feed entries through the application interface", %{
@@ -258,6 +270,11 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert "delete_connected_application" in names
     refute "publish_theme" in names
 
+    content_tool = Enum.find(response["result"]["tools"], &(&1["name"] == "create_content"))
+
+    assert "note" in content_tool["inputSchema"]["properties"]["kind"]["enum"]
+    assert content_tool["inputSchema"]["required"] == ["body"]
+
     update_tool =
       Enum.find(response["result"]["tools"], &(&1["name"] == "update_theme_editing_session"))
 
@@ -298,6 +315,12 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
 
     assert created["tags"] == ["agents", "publishing"]
     assert created["status"] == "published"
+
+    note =
+      call_tool(conn, token, 4, "create_content", %{body: "A tool-created note.", kind: "note"})
+
+    assert note["kind"] == "note"
+    assert note["title"] == "Note"
 
     unpublished = call_tool(conn, token, 4, "unpublish_content", %{id: created["id"]})
     assert unpublished["status"] == "draft"

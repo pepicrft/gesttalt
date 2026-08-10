@@ -33,16 +33,22 @@ defmodule Gesttalt.Publishing do
 
   @doc "Lists one page of public articles and its pagination metadata."
   def paginate_published_posts(%Site{id: site_id}, page \\ 1) when is_integer(page) do
-    published_query(site_id, :post)
-    |> Flop.validate_and_run!(
-      %{page: max(page, 1), page_size: @published_posts_page_size},
-      for: Post
-    )
+    paginate_published(site_id, :post, page)
   end
 
   @doc "Lists public standalone pages for a site."
   def list_published_pages(%Site{id: site_id}) do
     published_query(site_id, :page) |> Repo.all()
+  end
+
+  @doc "Lists public short notes for a site, newest first."
+  def list_published_notes(%Site{id: site_id}) do
+    published_query(site_id, :note) |> Repo.all()
+  end
+
+  @doc "Lists one page of public short notes and its pagination metadata."
+  def paginate_published_notes(%Site{id: site_id}, page \\ 1) when is_integer(page) do
+    paginate_published(site_id, :note, page)
   end
 
   @doc "Fetches a site-owned post by its database identifier."
@@ -52,7 +58,7 @@ defmodule Gesttalt.Publishing do
   def get_post(%Site{id: site_id}, id), do: Repo.get_by(Post, id: id, site_id: site_id)
 
   @doc "Fetches a public post by kind and database identifier, or nil."
-  def get_published_post(%Site{id: site_id}, kind, id) when kind in [:post, :page] do
+  def get_published_post(%Site{id: site_id}, kind, id) when kind in [:post, :page, :note] do
     now = now()
 
     Post
@@ -67,7 +73,8 @@ defmodule Gesttalt.Publishing do
   end
 
   @doc "Fetches a public post by kind and slug."
-  def get_published_post_by_slug!(%Site{id: site_id}, kind, slug) when kind in [:post, :page] do
+  def get_published_post_by_slug!(%Site{id: site_id}, kind, slug)
+      when kind in [:post, :page, :note] do
     now = now()
 
     Post
@@ -118,6 +125,14 @@ defmodule Gesttalt.Publishing do
     |> where([post], post.status == :published)
     |> where([post], post.published_at <= ^now)
     |> order_by([post], desc: post.published_at, desc: post.id)
+  end
+
+  defp paginate_published(site_id, kind, page) do
+    published_query(site_id, kind)
+    |> Flop.validate_and_run!(
+      %{page: max(page, 1), page_size: @published_posts_page_size},
+      for: Post
+    )
   end
 
   defp key_for(attrs, key) do

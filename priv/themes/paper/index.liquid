@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ site.name }}</title>
+    <title>{% if is_notes %}Notes · {% endif %}{{ site.name }}</title>
     <meta name="description" content="{{ site.tagline }}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ site.name }}">
@@ -11,11 +11,11 @@
     <meta property="og:image" content="{{ og_image }}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="{{ og_image }}">
-    <link rel="alternate" type="application/rss+xml" title="{{ site.name }} Really Simple Syndication feed" href="/blog/feed.xml">
-    <link rel="alternate" type="application/atom+xml" title="{{ site.name }} Atom feed" href="/blog/atom.xml">
+    <link rel="alternate" type="application/rss+xml" title="{{ site.name }} Really Simple Syndication feed" href="{% if is_notes %}/notes/feed.xml{% else %}/blog/feed.xml{% endif %}">
+    <link rel="alternate" type="application/atom+xml" title="{{ site.name }} Atom feed" href="{% if is_notes %}/notes/atom.xml{% else %}/blog/atom.xml{% endif %}">
     <style>{{ stylesheet }}</style>
   </head>
-  <body id="{% if is_archive %}site-blog{% else %}site-home{% endif %}">
+  <body id="{% if is_notes %}site-notes{% elsif is_archive %}site-blog{% else %}site-home{% endif %}">
     <header class="site-header">
       <div class="container header-inner">
         <div class="site-identity">
@@ -24,6 +24,7 @@
         </div>
         <nav>
           <a href="/blog">Writing</a>
+          <a href="/notes">Notes</a>
           <a href="/photography">Photography</a>
           {% for page in pages %}<a href="{{ page.url }}">{{ page.title }}</a>{% endfor %}
         </nav>
@@ -31,20 +32,19 @@
     </header>
     <main class="container page">
       {% if site.has_description %}{% unless is_archive %}<section data-part="description" class="prose">{{ site.description_html }}</section>{% endunless %}{% endif %}
-      <p class="section-label">{% if is_archive %}Writing{% else %}Recent writing{% endif %}</p>
+      <p class="section-label">{% if is_notes %}Notes{% elsif is_archive %}Writing{% else %}Recent writing{% endif %}</p>
       <section class="posts-list">
         {% for post in posts %}
         <article class="post-row">
           <time datetime="{{ post.published_at }}">{{ post.published_on }}</time>
           <div class="post-copy">
-            <a class="post-link" href="{{ post.url }}">{{ post.title }}</a>
-            <p>{{ post.excerpt }}</p>
+            {% if is_notes %}<a class="note-link" href="{{ post.url }}">{{ post.body }}</a>{% else %}<a class="post-link" href="{{ post.url }}">{{ post.title }}</a><p>{{ post.excerpt }}</p>{% endif %}
           </div>
         </article>
         {% endfor %}
       </section>
       {% if pagination.total_pages > 1 %}
-      <nav id="posts-pagination" aria-label="Writing pages">
+      <nav id="posts-pagination" aria-label="{% if is_notes %}Notes{% else %}Writing{% endif %} pages">
         {% if pagination.previous_url %}<a data-part="previous" href="{{ pagination.previous_url }}">Newer posts</a>{% endif %}
         <span data-part="status">Page {{ pagination.current_page }} of {{ pagination.total_pages }}</span>
         {% if pagination.next_url %}<a data-part="next" href="{{ pagination.next_url }}">Older posts</a>{% endif %}
@@ -54,7 +54,7 @@
     </main>
     <footer id="site-footer">
       <div class="container" data-part="inner">
-        <span data-part="feeds"><a href="/blog/feed.xml">Really Simple Syndication</a> · <a href="/blog/atom.xml">Atom</a></span>
+        <span data-part="feeds">{% if is_notes %}<a href="/notes/feed.xml">Really Simple Syndication</a> · <a href="/notes/atom.xml">Atom</a>{% else %}<a href="/blog/feed.xml">Really Simple Syndication</a> · <a href="/blog/atom.xml">Atom</a>{% endif %}</span>
         <span data-part="powered-by">Powered by <a href="https://gesttalt.org">Gesttalt</a></span>
       </div>
     </footer>

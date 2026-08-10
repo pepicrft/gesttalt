@@ -11,20 +11,20 @@
     <meta property="og:image" content="{{ post.og_image }}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="{{ post.og_image }}">
-    <link rel="alternate" type="application/rss+xml" title="{{ site.name }} Really Simple Syndication feed" href="/blog/feed.xml">
-    <link rel="alternate" type="application/atom+xml" title="{{ site.name }} Atom feed" href="/blog/atom.xml">
+    <link rel="alternate" type="application/rss+xml" title="{{ site.name }} Really Simple Syndication feed" href="{% if post.kind == 'note' %}/notes/feed.xml{% else %}/blog/feed.xml{% endif %}">
+    <link rel="alternate" type="application/atom+xml" title="{{ site.name }} Atom feed" href="{% if post.kind == 'note' %}/notes/atom.xml{% else %}/blog/atom.xml{% endif %}">
     <style>{{ stylesheet }}</style>
   </head>
   <body>
     <header class="site-header">
       <div class="container header-inner">
         <div class="site-identity"><a class="site-title" href="/">{{ site.name }}</a><span class="site-tagline">{{ site.tagline }}</span></div>
-        <nav><a href="/">Writing</a><a href="/photography">Photography</a>{% for page in pages %}<a href="{{ page.url }}">{{ page.title }}</a>{% endfor %}</nav>
+        <nav><a href="/">Writing</a><a href="/notes">Notes</a><a href="/photography">Photography</a>{% for page in pages %}<a href="{{ page.url }}">{{ page.title }}</a>{% endfor %}</nav>
       </div>
     </header>
     <main class="container page">
       <article>
-        <header class="article-header"><p class="section-label">{{ post.published_on }} · {{ post.reading_time }} min read</p><h1>{{ post.title }}</h1><p class="lede">{{ post.excerpt }}</p></header>
+        <header class="article-header"><p class="section-label">{{ post.published_on }}</p><h1>{{ post.title }}</h1><p class="lede">{{ post.excerpt }}</p></header>
         <div class="prose">{{ post.body_html }}</div>
       </article>
     </main>
