@@ -22,14 +22,16 @@ data:
     }
 
     http://:{{ .Values.caddy.httpPort }} {
-      @domain_allow path /internal/domains/allow
-      handle @domain_allow {
-        reverse_proxy {{ include "gesttalt.fullname" . }}-web:4000 {
-          header_up X-Forwarded-For {client_ip}
-          header_up X-Forwarded-Proto https
+      route {
+        @domain_allow path /internal/domains/allow
+        handle @domain_allow {
+          reverse_proxy {{ include "gesttalt.fullname" . }}-web:4000 {
+            header_up X-Forwarded-For {client_ip}
+            header_up X-Forwarded-Proto https
+          }
         }
+        redir https://{host}{uri} permanent
       }
-      redir https://{host}{uri} permanent
     }
 
     https://:{{ .Values.caddy.httpsPort }} {
