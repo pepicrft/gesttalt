@@ -7,6 +7,10 @@
 # General application configuration
 import Config
 
+config :mime, :types, %{
+  "text/markdown" => ["md"]
+}
+
 config :flop, repo: Gesttalt.Repo
 
 config :boruta, Boruta.Oauth,

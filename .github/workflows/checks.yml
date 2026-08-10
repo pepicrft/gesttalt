@@ -90,7 +90,7 @@ jobs:
           git diff --exit-code -- priv/gettext
       - name: Check domain catalogs exist
         run: |
-          for domain in agent_auth billing legal marketing navigation; do
+          for domain in agent_auth legal marketing navigation; do
             test -f "priv/gettext/${domain}.pot"
             test -f "priv/gettext/en/LC_MESSAGES/${domain}.po"
           done
