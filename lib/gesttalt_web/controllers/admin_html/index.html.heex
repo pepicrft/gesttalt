@@ -34,9 +34,10 @@
             )}
           </p>
         </div><div data-part="actions">
-          <a :if={Gesttalt.Publishing.Post.published?(post)} href={public_url(@public_origin, @site, post)}>View</a><a href={
-            ~p"/admin/posts/#{post}/edit"
-          }>Edit</a><form
+          <a
+            :if={Gesttalt.Publishing.Post.published?(post)}
+            href={public_url(@public_origin, @site, post)}
+          >View</a><a href={~p"/admin/posts/#{post}/edit"}>Edit</a><form
             :if={post.status == :draft}
             action={~p"/admin/posts/#{post}/publish"}
             method="post"
