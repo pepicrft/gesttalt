@@ -4,6 +4,7 @@ defmodule GesttaltWeb.AnalyticsControllerTest do
   import Gesttalt.AccountsFixtures
 
   alias Gesttalt.Analytics
+  alias Gesttalt.Analytics.Location
 
   setup do
     site = site_fixture()
@@ -37,7 +38,7 @@ defmodule GesttaltWeb.AnalyticsControllerTest do
       conn
       |> put_req_header("x-gesttalt-client-ip", "203.0.113.42")
 
-    assert Gesttalt.Analytics.Location.country(conn,
+    assert Location.country(conn,
              lookup: fn "203.0.113.42" ->
                {:ok, %{<<"country">> => %{<<"iso_code">> => "ES"}}}
              end
@@ -47,7 +48,7 @@ defmodule GesttaltWeb.AnalyticsControllerTest do
   test "keeps countries that are not map markers", %{conn: conn} do
     conn = conn |> put_req_header("x-gesttalt-client-ip", "203.0.113.42")
 
-    assert Gesttalt.Analytics.Location.country(conn,
+    assert Location.country(conn,
              lookup: fn "203.0.113.42" ->
                {:ok, %{<<"country">> => %{<<"iso_code">> => "IT"}}}
              end
@@ -59,7 +60,7 @@ defmodule GesttaltWeb.AnalyticsControllerTest do
       conn
       |> put_req_header("cf-ipcountry", "US")
 
-    assert Gesttalt.Analytics.Location.country(conn,
+    assert Location.country(conn,
              lookup: fn _address -> flunk("country database should not be queried") end
            ) == "US"
   end
