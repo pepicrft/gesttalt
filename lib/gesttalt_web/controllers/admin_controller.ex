@@ -1,6 +1,7 @@
 defmodule GesttaltWeb.AdminController do
   use GesttaltWeb, :controller
 
+  alias Gesttalt.Analytics
   alias Gesttalt.Publishing
   alias Gesttalt.Publishing.Post
   alias Gesttalt.Sites
@@ -8,6 +9,19 @@ defmodule GesttaltWeb.AdminController do
   def index(conn, _params) do
     site = current_site(conn)
     render(conn, :index, page_title: "Editor", posts: Publishing.list_posts(site), site: site)
+  end
+
+  def analytics(conn, params) do
+    site = current_site(conn)
+    period = Analytics.period(params["period"])
+
+    conn
+    |> put_view(GesttaltWeb.AnalyticsHTML)
+    |> render(:show,
+      page_title: "Analytics",
+      site: site,
+      summary: Analytics.summary(site, period)
+    )
   end
 
   def new(conn, _params),
