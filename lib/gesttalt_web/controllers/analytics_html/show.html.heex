@@ -30,7 +30,6 @@
         No coarse country locations have been recorded yet.
       </p>
       <div
-        :if={@summary.locations != []}
         id="analytics-world-map"
         data-part="map"
         role="application"
@@ -50,6 +49,9 @@
           <span>{location.label}</span><span>{location.views}</span>
         </li>
       </ol>
+      <p data-part="attribution">
+        Country data by <a href="https://db-ip.com">DB-IP</a>.
+      </p>
     </section>
 
     <section data-part="pages" aria-labelledby="analytics-top-pages">

@@ -43,6 +43,12 @@ config :gesttalt, GesttaltWeb.Endpoint,
     write_key: analytics_write_key
   ]
 
+config :gesttalt,
+  analytics_country_database: [
+    cache_file: Path.join(System.tmp_dir!(), "gesttalt-analytics-country.mmdb.gz"),
+    enabled: config_env() != :test
+  ]
+
 if config_env() == :prod do
   case System.get_env("OTEL_EXPORTER_OTLP_ENDPOINT") do
     endpoint when is_binary(endpoint) and endpoint != "" ->

@@ -12,16 +12,18 @@ defmodule Gesttalt.AnalyticsTest do
     {:ok, _} = Analytics.record_page_view(site, %{path: "/", country: "ES"})
     {:ok, _} = Analytics.record_page_view(site, %{path: "/", country: "ES"})
     {:ok, _} = Analytics.record_page_view(site, %{path: "/blog/a-post", country: "US"})
+    {:ok, _} = Analytics.record_page_view(site, %{path: "/blog/a-post", country: "IT"})
     {:ok, _} = Analytics.record_page_view(other_site, %{path: "/"})
 
     assert Analytics.summary(site) == %{
              locations: [
                %{country: "ES", label: "Spain", latitude: 40, longitude: -4, views: 2},
+               %{country: "IT", label: "IT", views: 1},
                %{country: "US", label: "United States", latitude: 40, longitude: -99, views: 1}
              ],
-             page_views: 3,
+             page_views: 4,
              period: 30,
-             top_pages: [%{path: "/", views: 2}, %{path: "/blog/a-post", views: 1}]
+             top_pages: [%{path: "/", views: 2}, %{path: "/blog/a-post", views: 2}]
            }
   end
 

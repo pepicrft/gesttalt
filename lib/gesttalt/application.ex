@@ -20,7 +20,9 @@ defmodule Gesttalt.Application do
         {Phoenix.PubSub, name: Gesttalt.PubSub},
         {Gesttalt.AccountRegistrationRateLimiter, clean_period: :timer.minutes(10)},
         {Registry, keys: :unique, name: Gesttalt.ThemeEditing.SessionRegistry},
-        {DynamicSupervisor, strategy: :one_for_one, name: Gesttalt.ThemeEditing.SessionSupervisor}
+        {DynamicSupervisor,
+         strategy: :one_for_one, name: Gesttalt.ThemeEditing.SessionSupervisor},
+        Gesttalt.Analytics.CountryDatabase
       ] ++
         BrowseChrome.children() ++
         [

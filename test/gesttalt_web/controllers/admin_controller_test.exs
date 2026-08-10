@@ -36,6 +36,16 @@ defmodule GesttaltWeb.AdminControllerTest do
     assert response =~ ~s(data-country="ES")
     assert response =~ ~s(data-longitude="-4")
     assert response =~ ~s(src="/assets/js/analytics_map.js")
+    assert response =~ ~s(<a href="https://db-ip.com">DB-IP</a>)
     assert response =~ ~s(<code>/</code><span>1</span>)
+  end
+
+  test "keeps the locations map visible without country data", %{conn: conn, user: user} do
+    {:ok, _site} = Sites.ensure_site_for_user(user)
+
+    response = conn |> get(~p"/admin/analytics") |> html_response(200)
+
+    assert response =~ ~s(id="analytics-world-map")
+    assert response =~ "No coarse country locations have been recorded yet."
   end
 end
