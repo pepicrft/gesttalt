@@ -173,6 +173,9 @@ jobs:
             document["kind"] == "PersistentVolumeClaim" &&
               document.dig("metadata", "name") == "gesttalt-caddy"
           end
+          caddy_config = documents.find do |document|
+            document["kind"] == "ConfigMap" && document.dig("metadata", "name") == "gesttalt-caddy"
+          end
           template = pull_secret&.dig("spec", "target", "template", "data", ".dockerconfigjson")
           expected_auth = '{{ printf `%s:%s` .GHCR_PULL_USERNAME .GHCR_PULL_TOKEN | b64enc }}'
           expected_app_keys = %w[
@@ -246,6 +249,9 @@ jobs:
           abort("production database backup is missing") unless scheduled_backup&.dig("spec", "cluster", "name") == "gesttalt-postgres"
           abort("unused production media claim is still rendered") if media_claim
           abort("production Caddy data claim is missing") unless caddy_claim
+          caddyfile = caddy_config&.dig("data", "Caddyfile")
+          abort("Caddy domain authorization is not routed internally") unless caddyfile&.include?("ask http://127.0.0.1:8080/internal/domains/allow")
+          abort("Caddy domain authorization does not preserve HTTPS") unless caddyfile&.include?("header_up X-Forwarded-Proto https")
           ownership_migration = caddy_deployment&.dig("spec", "template", "spec", "initContainers")&.find do |container|
             container["name"] == "migrate-caddy-data-ownership"
           end
