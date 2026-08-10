@@ -25,7 +25,7 @@ defmodule GesttaltWeb.SiteControllerTest do
     assert body =~ "</aside>\n</body>"
     refute body =~ "<<style"
     assert get_resp_header(conn, "cache-control") == ["private, no-store"]
-    assert get_resp_header(conn, "vary") == ["cookie"]
+    assert get_resp_header(conn, "vary") == ["accept, cookie"]
   end
 
   test "does not show publication controls to anonymous visitors", %{conn: conn, host: host} do
@@ -34,7 +34,7 @@ defmodule GesttaltWeb.SiteControllerTest do
 
     refute body =~ ~s(id="gesttalt-owner-controls")
     assert get_resp_header(conn, "cache-control") == ["max-age=0, private, must-revalidate"]
-    assert get_resp_header(conn, "vary") == ["cookie"]
+    assert get_resp_header(conn, "vary") == ["accept, cookie"]
   end
 
   test "adds the cookie-free analytics script to public pages", %{conn: conn, host: host} do
@@ -87,6 +87,122 @@ defmodule GesttaltWeb.SiteControllerTest do
     assert home =~ ">Article 2</a>"
     refute home =~ ">Article 1</a>"
     assert home =~ ~s(href="/blog">View all writing</a>)
+  end
+
+  test "serves every public publication route as negotiated Markdown", %{
+    conn: conn,
+    host: host,
+    site: site
+  } do
+    {:ok, post} =
+      Gesttalt.Publishing.publish_post(
+        PublishingFixtures.post_fixture(%{
+          site: site,
+          title: "Agent-readable post",
+          body: "## A heading\n\nPublished in **Markdown**.",
+          tags: ["agents"]
+        })
+      )
+
+    {:ok, page} =
+      Gesttalt.Publishing.publish_post(
+        PublishingFixtures.post_fixture(%{
+          site: site,
+          kind: :page,
+          slug: "about",
+          title: "About this publication",
+          body: "A public page."
+        })
+      )
+
+    for {path, expected} <- [
+          {"/", "# #{site.name}"},
+          {"/blog", "[Agent-readable post](/blog/#{post.slug}.md)"},
+          {"/blog/#{post.slug}", "Published in **Markdown**."},
+          {"/#{page.slug}", "# About this publication"},
+          {"/photography", "# Photography from #{site.name}"}
+        ] do
+      markdown_conn =
+        conn
+        |> recycle()
+        |> Map.put(:host, host)
+        |> put_req_header("accept", "text/markdown")
+        |> get(path)
+
+      markdown = response(markdown_conn, 200)
+
+      assert markdown =~ expected
+      assert get_resp_header(markdown_conn, "content-type") == ["text/markdown; charset=utf-8"]
+    end
+  end
+
+  test "provides Markdown routes and a publication index for agents", %{
+    conn: conn,
+    host: host,
+    site: site
+  } do
+    {:ok, post} =
+      Gesttalt.Publishing.publish_post(
+        PublishingFixtures.post_fixture(%{
+          site: site,
+          title: "A linked post",
+          slug: "linked-post"
+        })
+      )
+
+    {:ok, page} =
+      Gesttalt.Publishing.publish_post(
+        PublishingFixtures.post_fixture(%{
+          site: site,
+          kind: :page,
+          title: "A linked page",
+          slug: "linked-page"
+        })
+      )
+
+    article = conn |> Map.put(:host, host) |> get("/blog/#{post.slug}.md")
+    assert response(article, 200) =~ "# A linked post"
+    assert get_resp_header(article, "content-type") == ["text/markdown; charset=utf-8"]
+
+    index = conn |> recycle() |> Map.put(:host, host) |> get("/llms.txt")
+    assert response(index, 200) =~ "[A linked page](/#{page.slug}.md)"
+    assert response(index, 200) =~ "[A linked post](/blog/#{post.slug}.md)"
+    assert get_resp_header(index, "content-type") == ["text/markdown; charset=utf-8"]
+  end
+
+  test "negotiates HTML or Markdown for the same article URL from the Accept header", %{
+    conn: conn,
+    host: host,
+    site: site
+  } do
+    {:ok, post} =
+      Gesttalt.Publishing.publish_post(
+        PublishingFixtures.post_fixture(%{
+          site: site,
+          title: "Negotiated content",
+          body: "## Markdown heading"
+        })
+      )
+
+    html =
+      conn
+      |> Map.put(:host, host)
+      |> put_req_header("accept", "text/html")
+      |> get("/blog/#{post.slug}")
+
+    assert html_response(html, 200) =~ "<h2>Markdown heading</h2>"
+    assert get_resp_header(html, "content-type") == ["text/html; charset=utf-8"]
+
+    markdown =
+      conn
+      |> recycle()
+      |> Map.put(:host, host)
+      |> put_req_header("accept", "text/markdown;q=1.0, text/html;q=0.8")
+      |> get("/blog/#{post.slug}")
+
+    assert response(markdown, 200) =~ "## Markdown heading"
+    assert get_resp_header(markdown, "content-type") == ["text/markdown; charset=utf-8"]
+    assert get_resp_header(markdown, "vary") == ["accept"]
   end
 
   test "paginates published posts in the writing archive", %{

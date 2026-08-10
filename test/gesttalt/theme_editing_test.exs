@@ -8,7 +8,6 @@ defmodule Gesttalt.ThemeEditingTest do
 
   setup do
     site = AccountsFixtures.site_fixture()
-    {:ok, site} = Sites.update_billing(site, %{subscription_status: :trialing})
     {:ok, session} = ThemeEditing.create(site)
 
     on_exit(fn ->
@@ -321,7 +320,7 @@ defmodule Gesttalt.ThemeEditingTest do
     session: session,
     site: site
   } do
-    {:ok, inactive_site} = Sites.update_billing(site, %{subscription_status: :inactive})
+    inactive_site = site
 
     assert {:ok, _theme} = ThemeEditing.publish(session.id, inactive_site)
     assert {:error, :not_found} = ThemeEditing.fetch(session.id, site)

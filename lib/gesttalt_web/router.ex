@@ -48,6 +48,16 @@ defmodule GesttaltWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :publication do
+    plug :accepts, ["html", "md"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {GesttaltWeb.Layouts, :root}
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug :fetch_current_scope_for_user
+  end
+
   scope "/" do
     pipe_through :browser
 
@@ -104,11 +114,6 @@ defmodule GesttaltWeb.Router do
     get "/authorize", AuthorizeController, :authorize
   end
 
-  scope "/webhooks", GesttaltWeb do
-    pipe_through :oauth_json
-    post "/stripe", BillingController, :webhook
-  end
-
   scope "/admin", GesttaltWeb do
     pipe_through [:browser, :admin]
 
@@ -145,10 +150,6 @@ defmodule GesttaltWeb.Router do
     get "/oauth-clients", OAuthClientController, :index
     post "/oauth-clients", OAuthClientController, :create
     delete "/oauth-clients/:id", OAuthClientController, :delete
-
-    get "/billing", BillingController, :show
-    post "/billing/checkout", BillingController, :checkout
-    post "/billing/portal", BillingController, :portal
   end
 
   scope "/api" do
@@ -233,7 +234,11 @@ defmodule GesttaltWeb.Router do
   end
 
   scope "/", GesttaltWeb do
-    pipe_through [:browser, :tenant]
+    pipe_through [:publication, :tenant]
+    get "/llms.txt", SiteController, :llms
+    get "/index.html.md", SiteController, :home_markdown
+    get "/blog.md", SiteController, :archive_markdown
+    get "/photography.md", SiteController, :photography_markdown
     get "/", SiteController, :home
     get "/photography", SiteController, :photography
     get "/blog", SiteController, :archive

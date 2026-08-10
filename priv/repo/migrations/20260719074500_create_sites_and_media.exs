@@ -7,17 +7,12 @@ defmodule Gesttalt.Repo.Migrations.CreateSitesAndMedia do
       add :name, :string, null: false
       add :handle, :string, null: false
       add :tagline, :string
-      add :subscription_status, :string, null: false, default: "inactive"
-      add :stripe_customer_id, :string
-      add :stripe_subscription_id, :string
 
       timestamps(type: :utc_datetime)
     end
 
     create unique_index(:sites, [:user_id])
     create unique_index(:sites, [:handle])
-    create unique_index(:sites, [:stripe_customer_id])
-    create unique_index(:sites, [:stripe_subscription_id])
 
     create table(:domains) do
       add :site_id, references(:sites, on_delete: :delete_all), null: false

@@ -34,11 +34,7 @@ defmodule GesttaltWeb.Layouts do
             )}</a><a href={~p"/admin/oauth-clients"}>{dgettext(
               "navigation",
               "Clients"
-            )}</a><a href={~p"/admin/billing"}>
-              {if Gesttalt.Plans.early_access?(),
-                do: dgettext("navigation", "Access"),
-                else: dgettext("navigation", "Billing")}
-            </a>
+            )}</a>
           </nav>
           <nav :if={!@admin} data-part="navigation" data-context="public">
             <a href={~p"/docs"}>{dgettext("navigation", "Developers")}</a><a href={~p"/changelog"}>{dgettext(

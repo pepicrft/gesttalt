@@ -27,8 +27,7 @@ config :gesttalt,
   media_storage: [
     adapter: Gesttalt.MediaStorage.Local,
     uploads_dir: Path.join(System.tmp_dir!(), "gesttalt-test-uploads")
-  ],
-  stripe: []
+  ]
 
 config :gesttalt, Gesttalt.Mailer, adapter: Swoosh.Adapters.Test
 config :gesttalt, Oban, testing: :manual, queues: false, plugins: false

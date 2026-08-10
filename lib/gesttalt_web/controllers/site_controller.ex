@@ -64,23 +64,27 @@ defmodule GesttaltWeb.SiteController do
     do: conn |> put_view(html: GesttaltWeb.PageHTML) |> GesttaltWeb.PageController.home(params)
 
   def home(%{assigns: %{current_site: site}} = conn, _params) do
-    og = og_context(conn, site)
     posts = Publishing.list_recent_published_posts(site)
 
-    render_theme(conn, site, fn ->
-      Renderer.render_index(
-        site,
-        site.theme,
-        posts,
-        Publishing.list_published_pages(site),
-        nil,
-        og
-      )
-    end)
+    if markdown_requested?(conn) do
+      markdown(conn, markdown_home(site, posts))
+    else
+      og = og_context(conn, site)
+
+      render_theme(conn, site, fn ->
+        Renderer.render_index(
+          site,
+          site.theme,
+          posts,
+          Publishing.list_published_pages(site),
+          nil,
+          og
+        )
+      end)
+    end
   end
 
   def archive(%{assigns: %{current_site: site}} = conn, params) do
-    og = og_context(conn, site)
     page = page_number(params)
     {posts, pagination} = Publishing.paginate_published_posts(site, page)
     last_page = max(pagination.total_pages, 1)
@@ -88,6 +92,28 @@ defmodule GesttaltWeb.SiteController do
     if page > last_page do
       redirect(conn, to: archive_path(last_page))
     else
+      render_archive(conn, site, posts, pagination)
+    end
+  end
+
+  def archive_markdown(%{assigns: %{current_site: site}} = conn, params) do
+    page = page_number(params)
+    {posts, pagination} = Publishing.paginate_published_posts(site, page)
+    last_page = max(pagination.total_pages, 1)
+
+    if page > last_page do
+      redirect(conn, to: archive_markdown_path(last_page))
+    else
+      markdown(conn, markdown_archive(site, posts, pagination))
+    end
+  end
+
+  defp render_archive(conn, site, posts, pagination) do
+    if markdown_requested?(conn) do
+      markdown(conn, markdown_archive(site, posts, pagination))
+    else
+      og = og_context(conn, site)
+
       render_theme(conn, site, fn ->
         Renderer.render_index(
           site,
@@ -104,38 +130,75 @@ defmodule GesttaltWeb.SiteController do
   end
 
   def article(%{assigns: %{current_site: site}} = conn, %{"slug" => slug}) do
+    {slug, markdown?} = markdown_path?(slug, conn)
     post = Publishing.get_published_post_by_slug!(site, :post, slug)
-    og = og_context(conn, site)
 
-    render_theme(conn, site, fn ->
-      Renderer.render_article(site, site.theme, post, Publishing.list_published_pages(site), og)
-    end)
+    if markdown? do
+      markdown(conn, markdown_document(post))
+    else
+      og = og_context(conn, site)
+
+      render_theme(conn, site, fn ->
+        Renderer.render_article(site, site.theme, post, Publishing.list_published_pages(site), og)
+      end)
+    end
   end
 
   def page(%{assigns: %{current_site: site}} = conn, %{"slug" => slug}) do
+    {slug, markdown?} = markdown_path?(slug, conn)
     page = Publishing.get_published_post_by_slug!(site, :page, slug)
-    og = og_context(conn, site)
 
-    render_theme(conn, site, fn ->
-      Renderer.render_page(site, site.theme, page, Publishing.list_published_pages(site), og)
-    end)
+    if markdown? do
+      markdown(conn, markdown_document(page))
+    else
+      og = og_context(conn, site)
+
+      render_theme(conn, site, fn ->
+        Renderer.render_page(site, site.theme, page, Publishing.list_published_pages(site), og)
+      end)
+    end
   end
 
   def photography(%{assigns: %{current_site: nil}} = conn, _params),
     do: conn |> put_status(:not_found) |> text("Photography feed not found")
 
   def photography(%{assigns: %{current_site: site}} = conn, _params) do
-    og = og_context(conn, site)
+    photos = Photography.list_published_photos(site)
 
-    render_theme(conn, site, fn ->
-      Renderer.render_photography(
+    if markdown_requested?(conn) do
+      markdown(conn, markdown_photography(site, photos))
+    else
+      og = og_context(conn, site)
+
+      render_theme(conn, site, fn ->
+        Renderer.render_photography(
+          site,
+          site.theme,
+          photos,
+          Publishing.list_published_pages(site),
+          og
+        )
+      end)
+    end
+  end
+
+  def photography_markdown(%{assigns: %{current_site: site}} = conn, _params) do
+    markdown(conn, markdown_photography(site, Photography.list_published_photos(site)))
+  end
+
+  def home_markdown(%{assigns: %{current_site: site}} = conn, _params) do
+    markdown(conn, markdown_home(site, Publishing.list_recent_published_posts(site)))
+  end
+
+  def llms(%{assigns: %{current_site: site}} = conn, _params) do
+    markdown(
+      conn,
+      markdown_index(
         site,
-        site.theme,
-        Photography.list_published_photos(site),
         Publishing.list_published_pages(site),
-        og
+        Publishing.list_published_posts(site)
       )
-    end)
+    )
   end
 
   def media(%{assigns: %{current_site: site}} = conn, %{"id" => id}) do
@@ -159,6 +222,23 @@ defmodule GesttaltWeb.SiteController do
         |> put_status(:service_unavailable)
         |> text("Media could not be loaded: #{inspect(reason)}")
     end
+  end
+
+  defp markdown_requested?(conn), do: get_format(conn) == "md"
+
+  defp markdown_path?(slug, conn) do
+    case String.trim_trailing(slug, ".md") do
+      ^slug -> {slug, markdown_requested?(conn)}
+      "" -> {slug, markdown_requested?(conn)}
+      markdown_slug -> {markdown_slug, true}
+    end
+  end
+
+  defp markdown(conn, document) do
+    conn
+    |> put_resp_header("vary", "accept")
+    |> put_resp_content_type("text/markdown", "utf-8")
+    |> send_resp(200, document)
   end
 
   defp og_context(conn, site) do
@@ -187,7 +267,7 @@ defmodule GesttaltWeb.SiteController do
         {conn, html} = maybe_add_owner_controls(conn, html, site)
 
         conn
-        |> put_resp_header("vary", "cookie")
+        |> put_resp_header("vary", "accept, cookie")
         |> put_resp_content_type("text/html")
         |> send_resp(200, html)
 
@@ -239,4 +319,84 @@ defmodule GesttaltWeb.SiteController do
 
   defp archive_path(1), do: "/blog"
   defp archive_path(page), do: "/blog?page=#{page}"
+
+  defp archive_markdown_path(1), do: "/blog.md"
+  defp archive_markdown_path(page), do: "/blog.md?page=#{page}"
+
+  defp markdown_home(site, posts) do
+    [
+      "# #{site.name}",
+      site.tagline,
+      site.description,
+      markdown_post_links("Latest writing", posts)
+    ]
+    |> Enum.reject(&blank_markdown?/1)
+    |> Enum.join("\n\n")
+  end
+
+  defp markdown_archive(site, posts, pagination) do
+    page = Map.get(pagination, :current_page, 1)
+    pages = Map.get(pagination, :total_pages, 1)
+
+    [
+      "# Writing from #{site.name}",
+      markdown_post_links(nil, posts),
+      "Page #{page} of #{max(pages, 1)}."
+    ]
+    |> Enum.reject(&blank_markdown?/1)
+    |> Enum.join("\n\n")
+  end
+
+  defp markdown_document(post) do
+    document =
+      ["# #{post.title}", post.excerpt, post.body, markdown_tags(post.tags)]
+      |> Enum.reject(&blank_markdown?/1)
+      |> Enum.join("\n\n")
+
+    document <> "\n"
+  end
+
+  defp markdown_photography(site, photos) do
+    entries =
+      Enum.map_join(photos, "\n\n", fn photo ->
+        image = photo.image
+        caption = if blank_markdown?(photo.caption), do: image.alt_text, else: photo.caption
+        "![#{image.alt_text}](/media/#{image.id}/#{image.filename})\n\n#{caption}"
+      end)
+
+    ["# Photography from #{site.name}", entries]
+    |> Enum.reject(&blank_markdown?/1)
+    |> Enum.join("\n\n")
+  end
+
+  defp markdown_index(site, pages, posts) do
+    document =
+      [
+        "# #{site.name}",
+        site.tagline,
+        "## Pages\n\n" <> markdown_link_list(pages, &"/#{&1.slug}.md"),
+        "## Writing\n\n" <> markdown_link_list(posts, &"/blog/#{&1.slug}.md"),
+        "## Other\n\n- [Photography](/photography.md)"
+      ]
+      |> Enum.reject(&blank_markdown?/1)
+      |> Enum.join("\n\n")
+
+    document <> "\n"
+  end
+
+  defp markdown_post_links(heading, posts) do
+    links = markdown_link_list(posts, &"/blog/#{&1.slug}.md")
+    if heading, do: "## #{heading}\n\n#{links}", else: links
+  end
+
+  defp markdown_link_list(posts, path) do
+    Enum.map_join(posts, "\n", fn post ->
+      summary = if blank_markdown?(post.excerpt), do: "", else: ": #{post.excerpt}"
+      "- [#{post.title}](#{path.(post)})#{summary}"
+    end)
+  end
+
+  defp markdown_tags([]), do: nil
+  defp markdown_tags(tags), do: "Tags: " <> Enum.map_join(tags, ", ", &"`#{&1}`")
+  defp blank_markdown?(value), do: value in [nil, ""]
 end

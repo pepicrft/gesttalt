@@ -16,15 +16,12 @@ imagePullSecrets: []
 
 env:
   GESTTALT_AGENT_AUTH_ALLOW_EPHEMERAL_KEY: "true"
-  GESTTALT_EARLY_ACCESS: "true"
   GESTTALT_PHX_SERVER: "true"
   GESTTALT_HOST: gesttalt.org
   GESTTALT_MEDIA_STORAGE: local
   GESTTALT_SMTP_RELAY: smtp-relay.pepicrft.me
   GESTTALT_SMTP_PORT: "587"
   GESTTALT_UPLOADS_DIR: /app/uploads
-  GESTTALT_STRIPE_MONTHLY_PRICE_EUROS: "5"
-  GESTTALT_STRIPE_AUTOMATIC_TAX: "false"
 
 secrets:
   create: true
