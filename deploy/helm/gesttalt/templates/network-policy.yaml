@@ -2,14 +2,14 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ include "gesttalt.fullname" . }}-ingress
+  name: {{ include "gesttalt.fullname" . }}-caddy-ingress
   labels:
     {{- include "gesttalt.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
       {{- include "gesttalt.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: web
+      app.kubernetes.io/component: caddy
   policyTypes:
     - Ingress
   ingress:
@@ -21,3 +21,26 @@ spec:
           protocol: TCP
         {{- end }}
 {{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "gesttalt.fullname" . }}-web-ingress
+  labels:
+    {{- include "gesttalt.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "gesttalt.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: web
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "gesttalt.selectorLabels" . | nindent 14 }}
+              app.kubernetes.io/component: caddy
+      ports:
+        - port: 4000
+          protocol: TCP

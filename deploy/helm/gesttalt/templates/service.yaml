@@ -15,7 +15,7 @@ spec:
   {{- end }}
   selector:
     {{- include "gesttalt.selectorLabels" . | nindent 4 }}
-    app.kubernetes.io/component: web
+    app.kubernetes.io/component: caddy
   ports:
     - name: http
       port: {{ .Values.service.httpPort }}

@@ -5,12 +5,15 @@ defmodule Gesttalt.ChangelogTest do
 
   test "loads repository-authored entries in reverse chronological order" do
     entries = Changelog.list()
-    [latest | _rest] = entries
+    short_notes = Enum.find(entries, &(&1.slug == "short-notes"))
+    conversation_ideas = Enum.find(entries, &(&1.slug == "conversation-ideas"))
 
-    assert latest.slug == "short-notes"
-    assert latest.published_on == ~D[2026-08-10]
-    assert latest.title == "Publish short notes"
-    assert latest.summary =~ "brief updates"
+    assert short_notes.published_on == ~D[2026-08-10]
+    assert short_notes.title == "Publish short notes"
+    assert short_notes.summary =~ "brief updates"
+    assert conversation_ideas.published_on == ~D[2026-08-10]
+    assert conversation_ideas.title == "Conversation ideas"
+    assert conversation_ideas.summary =~ "Save private prompts"
 
     assert entries ==
              Enum.sort_by(

@@ -1,0 +1,59 @@
+<Layouts.app flash={@flash} current_scope={@current_scope} admin admin_theme={@admin_theme}>
+  <div id="admin-ideas">
+    <header id="page-heading">
+      <p data-part="eyebrow">Conversation desk</p>
+      <h1 data-part="title">Ideas</h1>
+      <p data-part="description">
+        Keep prompts and loose threads for conversations worth having.
+      </p>
+    </header>
+
+    <.form :let={form} for={@changeset} action={~p"/admin/ideas"} data-part="form">
+      <div class="field" data-part="field">
+        <label for={form[:title].id}>Idea</label>
+        <input
+          id={form[:title].id}
+          name={form[:title].name}
+          value={form[:title].value}
+          maxlength="160"
+          placeholder="What would you like to talk about?"
+          required
+        />
+        <p :for={error <- form[:title].errors} class="field-error">{translate_error(error)}</p>
+      </div>
+      <div class="field" data-part="field">
+        <label for={form[:notes].id}>Notes <span>Optional</span></label>
+        <textarea
+          id={form[:notes].id}
+          name={form[:notes].name}
+          rows="4"
+          placeholder="Context, questions, or useful links."
+        >{form[:notes].value}</textarea>
+      </div>
+      <div data-part="form-actions">
+        <button class="button button--primary">Save idea</button>
+      </div>
+    </.form>
+
+    <section data-part="list" aria-label="Ideas">
+      <div :if={@ideas == []} data-part="empty">
+        <h2>No ideas yet</h2>
+        <p>Capture the first thing you would like to explore with someone.</p>
+      </div>
+      <article :for={idea <- @ideas} id={"idea-#{idea.id}"} data-part="idea">
+        <div data-part="copy">
+          <h2>{idea.title}</h2>
+          <p :if={idea.notes not in [nil, ""]}>{idea.notes}</p>
+        </div>
+        <div data-part="actions">
+          <a href={~p"/admin/ideas/#{idea}/edit"}>Edit</a>
+          <form action={~p"/admin/ideas/#{idea}"} method="post">
+            <input type="hidden" name="_method" value="delete" />
+            <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+            <button class="link-button">Delete</button>
+          </form>
+        </div>
+      </article>
+    </section>
+  </div>
+</Layouts.app>

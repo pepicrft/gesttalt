@@ -22,6 +22,41 @@ defmodule GesttaltWeb.API.Schemas.Post do
   })
 end
 
+defmodule GesttaltWeb.API.Schemas.Idea do
+  @moduledoc false
+
+  require OpenApiSpex
+
+  OpenApiSpex.schema(%{
+    title: "Idea",
+    type: :object,
+    properties: %{
+      id: %OpenApiSpex.Schema{type: :integer},
+      title: %OpenApiSpex.Schema{type: :string},
+      notes: %OpenApiSpex.Schema{type: :string, nullable: true},
+      inserted_at: %OpenApiSpex.Schema{type: :string, format: :date_time},
+      updated_at: %OpenApiSpex.Schema{type: :string, format: :date_time}
+    },
+    required: [:id, :title, :inserted_at, :updated_at]
+  })
+end
+
+defmodule GesttaltWeb.API.Schemas.IdeaParams do
+  @moduledoc false
+
+  require OpenApiSpex
+
+  OpenApiSpex.schema(%{
+    title: "IdeaParams",
+    type: :object,
+    properties: %{
+      title: %OpenApiSpex.Schema{type: :string},
+      notes: %OpenApiSpex.Schema{type: :string}
+    },
+    required: [:title]
+  })
+end
+
 defmodule GesttaltWeb.API.Schemas.PostParams do
   @moduledoc false
 

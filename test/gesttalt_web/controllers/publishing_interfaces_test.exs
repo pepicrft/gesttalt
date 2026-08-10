@@ -34,6 +34,7 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     document = conn |> get(~p"/api/openapi") |> json_response(200)
 
     assert document["paths"]["/api/posts"]
+    assert document["paths"]["/api/ideas"]
     assert document["paths"]["/api/photos"]
     refute document["paths"]["/api/theme"]
     assert document["paths"]["/api/media"]
@@ -181,6 +182,57 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert response["url"] == nil
   end
 
+  test "manages conversation ideas through the application interface", %{conn: conn, token: token} do
+    created =
+      conn
+      |> put_req_header("authorization", "Bearer #{token}")
+      |> put_req_header("content-type", "application/json")
+      |> post(
+        ~p"/api/ideas",
+        JSON.encode!(%{title: "Ask about formative books", notes: "Bring a recent reread."})
+      )
+      |> json_response(201)
+
+    assert created["title"] == "Ask about formative books"
+    assert created["notes"] == "Bring a recent reread."
+
+    updated =
+      conn
+      |> recycle()
+      |> put_req_header("authorization", "Bearer #{token}")
+      |> put_req_header("content-type", "application/json")
+      |> patch(
+        ~p"/api/ideas/#{created["id"]}",
+        JSON.encode!(%{title: "Ask about favorite books"})
+      )
+      |> json_response(200)
+
+    assert updated["title"] == "Ask about favorite books"
+
+    listed =
+      conn
+      |> recycle()
+      |> put_req_header("authorization", "Bearer #{token}")
+      |> get(~p"/api/ideas")
+      |> json_response(200)
+
+    assert Enum.any?(listed, &(&1["id"] == created["id"]))
+
+    deleted =
+      conn
+      |> recycle()
+      |> put_req_header("authorization", "Bearer #{token}")
+      |> delete(~p"/api/ideas/#{created["id"]}")
+
+    assert response(deleted, 204) == ""
+  end
+
+  test "keeps conversation ideas behind author authorization", %{conn: conn} do
+    conn = get(conn, ~p"/api/ideas")
+
+    assert %{"error" => "invalid_token"} = json_response(conn, 401)
+  end
+
   test "uploads and manages photography feed entries through the application interface", %{
     conn: conn,
     token: token
@@ -244,6 +296,11 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert "publish_content" in names
     assert "unpublish_content" in names
     assert "delete_content" in names
+    assert "list_ideas" in names
+    assert "get_idea" in names
+    assert "create_idea" in names
+    assert "update_idea" in names
+    assert "delete_idea" in names
     assert "list_media" in names
     assert "delete_media" in names
     assert "list_photos" in names
@@ -326,6 +383,24 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert unpublished["status"] == "draft"
     assert call_tool(conn, token, 5, "delete_content", %{id: created["id"]})["deleted"]
     refute Publishing.get_post(site, created["id"])
+
+    idea =
+      call_tool(conn, token, 51, "create_idea", %{
+        title: "Ask about formative places",
+        notes: "Start with childhood."
+      })
+
+    assert idea["notes"] == "Start with childhood."
+    assert Enum.any?(call_tool(conn, token, 52, "list_ideas"), &(&1["id"] == idea["id"]))
+
+    updated_idea =
+      call_tool(conn, token, 53, "update_idea", %{
+        id: idea["id"],
+        title: "Ask about memorable places"
+      })
+
+    assert updated_idea["title"] == "Ask about memorable places"
+    assert call_tool(conn, token, 54, "delete_idea", %{id: idea["id"]})["deleted"]
 
     image =
       call_tool(conn, token, 6, "upload_media", %{
