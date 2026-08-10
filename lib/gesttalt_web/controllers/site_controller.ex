@@ -2,6 +2,7 @@ defmodule GesttaltWeb.SiteController do
   use GesttaltWeb, :controller
 
   alias Gesttalt.Photography
+  alias Gesttalt.PublicMarkdown
   alias Gesttalt.Publishing
   alias Gesttalt.Sites
   alias Gesttalt.Themes.Renderer
@@ -48,23 +49,27 @@ defmodule GesttaltWeb.SiteController do
     do: conn |> put_view(html: GesttaltWeb.PageHTML) |> GesttaltWeb.PageController.home(params)
 
   def home(%{assigns: %{current_site: site}} = conn, _params) do
-    og = og_context(conn, site)
     posts = Publishing.list_recent_published_posts(site)
 
-    render_theme(conn, site, fn ->
-      Renderer.render_index(
-        site,
-        site.theme,
-        posts,
-        Publishing.list_published_pages(site),
-        nil,
-        og
-      )
-    end)
+    if markdown_requested?(conn) do
+      markdown(conn, PublicMarkdown.home(site, posts))
+    else
+      og = og_context(conn, site)
+
+      render_theme(conn, site, fn ->
+        Renderer.render_index(
+          site,
+          site.theme,
+          posts,
+          Publishing.list_published_pages(site),
+          nil,
+          og
+        )
+      end)
+    end
   end
 
   def archive(%{assigns: %{current_site: site}} = conn, params) do
-    og = og_context(conn, site)
     page = page_number(params)
     {posts, pagination} = Publishing.paginate_published_posts(site, page)
     last_page = max(pagination.total_pages, 1)
@@ -72,6 +77,28 @@ defmodule GesttaltWeb.SiteController do
     if page > last_page do
       redirect(conn, to: archive_path(last_page))
     else
+      render_archive(conn, site, posts, pagination)
+    end
+  end
+
+  def archive_markdown(%{assigns: %{current_site: site}} = conn, params) do
+    page = page_number(params)
+    {posts, pagination} = Publishing.paginate_published_posts(site, page)
+    last_page = max(pagination.total_pages, 1)
+
+    if page > last_page do
+      redirect(conn, to: archive_markdown_path(last_page))
+    else
+      markdown(conn, PublicMarkdown.archive(site, posts, pagination))
+    end
+  end
+
+  defp render_archive(conn, site, posts, pagination) do
+    if markdown_requested?(conn) do
+      markdown(conn, PublicMarkdown.archive(site, posts, pagination))
+    else
+      og = og_context(conn, site)
+
       render_theme(conn, site, fn ->
         Renderer.render_index(
           site,
@@ -88,38 +115,75 @@ defmodule GesttaltWeb.SiteController do
   end
 
   def article(%{assigns: %{current_site: site}} = conn, %{"slug" => slug}) do
+    {slug, markdown?} = markdown_path?(slug, conn)
     post = Publishing.get_published_post_by_slug!(site, :post, slug)
-    og = og_context(conn, site)
 
-    render_theme(conn, site, fn ->
-      Renderer.render_article(site, site.theme, post, Publishing.list_published_pages(site), og)
-    end)
+    if markdown? do
+      markdown(conn, PublicMarkdown.article(post))
+    else
+      og = og_context(conn, site)
+
+      render_theme(conn, site, fn ->
+        Renderer.render_article(site, site.theme, post, Publishing.list_published_pages(site), og)
+      end)
+    end
   end
 
   def page(%{assigns: %{current_site: site}} = conn, %{"slug" => slug}) do
+    {slug, markdown?} = markdown_path?(slug, conn)
     page = Publishing.get_published_post_by_slug!(site, :page, slug)
-    og = og_context(conn, site)
 
-    render_theme(conn, site, fn ->
-      Renderer.render_page(site, site.theme, page, Publishing.list_published_pages(site), og)
-    end)
+    if markdown? do
+      markdown(conn, PublicMarkdown.page(page))
+    else
+      og = og_context(conn, site)
+
+      render_theme(conn, site, fn ->
+        Renderer.render_page(site, site.theme, page, Publishing.list_published_pages(site), og)
+      end)
+    end
   end
 
   def photography(%{assigns: %{current_site: nil}} = conn, _params),
     do: conn |> put_status(:not_found) |> text("Photography feed not found")
 
   def photography(%{assigns: %{current_site: site}} = conn, _params) do
-    og = og_context(conn, site)
+    photos = Photography.list_published_photos(site)
 
-    render_theme(conn, site, fn ->
-      Renderer.render_photography(
+    if markdown_requested?(conn) do
+      markdown(conn, PublicMarkdown.photography(site, photos))
+    else
+      og = og_context(conn, site)
+
+      render_theme(conn, site, fn ->
+        Renderer.render_photography(
+          site,
+          site.theme,
+          photos,
+          Publishing.list_published_pages(site),
+          og
+        )
+      end)
+    end
+  end
+
+  def photography_markdown(%{assigns: %{current_site: site}} = conn, _params) do
+    markdown(conn, PublicMarkdown.photography(site, Photography.list_published_photos(site)))
+  end
+
+  def home_markdown(%{assigns: %{current_site: site}} = conn, _params) do
+    markdown(conn, PublicMarkdown.home(site, Publishing.list_recent_published_posts(site)))
+  end
+
+  def llms(%{assigns: %{current_site: site}} = conn, _params) do
+    markdown(
+      conn,
+      PublicMarkdown.index(
         site,
-        site.theme,
-        Photography.list_published_photos(site),
         Publishing.list_published_pages(site),
-        og
+        Publishing.list_published_posts(site)
       )
-    end)
+    )
   end
 
   def media(%{assigns: %{current_site: site}} = conn, %{"id" => id}) do
@@ -143,6 +207,23 @@ defmodule GesttaltWeb.SiteController do
         |> put_status(:service_unavailable)
         |> text("Media could not be loaded: #{inspect(reason)}")
     end
+  end
+
+  defp markdown_requested?(conn), do: get_format(conn) == "md"
+
+  defp markdown_path?(slug, conn) do
+    case String.trim_trailing(slug, ".md") do
+      ^slug -> {slug, markdown_requested?(conn)}
+      "" -> {slug, markdown_requested?(conn)}
+      markdown_slug -> {markdown_slug, true}
+    end
+  end
+
+  defp markdown(conn, document) do
+    conn
+    |> put_resp_header("vary", "accept")
+    |> put_resp_content_type("text/markdown", "utf-8")
+    |> send_resp(200, document)
   end
 
   defp og_context(conn, site) do
@@ -171,7 +252,7 @@ defmodule GesttaltWeb.SiteController do
         {conn, html} = maybe_add_owner_controls(conn, html, site)
 
         conn
-        |> put_resp_header("vary", "cookie")
+        |> put_resp_header("vary", "accept, cookie")
         |> put_resp_content_type("text/html")
         |> send_resp(200, html)
 
@@ -221,4 +302,7 @@ defmodule GesttaltWeb.SiteController do
 
   defp archive_path(1), do: "/blog"
   defp archive_path(page), do: "/blog?page=#{page}"
+
+  defp archive_markdown_path(1), do: "/blog.md"
+  defp archive_markdown_path(page), do: "/blog.md?page=#{page}"
 end
