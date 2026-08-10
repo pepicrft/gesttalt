@@ -43,9 +43,15 @@ config :gesttalt, GesttaltWeb.Endpoint,
     write_key: analytics_write_key
   ]
 
+analytics_country_database_path =
+  case System.get_env("GESTTALT_ANALYTICS_COUNTRY_DATABASE_PATH") do
+    path when is_binary(path) and path != "" -> path
+    _path -> Path.join(System.tmp_dir!(), "gesttalt-analytics-country.mmdb.gz")
+  end
+
 config :gesttalt,
   analytics_country_database: [
-    cache_file: Path.join(System.tmp_dir!(), "gesttalt-analytics-country.mmdb.gz"),
+    cache_file: analytics_country_database_path,
     enabled: config_env() != :test
   ]
 
