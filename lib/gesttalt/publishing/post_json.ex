@@ -23,5 +23,6 @@ defmodule Gesttalt.Publishing.PostJSON do
 
   defp url(%Post{status: :published, kind: :post, slug: slug}), do: "/blog/#{slug}/"
   defp url(%Post{status: :published, kind: :page, slug: slug}), do: "/#{slug}/"
+  defp url(%Post{status: :published, kind: :note, id: id}), do: "/notes/#{id}/"
   defp url(_post), do: nil
 end

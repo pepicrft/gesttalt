@@ -5,7 +5,34 @@ defmodule GesttaltWeb.FeedController do
   alias Gesttalt.Publishing
 
   def atom(%{assigns: %{current_site: site}} = conn, _params) do
-    posts = Publishing.list_published_posts(site)
+    render_atom(
+      conn,
+      site,
+      Publishing.list_published_posts(site),
+      "#{site.name}",
+      "/blog/atom.xml"
+    )
+  end
+
+  def notes_atom(%{assigns: %{current_site: site}} = conn, _params) do
+    render_atom(
+      conn,
+      site,
+      Publishing.list_published_notes(site),
+      "Notes from #{site.name}",
+      "/notes/atom.xml"
+    )
+  end
+
+  def rss(%{assigns: %{current_site: site}} = conn, _params) do
+    render_rss(conn, site, Publishing.list_published_posts(site), site.name)
+  end
+
+  def notes_rss(%{assigns: %{current_site: site}} = conn, _params) do
+    render_rss(conn, site, Publishing.list_published_notes(site), "Notes from #{site.name}")
+  end
+
+  defp render_atom(conn, site, posts, title, self_path) do
     updated_at = latest_updated_at(posts, site)
     entries = Enum.map_join(posts, "\n", &atom_entry(&1, conn))
 
@@ -13,10 +40,10 @@ defmodule GesttaltWeb.FeedController do
     <?xml version="1.0" encoding="utf-8"?>
     <feed xmlns="http://www.w3.org/2005/Atom">
       <id>#{origin(conn)}/</id>
-      <title>#{escape(site.name)}</title>
+      <title>#{escape(title)}</title>
       <subtitle>#{escape(site.tagline || "")}</subtitle>
       <updated>#{DateTime.to_iso8601(updated_at)}</updated>
-      <link href="#{origin(conn)}/blog/atom.xml" rel="self" type="application/atom+xml" />
+      <link href="#{origin(conn)}#{self_path}" rel="self" type="application/atom+xml" />
       <link href="#{origin(conn)}/" />
       #{entries}
     </feed>
@@ -25,17 +52,14 @@ defmodule GesttaltWeb.FeedController do
     conn |> put_resp_content_type("application/atom+xml") |> send_resp(200, feed)
   end
 
-  def rss(%{assigns: %{current_site: site}} = conn, _params) do
-    items =
-      site
-      |> Publishing.list_published_posts()
-      |> Enum.map_join("\n", &rss_item(&1, conn))
+  defp render_rss(conn, site, posts, title) do
+    items = Enum.map_join(posts, "\n", &rss_item(&1, conn))
 
     feed = """
     <?xml version="1.0" encoding="utf-8"?>
     <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
       <channel>
-        <title>#{escape(site.name)}</title>
+        <title>#{escape(title)}</title>
         <link>#{origin(conn)}/</link>
         <description>#{escape(site.tagline || "")}</description>
         <atom:link href="#{origin(conn)}#{conn.request_path}" rel="self" type="application/rss+xml" />
@@ -84,6 +108,7 @@ defmodule GesttaltWeb.FeedController do
     end)
   end
 
+  defp post_url(%{kind: :note, id: id}, conn), do: "#{origin(conn)}/notes/#{id}/"
   defp post_url(post, conn), do: "#{origin(conn)}/blog/#{post.slug}/"
 
   defp origin(conn),

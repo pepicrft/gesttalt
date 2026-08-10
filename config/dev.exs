@@ -71,6 +71,8 @@ config :gesttalt, GesttaltWeb.Endpoint,
       ~r"priv/gettext/.*\.po$"E,
       # Changelog entries
       ~r"priv/changelog/.*\.md$"E,
+      # Built-in publication themes
+      ~r"priv/themes/.*\.(liquid|css)$"E,
       # Router, Controllers, LiveViews and LiveComponents
       ~r"lib/gesttalt_web/router\.ex$"E,
       ~r"lib/gesttalt_web/(controllers|live|components)/.*\.(ex|heex)$"E

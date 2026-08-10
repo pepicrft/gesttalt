@@ -54,6 +54,53 @@ defmodule Gesttalt.PublishingTest do
     assert page.status == :draft
   end
 
+  test "creates a short note without a title or slug", %{site: site} do
+    assert {:ok, %Post{} = note} =
+             Publishing.create_post(site, %{body: "A small update.", kind: :note})
+
+    assert note.title == "Note"
+    assert note.slug =~ "note-"
+    assert note.kind == :note
+  end
+
+  test "limits notes to 500 characters", %{site: site} do
+    assert {:error, changeset} =
+             Publishing.create_post(site, %{body: String.duplicate("a", 501), kind: :note})
+
+    assert "should be at most 500 character(s)" in errors_on(changeset).body
+  end
+
+  test "lists only published notes", %{site: site} do
+    published = post_fixture(%{site: site, kind: :note, status: :published, body: "Public"})
+    _draft = post_fixture(%{site: site, kind: :note, body: "Draft"})
+    _post = post_fixture(%{site: site, status: :published})
+
+    assert Publishing.list_published_notes(site) == [published]
+  end
+
+  test "paginates published notes separately from articles", %{site: site} do
+    notes =
+      Enum.map(1..21, fn index ->
+        post_fixture(%{
+          site: site,
+          kind: :note,
+          body: "Note #{index}",
+          status: :published,
+          published_at: DateTime.add(~U[2026-01-01 00:00:00Z], index, :day)
+        })
+      end)
+
+    {first_page, first_meta} = Publishing.paginate_published_notes(site, 1)
+    {second_page, second_meta} = Publishing.paginate_published_notes(site, 2)
+
+    assert Enum.map(first_page, & &1.id) ==
+             notes |> Enum.reverse() |> Enum.take(20) |> Enum.map(& &1.id)
+
+    assert Enum.map(second_page, & &1.id) == [hd(notes).id]
+    assert first_meta.has_next_page?
+    assert second_meta.has_previous_page?
+  end
+
   test "rejects invalid content", %{site: site} do
     assert {:error, %Ecto.Changeset{}} = Publishing.create_post(site, %{title: nil, body: nil})
   end

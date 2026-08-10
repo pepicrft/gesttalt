@@ -160,6 +160,11 @@ defmodule GesttaltWeb.SiteControllerTest do
         })
       )
 
+    {:ok, note} =
+      Gesttalt.Publishing.publish_post(
+        PublishingFixtures.post_fixture(%{site: site, kind: :note, body: "A linked note"})
+      )
+
     article = conn |> Map.put(:host, host) |> get("/blog/#{post.slug}.md")
     assert response(article, 200) =~ "# A linked post"
     assert get_resp_header(article, "content-type") == ["text/markdown; charset=utf-8"]
@@ -167,6 +172,7 @@ defmodule GesttaltWeb.SiteControllerTest do
     index = conn |> recycle() |> Map.put(:host, host) |> get("/llms.txt")
     assert response(index, 200) =~ "[A linked page](/#{page.slug}.md)"
     assert response(index, 200) =~ "[A linked post](/blog/#{post.slug}.md)"
+    assert response(index, 200) =~ "/notes/#{note.id}"
     assert get_resp_header(index, "content-type") == ["text/markdown; charset=utf-8"]
   end
 
@@ -242,6 +248,37 @@ defmodule GesttaltWeb.SiteControllerTest do
     assert second_page =~ "Page 2 of 2"
   end
 
+  test "renders a paginated notes archive", %{conn: conn, host: host, site: site} do
+    Enum.each(1..21, fn index ->
+      PublishingFixtures.post_fixture(%{
+        site: site,
+        kind: :note,
+        body: "Short update #{index}",
+        status: :published,
+        published_at: DateTime.add(~U[2026-01-01 00:00:00Z], index, :day)
+      })
+    end)
+
+    first_page = conn |> Map.put(:host, host) |> get(~p"/notes") |> html_response(200)
+
+    assert first_page =~ ~s(id="site-notes")
+    assert first_page =~ "Short update 21"
+    refute first_page =~ ">Short update 1</a>"
+    assert first_page =~ ~s(href="/notes?page=2")
+    assert first_page =~ ~s(href="/notes/feed.xml")
+    assert first_page =~ ~s(href="/notes/atom.xml")
+
+    second_page =
+      conn
+      |> recycle()
+      |> Map.put(:host, host)
+      |> get(~p"/notes?page=2")
+      |> html_response(200)
+
+    assert second_page =~ "Short update 1"
+    refute second_page =~ ">Short update 2</a>"
+  end
+
   test "redirects an archive page beyond the end to the last page", %{
     conn: conn,
     host: host,
@@ -291,5 +328,20 @@ defmodule GesttaltWeb.SiteControllerTest do
 
       assert length(Regex.scan(~r/<meta property="og:image"/, body)) == 1
     end
+  end
+
+  test "renders a published note at its individual route", %{conn: conn, host: host, site: site} do
+    note =
+      PublishingFixtures.post_fixture(%{
+        site: site,
+        kind: :note,
+        title: "Note",
+        body: "A short public update.",
+        status: :published
+      })
+
+    body = conn |> Map.put(:host, host) |> get("/notes/#{note.id}") |> html_response(200)
+
+    assert body =~ "A short public update."
   end
 end

@@ -4,7 +4,11 @@
       <p data-part="eyebrow">Publishing desk</p>
       <h1 data-part="title">{@page_title}</h1>
       <p data-part="description">
-        Markdown is supported. The slug becomes the post's permanent address.
+        {if @post.kind == :note do
+          "Write up to 500 characters. Markdown is supported."
+        else
+          "Markdown is supported. The slug becomes the post's permanent address."
+        end}
       </p>
     </header>
 
@@ -15,7 +19,7 @@
       method={@form_method}
       data-part="form"
     >
-      <div class="field" data-part="field">
+      <div :if={@post.kind != :note} class="field" data-part="field">
         <label for={form[:title].id}>Title</label>
         <input
           type="text"
@@ -28,7 +32,7 @@
         <p :for={error <- form[:title].errors} class="field-error">{translate_error(error)}</p>
       </div>
 
-      <div class="field" data-part="field">
+      <div :if={@post.kind != :note} class="field" data-part="field">
         <label for={form[:slug].id}>Slug</label>
         <input
           type="text"
@@ -40,7 +44,7 @@
         <p :for={error <- form[:slug].errors} class="field-error">{translate_error(error)}</p>
       </div>
 
-      <div class="field" data-part="field">
+      <div :if={@post.kind != :note} class="field" data-part="field">
         <label for={form[:excerpt].id}>Excerpt</label>
         <textarea
           id={form[:excerpt].id}
@@ -52,19 +56,21 @@
       </div>
 
       <div class="field" data-part="field">
-        <label for={form[:body].id}>Article</label>
+        <label for={form[:body].id}>{if(@post.kind == :note, do: "Note", else: "Article")}</label>
         <textarea
           id={form[:body].id}
           name={form[:body].name}
           rows="22"
           class="editor-body"
+          maxlength={if(@post.kind == :note, do: "500")}
           required
         >{form[:body].value}</textarea>
         <p :for={error <- form[:body].errors} class="field-error">{translate_error(error)}</p>
       </div>
 
+      <input :if={@post.kind == :note} type="hidden" name={form[:kind].name} value="note" />
       <div class="form-grid" data-part="field-grid">
-        <div class="field" data-part="field">
+        <div :if={@post.kind != :note} class="field" data-part="field">
           <label for={form[:kind].id}>Type</label>
           <select id={form[:kind].id} name={form[:kind].name}><option
             value="post"
@@ -73,6 +79,8 @@
             Post
           </option><option value="page" selected={to_string(form[:kind].value) == "page"}>
             Page
+          </option><option value="note" selected={to_string(form[:kind].value) == "note"}>
+            Note
           </option></select>
         </div>
         <div class="field" data-part="field">
@@ -98,13 +106,16 @@
       </div>
 
       <div class="form-actions" data-part="actions">
-        <button class="button button--primary" type="submit">Save post</button>
+        <button class="button button--primary" type="submit">Save {if(@post.kind == :note,
+          do: "note",
+          else: "post"
+        )}</button>
         <a class="button" href={~p"/admin/"}>Cancel</a>
       </div>
     </.form>
 
     <section :if={@post.id} data-part="danger-zone">
-      <h2>Delete post</h2>
+      <h2>Delete {if(@post.kind == :note, do: "note", else: "post")}</h2>
       <p>This cannot be undone.</p>
       <form action={~p"/admin/posts/#{@post}"} method="post">
         <input type="hidden" name="_method" value="delete" />

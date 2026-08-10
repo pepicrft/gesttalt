@@ -5,7 +5,13 @@
         <p data-part="eyebrow">Publishing desk</p><h1 data-part="title">Content</h1><p data-part="description">
           Posts and pages for <strong>{@site.name}</strong>.
         </p>
-      </div><a data-part="action" class="button button--primary" href={~p"/admin/posts/new"}>New post</a>
+      </div><div data-part="actions">
+        <a class="button" href={~p"/admin/notes/new"}>New note</a><a
+          data-part="action"
+          class="button button--primary"
+          href={~p"/admin/posts/new"}
+        >New post</a>
+      </div>
     </header>
     <section data-part="list" aria-label="Content">
       <div :if={@posts == []} data-part="empty">
@@ -22,12 +28,16 @@
           </div><h2 data-part="title">
             <a href={~p"/admin/posts/#{post}/edit"}>{post.title}</a>
           </h2><p data-part="path">
-            /{if(post.kind == :post, do: "blog/", else: "")}{post.slug}
+            {if(post.kind == :note,
+              do: "/notes/#{post.id}",
+              else: "/#{if(post.kind == :post, do: "blog/", else: "")}#{post.slug}"
+            )}
           </p>
         </div><div data-part="actions">
-          <a :if={Gesttalt.Publishing.Post.published?(post)} href={public_url(@site, post)}>View</a><a href={
-            ~p"/admin/posts/#{post}/edit"
-          }>Edit</a><form
+          <a
+            :if={Gesttalt.Publishing.Post.published?(post)}
+            href={public_url(@public_origin, @site, post)}
+          >View</a><a href={~p"/admin/posts/#{post}/edit"}>Edit</a><form
             :if={post.status == :draft}
             action={~p"/admin/posts/#{post}/publish"}
             method="post"

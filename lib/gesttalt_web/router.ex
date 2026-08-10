@@ -120,6 +120,7 @@ defmodule GesttaltWeb.Router do
     get "/", AdminController, :index
     get "/analytics", AdminController, :analytics
     get "/posts/new", AdminController, :new
+    get "/notes/new", AdminController, :new_note
     post "/posts", AdminController, :create
     get "/posts/:id/edit", AdminController, :edit
     put "/posts/:id", AdminController, :update
@@ -237,6 +238,9 @@ defmodule GesttaltWeb.Router do
     get "/blog/feed.xml", FeedController, :rss
     get "/blog/rss.xml", FeedController, :rss
     get "/blog/atom.xml", FeedController, :atom
+    get "/notes/feed.xml", FeedController, :notes_rss
+    get "/notes/rss.xml", FeedController, :notes_rss
+    get "/notes/atom.xml", FeedController, :notes_atom
   end
 
   scope "/", GesttaltWeb do
@@ -255,6 +259,9 @@ defmodule GesttaltWeb.Router do
     get "/photography", SiteController, :photography
     get "/blog", SiteController, :archive
     get "/blog/:slug", SiteController, :article
+    get "/notes.md", SiteController, :notes_markdown
+    get "/notes", SiteController, :notes
+    get "/notes/:id", SiteController, :note
     get "/media/:id/:filename", SiteController, :media
     get "/og-image", OpenGraphController, :show
     get "/:slug", SiteController, :page

@@ -24,6 +24,39 @@ defmodule GesttaltWeb.AdminControllerTest do
     assert response =~ ~s(datetime="2017-12-25T12:00:00Z")
   end
 
+  test "uses the active development port for public content links", %{conn: conn, user: user} do
+    {:ok, site} = Sites.ensure_site_for_user(user)
+    domain = Enum.find(site.domains, &(&1.status == :active))
+
+    post =
+      post_fixture(%{
+        site: site,
+        status: :published,
+        title: "A visible post",
+        slug: "a-visible-post"
+      })
+
+    response =
+      conn
+      |> Map.put(:host, "sc-flux-boson-0165.localhost")
+      |> Map.put(:port, 4817)
+      |> get(~p"/admin/")
+      |> html_response(200)
+
+    assert response =~ "http://#{domain.hostname}:4817/blog/#{post.slug}/"
+  end
+
+  test "provides a titleless short note editor", %{conn: conn} do
+    response = conn |> get(~p"/admin/notes/new") |> html_response(200)
+
+    assert response =~ "New note"
+    assert response =~ "Write up to 500 characters"
+    assert response =~ ~s(name="post[body]")
+    assert response =~ ~s(maxlength="500")
+    assert response =~ ~s(name="post[kind]" value="note")
+    refute response =~ ~s(name="post[title]")
+  end
+
   test "shows cookie-free page-view counts", %{conn: conn, user: user} do
     {:ok, site} = Sites.ensure_site_for_user(user)
     {:ok, _page_view} = Gesttalt.Analytics.record_page_view(site, %{path: "/", country: "ES"})

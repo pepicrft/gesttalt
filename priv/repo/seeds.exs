@@ -146,4 +146,23 @@ if bootstrap_email do
         })
     end)
   end
+
+  if Application.get_env(:gesttalt, :seed_demo) and Publishing.list_published_notes(site) == [] do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    for {body, minutes_ago} <- [
+          {"Shipping the short notes feed today. It feels good to give small updates their own home.",
+           20},
+          {"A clean desk is sometimes just a browser tab away.", 95},
+          {"The best publishing tools leave more room for noticing.", 240}
+        ] do
+      {:ok, _note} =
+        Publishing.create_post(site, %{
+          body: body,
+          status: :published,
+          kind: :note,
+          published_at: DateTime.add(now, -minutes_ago * 60, :second)
+        })
+    end
+  end
 end
