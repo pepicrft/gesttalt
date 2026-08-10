@@ -39,12 +39,14 @@ data:
         on_demand
       }
       reverse_proxy {{ include "gesttalt.fullname" . }}-web:4000 {
+        header_up X-Gesttalt-Client-IP {client_ip}
         header_up X-Forwarded-For {client_ip}
       }
     }
     {{- else }}
     http://:{{ .Values.caddy.httpPort }} {
       reverse_proxy {{ include "gesttalt.fullname" . }}-web:4000 {
+        header_up X-Gesttalt-Client-IP {client_ip}
         header_up X-Forwarded-For {client_ip}
       }
     }

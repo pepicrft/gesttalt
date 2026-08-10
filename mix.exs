@@ -79,6 +79,7 @@ defmodule Gesttalt.MixProject do
       {:boruta, git: "https://github.com/malach-it/boruta_auth", branch: "master"},
       {:jose, "~> 1.11"},
       {:open_api_spex, "~> 3.22"},
+      {:locus, "~> 2.3"},
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},

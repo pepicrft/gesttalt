@@ -4,6 +4,7 @@ defmodule GesttaltWeb.AnalyticsControllerTest do
   import Gesttalt.AccountsFixtures
 
   alias Gesttalt.Analytics
+  alias Gesttalt.Analytics.Location
 
   setup do
     site = site_fixture()
@@ -30,6 +31,38 @@ defmodule GesttaltWeb.AnalyticsControllerTest do
     assert Analytics.summary(site).locations == [
              %{country: "ES", label: "Spain", latitude: 40, longitude: -4, views: 1}
            ]
+  end
+
+  test "uses the country database when the Cloudflare country is unavailable", %{conn: conn} do
+    conn =
+      conn
+      |> put_req_header("x-gesttalt-client-ip", "203.0.113.42")
+
+    assert Location.country(conn,
+             lookup: fn "203.0.113.42" ->
+               {:ok, %{<<"country">> => %{<<"iso_code">> => "ES"}}}
+             end
+           ) == "ES"
+  end
+
+  test "keeps countries that are not map markers", %{conn: conn} do
+    conn = conn |> put_req_header("x-gesttalt-client-ip", "203.0.113.42")
+
+    assert Location.country(conn,
+             lookup: fn "203.0.113.42" ->
+               {:ok, %{<<"country">> => %{<<"iso_code">> => "IT"}}}
+             end
+           ) == "IT"
+  end
+
+  test "prefers the Cloudflare country over the country database", %{conn: conn} do
+    conn =
+      conn
+      |> put_req_header("cf-ipcountry", "US")
+
+    assert Location.country(conn,
+             lookup: fn _address -> flunk("country database should not be queried") end
+           ) == "US"
   end
 
   test "rejects malformed page-view payloads", %{conn: conn, host: host} do
