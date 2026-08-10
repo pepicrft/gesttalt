@@ -21,9 +21,12 @@ defmodule GesttaltWeb.Layouts do
             data-context="admin"
             aria-label={dgettext("navigation", "Publishing")}
           >
-            <a href={~p"/admin/"}>{dgettext("navigation", "Content")}</a><a href={
-              ~p"/admin/photography"
-            }>{dgettext("navigation", "Photography")}</a><a href={~p"/admin/media"}>{dgettext(
+            <a href={~p"/admin/"}>{dgettext("navigation", "Content")}</a><a href={~p"/admin/ideas"}>{dgettext(
+              "navigation",
+              "Ideas"
+            )}</a><a href={~p"/admin/photography"}>{dgettext("navigation", "Photography")}</a><a href={
+              ~p"/admin/media"
+            }>{dgettext(
               "navigation",
               "Media"
             )}</a><a href={~p"/admin/theme"}>{dgettext("navigation", "Theme")}</a><a href={

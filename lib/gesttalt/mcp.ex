@@ -9,6 +9,7 @@ defmodule Gesttalt.MCP do
   alias Gesttalt.Photography
   alias Gesttalt.Photography.PhotoJSON
   alias Gesttalt.Publishing
+  alias Gesttalt.Publishing.IdeaJSON
   alias Gesttalt.Publishing.PostJSON
   alias Gesttalt.Sites
   alias Gesttalt.ThemeEditing
@@ -158,6 +159,40 @@ defmodule Gesttalt.MCP do
     with post when not is_nil(post) <- Publishing.get_post(site, id),
          {:ok, post} <- Publishing.delete_post(post) do
       {:ok, %{id: post.id, deleted: true}}
+    else
+      nil -> {:error, :not_found}
+      error -> error
+    end
+  end
+
+  defp call_tool("list_ideas", _arguments, site, _user),
+    do: {:ok, Enum.map(Publishing.list_ideas(site), &IdeaJSON.render/1)}
+
+  defp call_tool("get_idea", %{"id" => id}, site, _user) do
+    case Publishing.get_idea(site, id) do
+      nil -> {:error, :not_found}
+      idea -> {:ok, IdeaJSON.render(idea)}
+    end
+  end
+
+  defp call_tool("create_idea", arguments, site, _user) do
+    with {:ok, idea} <- Publishing.create_idea(site, arguments), do: {:ok, IdeaJSON.render(idea)}
+  end
+
+  defp call_tool("update_idea", %{"id" => id} = arguments, site, _user) do
+    with idea when not is_nil(idea) <- Publishing.get_idea(site, id),
+         {:ok, idea} <- Publishing.update_idea(idea, Map.delete(arguments, "id")) do
+      {:ok, IdeaJSON.render(idea)}
+    else
+      nil -> {:error, :not_found}
+      error -> error
+    end
+  end
+
+  defp call_tool("delete_idea", %{"id" => id}, site, _user) do
+    with idea when not is_nil(idea) <- Publishing.get_idea(site, id),
+         {:ok, idea} <- Publishing.delete_idea(idea) do
+      {:ok, %{id: idea.id, deleted: true}}
     else
       nil -> {:error, :not_found}
       error -> error
@@ -428,6 +463,20 @@ defmodule Gesttalt.MCP do
         id: integer_schema()
       }),
       tool("delete_content", "Permanently delete a post or page", %{id: integer_schema()}),
+      tool("list_ideas", "List conversation ideas for the authenticated publication", %{}),
+      tool("get_idea", "Get one conversation idea", %{id: integer_schema()}),
+      tool("create_idea", "Create a conversation idea", idea_schema(["title"])),
+      tool(
+        "update_idea",
+        "Update a conversation idea",
+        Map.put(
+          idea_schema([]),
+          :properties,
+          Map.put(idea_schema([]).properties, :id, integer_schema())
+        )
+        |> Map.put(:required, ["id"])
+      ),
+      tool("delete_idea", "Permanently delete a conversation idea", %{id: integer_schema()}),
       tool("list_media", "List every image in the publication media library", %{}),
       tool(
         "upload_media",
@@ -601,6 +650,8 @@ defmodule Gesttalt.MCP do
       name in [
         "list_content",
         "get_content",
+        "list_ideas",
+        "get_idea",
         "list_media",
         "list_photos",
         "get_theme",
@@ -615,6 +666,7 @@ defmodule Gesttalt.MCP do
     destructive =
       name in [
         "delete_content",
+        "delete_idea",
         "delete_media",
         "delete_photo",
         "publish_theme_editing_session",
@@ -646,6 +698,12 @@ defmodule Gesttalt.MCP do
         status: %{type: "string", enum: ["draft", "published"]},
         published_at: %{type: "string", format: "date-time"}
       },
+      required: required
+    }
+
+  defp idea_schema(required),
+    do: %{
+      properties: %{title: string_schema(), notes: string_schema()},
       required: required
     }
 

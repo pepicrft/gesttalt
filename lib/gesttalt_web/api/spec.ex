@@ -13,7 +13,7 @@ defmodule GesttaltWeb.API.Spec do
         title: "Gesttalt publishing interface",
         version: "1.0.0",
         description:
-          "Create and manage publications, photography feeds, and images from any authorized client."
+          "Create and manage publications, conversation ideas, photography feeds, and images from any authorized client."
       },
       servers: [%Server{url: GesttaltWeb.Endpoint.url()}],
       components: %Components{
@@ -25,8 +25,8 @@ defmodule GesttaltWeb.API.Spec do
                 authorizationUrl: "/oauth2/authorize",
                 tokenUrl: "/oauth2/token",
                 scopes: %{
-                  "content:read" => "Read posts, pages, and photography feed entries",
-                  "content:write" => "Create and edit posts and pages",
+                  "content:read" => "Read posts, pages, ideas, and photography feed entries",
+                  "content:write" => "Create and edit posts, pages, and ideas",
                   "media:write" => "Manage images and photography feed entries"
                 }
               }

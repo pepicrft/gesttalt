@@ -4,6 +4,7 @@ defmodule Gesttalt.Publishing do
   import Ecto.Query, warn: false
 
   alias Gesttalt.Publishing.Post
+  alias Gesttalt.Publishing.Idea
   alias Gesttalt.Repo
   alias Gesttalt.Sites.Site
 
@@ -108,6 +109,38 @@ defmodule Gesttalt.Publishing do
 
   @doc "Returns a changeset for a post form."
   def change_post(%Post{} = post, attrs \\ %{}), do: Post.changeset(post, attrs)
+
+  @doc "Lists conversation ideas for a site, newest first."
+  def list_ideas(%Site{id: site_id}) do
+    Idea
+    |> where([idea], idea.site_id == ^site_id)
+    |> order_by([idea], desc: idea.inserted_at, desc: idea.id)
+    |> Repo.all()
+  end
+
+  @doc "Fetches a site-owned idea without raising."
+  def get_idea(%Site{id: site_id}, id), do: Repo.get_by(Idea, id: id, site_id: site_id)
+
+  @doc "Fetches a site-owned idea by its database identifier."
+  def get_idea!(%Site{id: site_id}, id), do: Repo.get_by!(Idea, id: id, site_id: site_id)
+
+  @doc "Creates an idea owned by a site."
+  def create_idea(%Site{id: site_id}, attrs \\ %{}) do
+    attrs = Map.put(attrs, key_for(attrs, :site_id), site_id)
+
+    %Idea{}
+    |> Idea.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc "Updates an idea."
+  def update_idea(%Idea{} = idea, attrs), do: idea |> Idea.changeset(attrs) |> Repo.update()
+
+  @doc "Permanently deletes an idea."
+  def delete_idea(%Idea{} = idea), do: Repo.delete(idea)
+
+  @doc "Returns a changeset for an idea form."
+  def change_idea(%Idea{} = idea, attrs \\ %{}), do: Idea.changeset(idea, attrs)
 
   defp published_query(site_id, kind) do
     now = now()

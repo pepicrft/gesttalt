@@ -1,0 +1,49 @@
+#admin-ideas {
+  & > [data-part="form"] {
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  & > [data-part="list"] {
+    & > [data-part="empty"] {
+      color: var(--muted);
+      padding: 2rem 0;
+      text-align: center;
+    }
+
+    & > [data-part="idea"] {
+      align-items: flex-start;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      gap: 2rem;
+      justify-content: space-between;
+      padding: 1.25rem 0;
+
+      & [data-part="copy"] {
+        & > h2 {
+          font-size: var(--font-size);
+          margin: 0;
+        }
+
+        & > p {
+          color: var(--muted);
+          margin: 0.45rem 0 0;
+          white-space: pre-wrap;
+        }
+      }
+
+      & > [data-part="actions"] {
+        display: flex;
+        flex: none;
+        gap: 0.8rem;
+      }
+    }
+  }
+}
+
+#admin-idea-editor {
+  & > [data-part="form"] {
+    max-width: 48rem;
+  }
+}

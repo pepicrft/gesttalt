@@ -122,6 +122,12 @@ defmodule GesttaltWeb.Router do
     post "/posts/:id/unpublish", AdminController, :unpublish
     delete "/posts/:id", AdminController, :delete
 
+    get "/ideas", IdeaController, :index
+    post "/ideas", IdeaController, :create
+    get "/ideas/:id/edit", IdeaController, :edit
+    put "/ideas/:id", IdeaController, :update
+    delete "/ideas/:id", IdeaController, :delete
+
     get "/photography", PhotographyController, :index
     post "/photography", PhotographyController, :create
     post "/photography/:id/publish", PhotographyController, :publish
@@ -159,6 +165,12 @@ defmodule GesttaltWeb.Router do
     delete "/posts/:id", GesttaltWeb.ApiPostController, :delete
     post "/posts/:id/publish", GesttaltWeb.ApiPostController, :publish
     post "/posts/:id/unpublish", GesttaltWeb.ApiPostController, :unpublish
+    get "/ideas", GesttaltWeb.ApiIdeaController, :index
+    post "/ideas", GesttaltWeb.ApiIdeaController, :create
+    get "/ideas/:id", GesttaltWeb.ApiIdeaController, :show
+    patch "/ideas/:id", GesttaltWeb.ApiIdeaController, :update
+    put "/ideas/:id", GesttaltWeb.ApiIdeaController, :update
+    delete "/ideas/:id", GesttaltWeb.ApiIdeaController, :delete
     get "/photos", GesttaltWeb.ApiPhotoController, :index
     post "/photos", GesttaltWeb.ApiPhotoController, :create
     get "/photos/:id", GesttaltWeb.ApiPhotoController, :show
