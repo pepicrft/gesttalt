@@ -83,6 +83,7 @@ jobs:
       - uses: jdx/mise-action@v4
         with:
           install_args: "erlang elixir"
+      - run: sudo apt-get update && sudo apt-get install --yes build-essential cmake
       - run: mix deps.get
       - name: Check extracted catalogs
         run: |
