@@ -3,8 +3,8 @@ defmodule Gesttalt.Publishing do
 
   import Ecto.Query, warn: false
 
-  alias Gesttalt.Publishing.Post
   alias Gesttalt.Publishing.Idea
+  alias Gesttalt.Publishing.Post
   alias Gesttalt.Repo
   alias Gesttalt.Sites.Site
 
