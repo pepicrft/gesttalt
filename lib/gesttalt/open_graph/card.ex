@@ -96,8 +96,9 @@ defmodule Gesttalt.OpenGraph.Card do
       font-size: 74px;
       font-weight: 650;
       letter-spacing: -.06em;
-      line-height: .94;
+      line-height: 1.06;
       overflow: hidden;
+      padding-bottom: .08em;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 3;
     }
@@ -157,8 +158,9 @@ defmodule Gesttalt.OpenGraph.Card do
       font-size: 72px;
       font-weight: 700;
       letter-spacing: -.055em;
-      line-height: .96;
+      line-height: 1.06;
       overflow: hidden;
+      padding-bottom: .08em;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 3;
     }
