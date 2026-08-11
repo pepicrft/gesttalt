@@ -179,6 +179,28 @@ defmodule Gesttalt.Accounts do
   end
 
   @doc """
+  Generates a one-time token for establishing an admin session on a publication host.
+  """
+  def generate_admin_handoff_token(user, hostname, state) do
+    {token, user_token} = UserToken.build_admin_handoff_token(user, hostname, state)
+
+    case Repo.insert(user_token) do
+      {:ok, _user_token} -> {:ok, token}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
+  Consumes a publication-host admin handoff token exactly once.
+  """
+  def consume_admin_handoff_token(token, hostname, state) do
+    case UserToken.verify_admin_handoff_token_query(token, hostname, state) do
+      {:ok, query} -> Repo.transaction(fn -> consume_admin_handoff_token_query(query) end)
+      :error -> {:error, :not_found}
+    end
+  end
+
+  @doc """
   Gets the user with the given signed token.
 
   If the token is valid `{user, token_inserted_at}` is returned, otherwise `nil` is returned.
@@ -293,5 +315,21 @@ defmodule Gesttalt.Accounts do
         {:ok, {user, tokens_to_expire}}
       end
     end)
+  end
+
+  defp consume_admin_handoff_token_query(query) do
+    case Repo.one(query) do
+      {user, user_token} ->
+        UserToken
+        |> where([token], token.id == ^user_token.id)
+        |> Repo.delete_all()
+        |> case do
+          {1, _tokens} -> user
+          {0, _tokens} -> Repo.rollback(:not_found)
+        end
+
+      nil ->
+        Repo.rollback(:not_found)
+    end
   end
 end

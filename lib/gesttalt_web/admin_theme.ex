@@ -7,8 +7,7 @@ defmodule GesttaltWeb.AdminTheme do
 
   def init(options), do: options
 
-  def call(conn, _options) do
-    {:ok, site} = Sites.ensure_site_for_user(conn.assigns.current_scope.user)
+  def call(%{assigns: %{current_site: site}} = conn, _options) do
     assign(conn, :admin_theme, Sites.get_theme!(site))
   end
 end

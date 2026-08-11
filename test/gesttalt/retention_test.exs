@@ -31,6 +31,22 @@ defmodule Gesttalt.RetentionTest do
         inserted_at: DateTime.add(now, -13 * @day, :second)
       })
 
+    expired_admin_handoff =
+      Repo.insert!(%UserToken{
+        user_id: user.id,
+        token: :crypto.strong_rand_bytes(32),
+        context: "admin_handoff",
+        inserted_at: DateTime.add(now, -61, :second)
+      })
+
+    current_admin_handoff =
+      Repo.insert!(%UserToken{
+        user_id: user.id,
+        token: :crypto.strong_rand_bytes(32),
+        context: "admin_handoff",
+        inserted_at: DateTime.add(now, -59, :second)
+      })
+
     expired_report =
       Repo.insert!(%IllegalContentReport{
         reference: "G-expired",
@@ -55,10 +71,12 @@ defmodule Gesttalt.RetentionTest do
 
     result = Retention.prune(now)
 
-    assert result.user_tokens == 1
+    assert result.user_tokens == 2
     assert result.legal_reports == 1
     refute Repo.get(UserToken, expired_session.id)
     assert Repo.get(UserToken, current_session.id)
+    refute Repo.get(UserToken, expired_admin_handoff.id)
+    assert Repo.get(UserToken, current_admin_handoff.id)
     refute Repo.get(IllegalContentReport, expired_report.id)
     assert Repo.get(IllegalContentReport, current_report.id)
   end

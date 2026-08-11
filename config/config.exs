@@ -39,6 +39,7 @@ config :gesttalt,
   generators: [timestamp_type: :utc_datetime],
   observability_enabled: false,
   platform_host: "gesttalt.org",
+  secure_cookies: false,
   seed_demo: false,
   media_storage: [
     adapter: Gesttalt.MediaStorage.Local,
@@ -133,7 +134,7 @@ config :esbuild,
   version: "0.25.4",
   gesttalt: [
     args:
-      ~w(js/app.js js/analytics_map.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
+      ~w(js/app.js js/analytics_map.js js/publication.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => [Path.expand("../deps", __DIR__), Mix.Project.build_path()]}
   ]

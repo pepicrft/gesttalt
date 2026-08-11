@@ -35,6 +35,7 @@ defmodule GesttaltWeb.Router do
   end
 
   pipeline :admin do
+    plug GesttaltWeb.AdminAccess
     plug :require_authenticated_user
     plug GesttaltWeb.AdminTheme
   end
@@ -112,6 +113,19 @@ defmodule GesttaltWeb.Router do
     pipe_through :browser
 
     get "/authorize", AuthorizeController, :authorize
+  end
+
+  scope "/admin/session", GesttaltWeb do
+    pipe_through [:browser, :tenant]
+
+    get "/prepare", AdminSessionController, :prepare
+    get "/complete/:token", AdminSessionController, :complete
+  end
+
+  scope "/admin/session", GesttaltWeb do
+    pipe_through :browser
+
+    get "/start", AdminSessionController, :start
   end
 
   scope "/admin", GesttaltWeb do

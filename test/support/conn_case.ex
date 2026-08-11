@@ -36,7 +36,12 @@ defmodule GesttaltWeb.ConnCase do
 
   setup tags do
     Gesttalt.DataCase.setup_sandbox(tags)
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+
+    conn =
+      Phoenix.ConnTest.build_conn()
+      |> Map.put(:host, Gesttalt.Sites.platform_host())
+
+    {:ok, conn: conn}
   end
 
   @doc """

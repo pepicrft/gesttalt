@@ -1,6 +1,8 @@
 defmodule GesttaltWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :gesttalt
 
+  @secure_cookies Application.compile_env(:gesttalt, :secure_cookies, false)
+
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
@@ -8,6 +10,8 @@ defmodule GesttaltWeb.Endpoint do
     store: :cookie,
     key: "_gesttalt_key",
     signing_salt: "U/+4fxWh",
+    http_only: true,
+    secure: @secure_cookies,
     same_site: "Lax"
   ]
 

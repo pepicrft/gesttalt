@@ -282,6 +282,44 @@ defmodule Gesttalt.AccountsTest do
     end
   end
 
+  describe "admin handoff tokens" do
+    setup do
+      %{user: user_fixture()}
+    end
+
+    test "binds a one-time token to its publication host and browser state", %{user: user} do
+      state = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
+      assert {:ok, token} = Accounts.generate_admin_handoff_token(user, "writing.example", state)
+
+      assert {:error, :not_found} =
+               Accounts.consume_admin_handoff_token(token, "other.example", state)
+
+      assert {:error, :not_found} =
+               Accounts.consume_admin_handoff_token(token, "writing.example", "other-state")
+
+      assert {:ok, authenticated_user} =
+               Accounts.consume_admin_handoff_token(token, "writing.example", state)
+
+      assert authenticated_user.id == user.id
+
+      assert {:error, :not_found} =
+               Accounts.consume_admin_handoff_token(token, "writing.example", state)
+    end
+
+    test "expires the token after one minute", %{user: user} do
+      state = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
+      assert {:ok, token} = Accounts.generate_admin_handoff_token(user, "writing.example", state)
+
+      Repo.update_all(
+        from(user_token in UserToken, where: user_token.context == "admin_handoff"),
+        set: [inserted_at: DateTime.add(DateTime.utc_now(:second), -61, :second)]
+      )
+
+      assert {:error, :not_found} =
+               Accounts.consume_admin_handoff_token(token, "writing.example", state)
+    end
+  end
+
   describe "get_user_by_session_token/1" do
     setup do
       user = user_fixture()

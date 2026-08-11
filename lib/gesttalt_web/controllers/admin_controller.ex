@@ -4,7 +4,6 @@ defmodule GesttaltWeb.AdminController do
   alias Gesttalt.Analytics
   alias Gesttalt.Publishing
   alias Gesttalt.Publishing.Post
-  alias Gesttalt.Sites
 
   def index(conn, _params) do
     site = current_site(conn)
@@ -99,10 +98,7 @@ defmodule GesttaltWeb.AdminController do
     )
   end
 
-  defp current_site(conn) do
-    {:ok, site} = Sites.ensure_site_for_user(conn.assigns.current_scope.user)
-    site
-  end
+  defp current_site(conn), do: conn.assigns.current_site
 
   defp public_origin(conn) do
     port = if conn.port in [80, 443], do: "", else: ":#{conn.port}"

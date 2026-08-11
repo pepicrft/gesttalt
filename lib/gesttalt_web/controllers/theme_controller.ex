@@ -44,8 +44,5 @@ defmodule GesttaltWeb.ThemeController do
     end
   end
 
-  defp current_site(conn) do
-    {:ok, site} = Sites.ensure_site_for_user(conn.assigns.current_scope.user)
-    site
-  end
+  defp current_site(conn), do: conn.assigns.current_site
 end

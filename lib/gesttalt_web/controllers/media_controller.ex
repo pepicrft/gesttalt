@@ -42,8 +42,5 @@ defmodule GesttaltWeb.MediaController do
     conn |> put_flash(:info, "Image deleted.") |> redirect(to: ~p"/admin/media")
   end
 
-  defp current_site(conn) do
-    {:ok, site} = Sites.ensure_site_for_user(conn.assigns.current_scope.user)
-    site
-  end
+  defp current_site(conn), do: conn.assigns.current_site
 end
