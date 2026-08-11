@@ -83,4 +83,21 @@ defmodule GesttaltWeb.OpenGraphControllerTest do
     assert get_resp_header(conn, "content-type") == ["image/jpeg"]
     assert get_resp_header(conn, "cache-control") == ["public, max-age=31536000, immutable"]
   end
+
+  test "serves a signed, published note image", %{conn: conn, host: host, site: site} do
+    {:ok, note} =
+      Gesttalt.Publishing.publish_post(
+        post_fixture(%{site: site, kind: :note, body: "A short public update."})
+      )
+
+    params = %{"kind" => "note", "id" => note.id, "site" => site.id, "v" => "0-0"}
+
+    stub(MediaStorage, :get, fn _key -> {:ok, "STORED-NOTE-JPEG"} end)
+    reject(&Carta.render/3)
+
+    conn = conn |> Map.put(:host, host) |> get("/og-image?" <> signed_query(params))
+
+    assert "STORED-NOTE-JPEG" = response(conn, 200)
+    assert get_resp_header(conn, "content-type") == ["image/jpeg"]
+  end
 end

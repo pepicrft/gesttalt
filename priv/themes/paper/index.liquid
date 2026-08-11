@@ -35,10 +35,10 @@
       <p class="section-label">{% if is_notes %}Notes{% elsif is_archive %}Writing{% else %}Recent writing{% endif %}</p>
       <section class="posts-list">
         {% for post in posts %}
-        <article class="post-row">
-          <time datetime="{{ post.published_at }}">{{ post.published_on }}</time>
+        <article id="{% if is_notes %}note{% else %}post{% endif %}-{{ post.id }}" class="post-row">
+          {% if is_notes %}<a data-part="permalink" href="{{ post.url }}"><time datetime="{{ post.published_at }}">{{ post.published_on }}</time></a>{% else %}<time datetime="{{ post.published_at }}">{{ post.published_on }}</time>{% endif %}
           <div class="post-copy">
-            {% if is_notes %}<a class="note-link" href="{{ post.url }}">{{ post.body }}</a>{% else %}<a class="post-link" href="{{ post.url }}">{{ post.title }}</a><p>{{ post.excerpt }}</p>{% endif %}
+            {% if is_notes %}<div class="prose" data-part="body">{{ post.body_html }}</div>{% else %}<a class="post-link" href="{{ post.url }}">{{ post.title }}</a><p>{{ post.excerpt }}</p>{% endif %}
           </div>
         </article>
         {% endfor %}

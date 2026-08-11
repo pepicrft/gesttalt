@@ -283,6 +283,24 @@ defmodule GesttaltWeb.SiteControllerTest do
     refute second_page =~ ">Short update 2</a>"
   end
 
+  test "renders Markdown in the notes archive", %{conn: conn, host: host, site: site} do
+    note =
+      PublishingFixtures.post_fixture(%{
+        site: site,
+        kind: :note,
+        body: "Bullish on [Once](https://buildonce.dev) and **agent-friendly builds**.",
+        status: :published
+      })
+
+    body = conn |> Map.put(:host, host) |> get(~p"/notes") |> html_response(200)
+
+    assert body =~ ~s(href="https://buildonce.dev")
+    assert body =~ ">Once</a>"
+    assert body =~ "<strong>agent-friendly builds</strong>"
+    assert body =~ ~s(href="/notes/#{note.id}/")
+    refute body =~ "[Once](https://buildonce.dev)"
+  end
+
   test "redirects an archive page beyond the end to the last page", %{
     conn: conn,
     host: host,
@@ -310,10 +328,16 @@ defmodule GesttaltWeb.SiteControllerTest do
         PublishingFixtures.post_fixture(%{site: site, kind: :page, slug: "about", title: "About"})
       )
 
+    {:ok, note} =
+      Gesttalt.Publishing.publish_post(
+        PublishingFixtures.post_fixture(%{site: site, kind: :note, body: "A short note"})
+      )
+
     for {path, type, title} <- [
           {"/", "website", site.name},
           {"/blog", "website", "Writing · #{site.name}"},
           {"/blog/#{post.slug}", "article", post.title},
+          {"/notes/#{note.id}", "article", note.title},
           {"/#{page.slug}", "website", page.title},
           {"/photography", "website", "Photography · #{site.name}"}
         ] do
@@ -331,6 +355,10 @@ defmodule GesttaltWeb.SiteControllerTest do
                ~r/<meta name="twitter:image" content="https?:\/\/#{Regex.escape(host)}\/og-image\?/
 
       assert length(Regex.scan(~r/<meta property="og:image"/, body)) == 1
+
+      if path == "/notes/#{note.id}" do
+        assert body =~ "kind=note"
+      end
     end
   end
 
