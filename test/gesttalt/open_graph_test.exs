@@ -30,6 +30,17 @@ defmodule Gesttalt.OpenGraphTest do
       assert {:ok, "JPEG:" <> _} = OpenGraph.render(site, %{"kind" => "post", "id" => post.id})
     end
 
+    test "renders when local storage reports a missing file", %{site: site} do
+      post = published_post(site)
+
+      stub(MediaStorage, :get, fn _key -> {:error, :enoent} end)
+      expect(Carta, :render, fn _pool, html, _opts -> {:ok, "LOCAL-JPEG:" <> html} end)
+      expect(MediaStorage, :put, fn _key, "LOCAL-JPEG:" <> _rest, "image/jpeg" -> :ok end)
+
+      assert {:ok, "LOCAL-JPEG:" <> _} =
+               OpenGraph.render(site, %{"kind" => "post", "id" => post.id})
+    end
+
     test "serves from storage without rendering on a cache hit", %{site: site} do
       post = published_post(site)
 
@@ -45,6 +56,24 @@ defmodule Gesttalt.OpenGraphTest do
       stub(MediaStorage, :put, fn _key, _body, _content_type -> :ok end)
 
       assert {:ok, "HOME-JPEG"} = OpenGraph.render(site, %{"kind" => "home"})
+    end
+
+    test "renders a published note", %{site: site} do
+      note =
+        published_post(site, %{
+          kind: :note,
+          body: "A short update about [Once](https://buildonce.dev)."
+        })
+
+      stub(MediaStorage, :get, fn _key -> {:error, :not_found} end)
+      expect(Carta, :render, fn _pool, html, _opts -> {:ok, "NOTE-JPEG:" <> html} end)
+      stub(MediaStorage, :put, fn _key, _body, _content_type -> :ok end)
+
+      assert {:ok, "NOTE-JPEG:" <> html} =
+               OpenGraph.render(site, %{"kind" => "note", "id" => note.id})
+
+      assert html =~ "A short update about Once."
+      refute html =~ "[Once](https://buildonce.dev)"
     end
 
     test "returns :not_found for an unpublished post without rendering", %{site: site} do
@@ -79,6 +108,21 @@ defmodule Gesttalt.OpenGraphTest do
       assert String.starts_with?(url, "https://example.test/og-image?")
 
       params = url |> URI.parse() |> Map.fetch!(:query) |> URI.decode_query()
+      assert OpenGraph.verify_signature(params)
+    end
+
+    test "mints a signed note URL with the note kind", %{site: site} do
+      note = published_post(site, %{kind: :note, body: "A short public update."})
+      ctx = %{site: site, theme: site.theme, base_url: "https://example.test"}
+
+      params =
+        {:note, note}
+        |> OpenGraph.image_url(ctx)
+        |> URI.parse()
+        |> Map.fetch!(:query)
+        |> URI.decode_query()
+
+      assert params["kind"] == "note"
       assert OpenGraph.verify_signature(params)
     end
 

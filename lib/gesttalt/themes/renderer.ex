@@ -209,8 +209,7 @@ defmodule Gesttalt.Themes.Renderer do
   defp post_og_image(_post, nil), do: ""
 
   defp post_og_image(post, og) do
-    kind = if post.kind == :page, do: :page, else: :post
-    OpenGraph.image_url({kind, post}, og)
+    OpenGraph.image_url({post.kind, post}, og)
   end
 
   defp post_context(post, og \\ nil) do
