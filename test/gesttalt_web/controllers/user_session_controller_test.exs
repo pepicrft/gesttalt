@@ -3,6 +3,7 @@ defmodule GesttaltWeb.UserSessionControllerTest do
 
   import Gesttalt.AccountsFixtures
   alias Gesttalt.Accounts
+  alias GesttaltWeb.UserAuth
 
   setup do
     %{unconfirmed_user: unconfirmed_user_fixture(), user: user_fixture()}
@@ -75,6 +76,29 @@ defmodule GesttaltWeb.UserSessionControllerTest do
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
                "Magic link is invalid or has expired. Request a new link below."
+    end
+
+    test "ignores a protected destination signed for another account", %{
+      conn: conn,
+      user: user
+    } do
+      other_user = user_fixture()
+      {token, _hashed_token} = generate_user_magic_link_token(user)
+
+      signed_return_to =
+        conn
+        |> init_test_session(user_return_to: "/admin/session/start?host=writing.example")
+        |> put_private(:phoenix_endpoint, GesttaltWeb.Endpoint)
+        |> UserAuth.sign_login_return_to(other_user)
+
+      conn =
+        conn
+        |> recycle()
+        |> init_test_session(%{})
+        |> get(~p"/users/log-in/#{token}?return_to=#{signed_return_to}")
+
+      assert html_response(conn, 200) =~ "Log in"
+      refute get_session(conn, :user_return_to)
     end
   end
 
@@ -152,6 +176,40 @@ defmodule GesttaltWeb.UserSessionControllerTest do
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "If your email is in our system"
       assert Gesttalt.Repo.get_by!(Accounts.UserToken, user_id: user.id).context == "login"
+    end
+
+    test "restores the protected destination from the magic link", %{conn: conn, user: user} do
+      return_to =
+        "/admin/session/start?host=writing.example&state=state&return_to=%2Fadmin%2Fanalytics"
+
+      assert_receive {:email, _fixture_email}
+
+      conn
+      |> init_test_session(user_return_to: return_to)
+      |> post(~p"/users/log-in", %{"user" => %{"email" => user.email}})
+
+      assert_receive {:email, email}
+      assert email.to == [{"", user.email}]
+      assert email.subject == "Your gesttalt login link"
+      assert [link] = Regex.run(~r/Log in: (\S+)/, email.text_body, capture: :all_but_first)
+
+      uri = URI.parse(link)
+      token = uri.path |> String.split("/") |> List.last()
+
+      fresh_conn =
+        conn
+        |> recycle()
+        |> init_test_session(%{})
+        |> get(uri.path <> "?" <> uri.query)
+
+      assert get_session(fresh_conn, :user_return_to) == return_to
+
+      logged_in_conn =
+        fresh_conn
+        |> recycle()
+        |> post(~p"/users/log-in", %{"user" => %{"token" => token}})
+
+      assert redirected_to(logged_in_conn) == return_to
     end
 
     test "logs the user in", %{conn: conn, user: user} do
