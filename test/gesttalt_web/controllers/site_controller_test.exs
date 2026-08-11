@@ -38,11 +38,15 @@ defmodule GesttaltWeb.SiteControllerTest do
   end
 
   test "adds the cookie-free analytics script to public pages", %{conn: conn, host: host} do
-    body = conn |> Map.put(:host, host) |> get(~p"/") |> html_response(200)
+    conn = conn |> Map.put(:host, host) |> get(~p"/")
+    body = html_response(conn, 200)
 
     assert body =~ ~s(data-gesttalt-analytics)
-    assert body =~ ~s(credentials: "omit")
-    assert body =~ ~s|JSON.stringify({path: window.location.pathname})|
+    assert body =~ ~s(src="/assets/js/publication.js")
+
+    assert get_resp_header(conn, "content-security-policy") == [
+             "default-src 'none'; base-uri 'none'; connect-src 'self'; font-src 'self' data: https:; form-action 'self'; frame-ancestors 'self'; frame-src 'none'; img-src 'self' data: https:; media-src 'self' https:; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+           ]
   end
 
   test "does not show publication controls to another signed-in user", %{

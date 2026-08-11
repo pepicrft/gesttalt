@@ -13,9 +13,12 @@ defmodule GesttaltWeb.UserAuth do
   # the session validity setting in UserToken.
   @max_cookie_age_in_days 14
   @remember_me_cookie "_gesttalt_web_user_remember_me"
+  @secure_cookies Application.compile_env(:gesttalt, :secure_cookies, false)
   @remember_me_options [
     sign: true,
     max_age: @max_cookie_age_in_days * 24 * 60 * 60,
+    http_only: true,
+    secure: @secure_cookies,
     same_site: "Lax"
   ]
 

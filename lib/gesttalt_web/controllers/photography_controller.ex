@@ -2,7 +2,6 @@ defmodule GesttaltWeb.PhotographyController do
   use GesttaltWeb, :controller
 
   alias Gesttalt.Photography
-  alias Gesttalt.Sites
 
   def index(conn, _params) do
     site = current_site(conn)
@@ -77,8 +76,5 @@ defmodule GesttaltWeb.PhotographyController do
     |> redirect(to: ~p"/admin/photography")
   end
 
-  defp current_site(conn) do
-    {:ok, site} = Sites.ensure_site_for_user(conn.assigns.current_scope.user)
-    site
-  end
+  defp current_site(conn), do: conn.assigns.current_site
 end

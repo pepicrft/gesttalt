@@ -25,6 +25,7 @@ defmodule Gesttalt.Retention do
   defp prune_user_tokens(now) do
     session_before = DateTime.add(now, -14 * @day, :second)
     login_before = DateTime.add(now, -15 * 60, :second)
+    admin_handoff_before = DateTime.add(now, -60, :second)
     change_before = DateTime.add(now, -7 * @day, :second)
 
     UserToken
@@ -32,6 +33,7 @@ defmodule Gesttalt.Retention do
       [token],
       (token.context == "session" and token.inserted_at < ^session_before) or
         (token.context == "login" and token.inserted_at < ^login_before) or
+        (token.context == "admin_handoff" and token.inserted_at < ^admin_handoff_before) or
         (like(token.context, "change:%") and token.inserted_at < ^change_before)
     )
     |> Repo.delete_all()

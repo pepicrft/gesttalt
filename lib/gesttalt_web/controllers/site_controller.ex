@@ -44,21 +44,23 @@ defmodule GesttaltWeb.SiteController do
   </aside>
   """
 
-  @analytics_script """
-  <script data-gesttalt-analytics>
-    (() => {
-      if (navigator.webdriver) return
-
-      fetch("/analytics/pageview", {
-        method: "POST",
-        credentials: "omit",
-        keepalive: true,
-        headers: {"content-type": "application/json"},
-        body: JSON.stringify({path: window.location.pathname})
-      }).catch(() => {})
-    })()
-  </script>
-  """
+  @publication_content_security_policy Enum.join(
+                                         [
+                                           "default-src 'none'",
+                                           "base-uri 'none'",
+                                           "connect-src 'self'",
+                                           "font-src 'self' data: https:",
+                                           "form-action 'self'",
+                                           "frame-ancestors 'self'",
+                                           "frame-src 'none'",
+                                           "img-src 'self' data: https:",
+                                           "media-src 'self' https:",
+                                           "object-src 'none'",
+                                           "script-src 'self'",
+                                           "style-src 'self' 'unsafe-inline'"
+                                         ],
+                                         "; "
+                                       )
 
   def home(%{assigns: %{current_site: nil}} = conn, params),
     do: conn |> put_view(html: GesttaltWeb.PageHTML) |> GesttaltWeb.PageController.home(params)
@@ -328,6 +330,7 @@ defmodule GesttaltWeb.SiteController do
         {conn, html} = maybe_add_owner_controls(conn, html, site)
 
         conn
+        |> put_resp_header("content-security-policy", @publication_content_security_policy)
         |> put_resp_header("vary", "accept, cookie")
         |> put_resp_content_type("text/html")
         |> send_resp(200, html)
@@ -340,7 +343,7 @@ defmodule GesttaltWeb.SiteController do
   end
 
   defp maybe_add_owner_controls(conn, html, site) do
-    html = inject_before_body_end(html, @analytics_script)
+    html = inject_before_body_end(html, analytics_script())
 
     if owner?(conn, site) do
       conn = put_resp_header(conn, "cache-control", "private, no-store")
@@ -355,6 +358,10 @@ defmodule GesttaltWeb.SiteController do
       %{user: %{id: user_id}} -> user_id == site.user_id
       _scope -> false
     end
+  end
+
+  defp analytics_script do
+    ~s(<script defer src="#{~p"/assets/js/publication.js"}" data-gesttalt-analytics></script>)
   end
 
   defp inject_before_body_end(html, controls) do

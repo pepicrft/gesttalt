@@ -9,8 +9,10 @@ defmodule Gesttalt.Accounts.UserToken do
   # It is very important to keep the magic link token expiry short,
   # since someone with access to the email may take over the account.
   @magic_link_validity_in_minutes 15
+  @admin_handoff_validity_in_seconds 60
   @change_email_validity_in_days 7
   @session_validity_in_days 14
+  @admin_handoff_context "admin_handoff"
 
   schema "users_tokens" do
     field :token, :binary
@@ -45,6 +47,22 @@ defmodule Gesttalt.Accounts.UserToken do
     token = :crypto.strong_rand_bytes(@rand_size)
     dt = user.authenticated_at || DateTime.utc_now(:second)
     {token, %UserToken{token: token, context: "session", user_id: user.id, authenticated_at: dt}}
+  end
+
+  @doc """
+  Builds a short-lived token bound to a publication host and browser state.
+  """
+  def build_admin_handoff_token(user, hostname, state) do
+    token = :crypto.strong_rand_bytes(@rand_size)
+    hashed_token = :crypto.hash(@hash_algorithm, token)
+
+    {Base.url_encode64(token, padding: false),
+     %UserToken{
+       token: hashed_token,
+       context: @admin_handoff_context,
+       sent_to: admin_handoff_binding(hostname, state),
+       user_id: user.id
+     }}
   end
 
   @doc """
@@ -124,6 +142,29 @@ defmodule Gesttalt.Accounts.UserToken do
   end
 
   @doc """
+  Checks a publication-host handoff token and its browser-bound state.
+  """
+  def verify_admin_handoff_token_query(token, hostname, state) do
+    case Base.url_decode64(token, padding: false) do
+      {:ok, decoded_token} when byte_size(decoded_token) == @rand_size ->
+        hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
+        binding = admin_handoff_binding(hostname, state)
+
+        query =
+          from token in by_token_and_context_query(hashed_token, @admin_handoff_context),
+            join: user in assoc(token, :user),
+            where: token.inserted_at > ago(^@admin_handoff_validity_in_seconds, "second"),
+            where: token.sent_to == ^binding,
+            select: {user, token}
+
+        {:ok, query}
+
+      _error ->
+        :error
+    end
+  end
+
+  @doc """
   Checks if the token is valid and returns its underlying lookup query.
 
   The query returns the user_token found by the token, if any.
@@ -152,5 +193,10 @@ defmodule Gesttalt.Accounts.UserToken do
 
   defp by_token_and_context_query(token, context) do
     from UserToken, where: [token: ^token, context: ^context]
+  end
+
+  defp admin_handoff_binding(hostname, state) do
+    :crypto.hash(@hash_algorithm, hostname <> <<0>> <> state)
+    |> Base.url_encode64(padding: false)
   end
 end

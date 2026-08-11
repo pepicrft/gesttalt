@@ -38,7 +38,7 @@ defmodule GesttaltWeb.AdminControllerTest do
 
     response =
       conn
-      |> Map.put(:host, "sc-flux-boson-0165.localhost")
+      |> Map.put(:host, domain.hostname)
       |> Map.put(:port, 4817)
       |> get(~p"/admin/")
       |> html_response(200)

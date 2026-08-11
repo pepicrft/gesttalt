@@ -76,6 +76,13 @@ defmodule Gesttalt.Sites do
     do: Site |> Repo.get_by(handle: handle) |> preload_site()
 
   def get_site_by_host(host) when is_binary(host) do
+    case get_active_domain_by_host(host) do
+      %Domain{site: site} -> preload_site(site)
+      nil -> nil
+    end
+  end
+
+  def get_active_domain_by_host(host) when is_binary(host) do
     hostname = normalize_host(host)
 
     Domain
@@ -83,10 +90,6 @@ defmodule Gesttalt.Sites do
     |> join(:inner, [domain], site in assoc(domain, :site))
     |> preload([domain, site], site: {site, [:theme, :domains]})
     |> Repo.one()
-    |> case do
-      %Domain{site: site} -> preload_site(site)
-      nil -> nil
-    end
   end
 
   def platform_host?(host),

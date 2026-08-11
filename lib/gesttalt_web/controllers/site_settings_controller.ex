@@ -79,8 +79,5 @@ defmodule GesttaltWeb.SiteSettingsController do
     conn |> put_flash(:info, "Domain removed.") |> redirect(to: ~p"/admin/settings")
   end
 
-  defp current_site(conn) do
-    {:ok, site} = Sites.ensure_site_for_user(conn.assigns.current_scope.user)
-    site
-  end
+  defp current_site(conn), do: conn.assigns.current_site
 end

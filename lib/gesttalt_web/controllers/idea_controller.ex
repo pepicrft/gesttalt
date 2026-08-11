@@ -3,7 +3,6 @@ defmodule GesttaltWeb.IdeaController do
 
   alias Gesttalt.Publishing
   alias Gesttalt.Publishing.Idea
-  alias Gesttalt.Sites
 
   def index(conn, _params), do: render_index(conn, Publishing.change_idea(%Idea{}))
 
@@ -52,8 +51,5 @@ defmodule GesttaltWeb.IdeaController do
     )
   end
 
-  defp current_site(conn) do
-    {:ok, site} = Sites.ensure_site_for_user(conn.assigns.current_scope.user)
-    site
-  end
+  defp current_site(conn), do: conn.assigns.current_site
 end
