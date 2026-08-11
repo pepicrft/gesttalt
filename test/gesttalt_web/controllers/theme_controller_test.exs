@@ -10,7 +10,7 @@ defmodule GesttaltWeb.ThemeControllerTest do
 
     response = conn |> get(~p"/admin/theme") |> html_response(200)
 
-    for name <- ["Paper", "Ledger", "Darkroom", "Field Notes"] do
+    for name <- ["Inquiry", "Studio", "Paper", "Ledger", "Darkroom", "Field Notes"] do
       assert response =~ name
     end
 

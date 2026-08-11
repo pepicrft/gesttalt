@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Photography · {{ site.name }}</title>
+    <meta name="description" content="A photography feed by {{ site.name }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Photography · {{ site.name }}">
+    <meta property="og:description" content="A photography feed by {{ site.name }}">
+    <meta property="og:image" content="{{ og_image }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="{{ og_image }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ site.name }} Really Simple Syndication feed" href="/blog/feed.xml">
+    <link rel="alternate" type="application/atom+xml" title="{{ site.name }} Atom feed" href="/blog/atom.xml">
+    <style>{{ stylesheet }}</style>
+  </head>
+  <body id="site-photography">
+    <header id="inquiry-header"><div class="container" data-part="inner"><a data-part="wordmark" href="/">{{ site.name }}</a><nav data-part="navigation" aria-label="Publication"><a href="/blog">Writing</a><a href="/notes">Notes</a><a href="/photography" aria-current="page">Photography</a>{% for page in pages %}<a href="{{ page.url }}">{{ page.title }}</a>{% endfor %}</nav></div></header>
+    <main class="container"><section id="inquiry-photography"><header data-part="heading"><h1 data-part="title">Photography</h1><p data-part="description">A visual record of places, details, and passing light.</p></header>{% if photos.size == 0 %}<div data-part="empty"><p>No photographs have been published yet.</p></div>{% else %}<div data-part="grid" aria-label="Photography feed">{% for photo in photos %}<article id="photo-{{ photo.id }}" data-part="entry"><img data-part="image" src="{{ photo.image_url }}" alt="{{ photo.alt_text }}" loading="lazy"><div data-part="caption"><time datetime="{{ photo.published_at }}">{{ photo.published_on }}</time>{% if photo.caption != "" %}<p>{{ photo.caption }}</p>{% endif %}</div></article>{% endfor %}</div>{% endif %}</section></main>
+    <footer id="inquiry-footer"><div class="container" data-part="inner"><a data-part="identity" href="/">{{ site.name }}</a><div data-part="details"><a href="/">Read the writing</a><span data-part="powered-by">Powered by <a href="https://gesttalt.org">Gesttalt</a></span></div></div></footer>
+  </body>
+</html>

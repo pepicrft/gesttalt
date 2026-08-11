@@ -76,4 +76,36 @@ defmodule Gesttalt.OpenGraph.CardTest do
 
     assert html =~ "<!-- Theme: darkroom-v1 -->"
   end
+
+  test "uses the Studio composition for Studio cards" do
+    html =
+      Card.html(%{
+        variables: %{},
+        variant: "studio",
+        eyebrow: "Field Notes",
+        title: "A modular story",
+        subtitle: "Built from a bold grid.",
+        meta: "August 11, 2026"
+      })
+
+    assert html =~ ~s(data-layout="studio")
+    assert html =~ ~s(class="studio-panels")
+    assert html =~ "#dceaff"
+  end
+
+  test "uses the Inquiry composition for Inquiry cards" do
+    html =
+      Card.html(%{
+        variables: %{},
+        variant: "inquiry",
+        eyebrow: "Field Notes",
+        title: "A question worth examining",
+        subtitle: "A literary introduction.",
+        meta: ""
+      })
+
+    assert html =~ ~s(data-layout="inquiry")
+    assert html =~ ~s(class="inquiry-orbit")
+    assert html =~ "Latest writing"
+  end
 end

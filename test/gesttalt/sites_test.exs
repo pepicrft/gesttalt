@@ -13,7 +13,7 @@ defmodule Gesttalt.SitesTest do
   end
 
   test "creates a publication with the built-in theme and no stored override", %{site: site} do
-    assert site.theme.name == "Paper"
+    assert site.theme.name == "Inquiry"
     refute Repo.get_by(Theme, site_id: site.id)
     assert [%{kind: :subdomain, status: :active} = domain] = site.domains
     assert domain.hostname == "#{site.handle}.gesttalt.test"
@@ -47,7 +47,7 @@ defmodule Gesttalt.SitesTest do
     refute Repo.get_by(Theme, site_id: site.id)
   end
 
-  test "keeps the Paper type scale across built-in themes" do
+  test "keeps the shared type scale across built-in themes" do
     paper_font_sizes = ThemeDefaults.attrs("paper").variables["fontSizes"]
 
     for %{id: id} <- ThemeDefaults.all() do
@@ -187,7 +187,7 @@ defmodule Gesttalt.SitesTest do
     assert image.storage_key =~ "accounts/#{user.id}/sites/#{site.id}/"
     assert {:ok, "account image"} = Sites.fetch_image(image)
     assert {:ok, _image} = Sites.delete_image(site, image.id)
-    assert {:error, :enoent} = Gesttalt.MediaStorage.get(image.storage_key)
+    assert {:error, :not_found} = Gesttalt.MediaStorage.get(image.storage_key)
   end
 
   defp upload_fixture(filename, contents) do

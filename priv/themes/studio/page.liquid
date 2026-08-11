@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page.title }} · {{ site.name }}</title>
+    <meta name="description" content="{{ page.excerpt }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ page.title }}">
+    <meta property="og:description" content="{{ page.excerpt }}">
+    <meta property="og:image" content="{{ page.og_image }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="{{ page.og_image }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ site.name }} Really Simple Syndication feed" href="/blog/feed.xml">
+    <link rel="alternate" type="application/atom+xml" title="{{ site.name }} Atom feed" href="/blog/atom.xml">
+    <style>{{ stylesheet }}</style>
+  </head>
+  <body id="site-page">
+    <header id="studio-header">
+      <div class="container" data-part="inner">
+        <a data-part="wordmark" href="/">{{ site.name }}</a>
+        <nav data-part="navigation" aria-label="Publication"><a href="/blog">Writing</a><a href="/notes">Notes</a><a href="/photography">Photography</a>{% for item in pages %}<a href="{{ item.url }}">{{ item.title }}</a>{% endfor %}</nav>
+      </div>
+    </header>
+    <main class="container">
+      <article id="studio-page">
+        <header data-part="heading"><p data-part="eyebrow">{{ site.name }}</p><h1 data-part="title">{{ page.title }}</h1>{% if page.has_excerpt %}<p data-part="lede">{{ page.excerpt }}</p>{% endif %}</header>
+        <div data-part="body" class="prose">{{ page.body_html }}</div>
+      </article>
+    </main>
+    <footer id="studio-footer">
+      <div class="container" data-part="inner"><a data-part="identity" href="/">{{ site.name }}</a><div data-part="details"><a href="/">Home</a><span data-part="powered-by">Powered by <a href="https://gesttalt.org">Gesttalt</a></span></div></div>
+    </footer>
+  </body>
+</html>

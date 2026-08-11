@@ -31,7 +31,10 @@ defmodule Gesttalt.ThemeEditingTest do
     assert updated_session.revision == 1
     assert updated_session.theme.name == "Conversation"
     assert updated_session.theme.variables["colors"]["primary"] == "#d73a49"
-    assert updated_session.theme.variables["colors"]["background"] == "#fdfbf7"
+
+    assert updated_session.theme.variables["colors"]["background"] ==
+             original_theme.variables["colors"]["background"]
+
     assert_receive {:theme_editing_session_updated, 1}
 
     active_theme = Sites.get_theme!(site)
