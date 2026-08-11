@@ -54,11 +54,15 @@ img { max-width: 100%; }
   & [data-part="story"]:first-child [data-part="excerpt"] { font-size: 1.2rem; max-width: 30rem; }
   & [data-part="metadata"] { display: flex; font-family: var(--gesttalt-fonts-heading); font-size: .76rem; gap: .75rem; }
   & [data-part="metadata"] time { color: var(--gesttalt-colors-muted-text); }
+  & [data-part="permalink"] { text-decoration: none; }
+  & [data-part="permalink"]:hover { text-decoration: underline; }
   & [data-part="story-title"] { font-family: var(--gesttalt-fonts-heading); font-size: 1.25rem; letter-spacing: -.02em; line-height: 1.05; margin: 0; }
   & [data-part="story-title"] a, & [data-part="note"] { text-decoration: none; }
   & [data-part="excerpt"] { margin: 0; }
   & [data-part="story-action"] { font-family: var(--gesttalt-fonts-heading); font-size: .78rem; margin-top: .25rem; }
   & [data-part="note"] { font-size: 1.25rem; line-height: 1.2; }
+  & [data-part="note"] > :first-child { margin-top: 0; }
+  & [data-part="note"] > :last-child { margin-bottom: 0; }
   & > [data-part="archive-link"] { margin: 2rem 0 0; }
   & #posts-pagination { align-items: center; display: grid; gap: 1rem; grid-template-columns: 1fr auto 1fr; padding-block: 2rem; }
   & #posts-pagination > [data-part="previous"] { grid-column: 1; justify-self: start; }

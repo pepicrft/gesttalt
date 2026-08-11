@@ -44,9 +44,9 @@
         <div data-part="grid">
           {% for post in posts %}
           <article id="publication-{{ post.id }}" data-part="story" data-kind="{% if is_notes %}note{% else %}article{% endif %}">
-            <time data-part="date" datetime="{{ post.published_at }}">{{ post.published_on }}</time>
+            {% if is_notes %}<a data-part="permalink" href="{{ post.url }}"><time data-part="date" datetime="{{ post.published_at }}">{{ post.published_on }}</time></a>{% else %}<time data-part="date" datetime="{{ post.published_at }}">{{ post.published_on }}</time>{% endif %}
             {% if is_notes %}
-            <a data-part="note" href="{{ post.url }}">{{ post.body }}</a>
+            <div data-part="note">{% if post.body_html %}{{ post.body_html }}{% else %}<p>{{ post.body }}</p>{% endif %}</div>
             {% else %}
             <h2 data-part="story-title"><a href="{{ post.url }}">{{ post.title }}</a></h2>
             <p data-part="excerpt">{{ post.excerpt }}</p>

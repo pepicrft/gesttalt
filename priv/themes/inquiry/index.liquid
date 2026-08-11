@@ -36,9 +36,12 @@
         <div data-part="grid">
           {% for post in posts %}
           <article id="publication-{{ post.id }}" data-part="story" data-kind="{% if is_notes %}note{% else %}article{% endif %}">
-            <div data-part="metadata"><span>{% if is_notes %}Note{% else %}Writing{% endif %}</span><time datetime="{{ post.published_at }}">{{ post.published_on }}</time></div>
+            <div data-part="metadata">
+              <span>{% if is_notes %}Note{% else %}Writing{% endif %}</span>
+              {% if is_notes %}<a data-part="permalink" href="{{ post.url }}"><time datetime="{{ post.published_at }}">{{ post.published_on }}</time></a>{% else %}<time datetime="{{ post.published_at }}">{{ post.published_on }}</time>{% endif %}
+            </div>
             {% if is_notes %}
-            <a data-part="note" href="{{ post.url }}">{{ post.body }}</a>
+            <div data-part="note">{% if post.body_html %}{{ post.body_html }}{% else %}<p>{{ post.body }}</p>{% endif %}</div>
             {% else %}
             <h2 data-part="story-title"><a href="{{ post.url }}">{{ post.title }}</a></h2><p data-part="excerpt">{{ post.excerpt }}</p><a data-part="story-action" href="{{ post.url }}" aria-label="Read {{ post.title }}">Read more <span aria-hidden="true">↗</span></a>
             {% endif %}
