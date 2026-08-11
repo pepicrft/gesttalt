@@ -8,7 +8,6 @@ a:hover { color: var(--gesttalt-colors-primary); }
 .header-inner { align-items: flex-start; display: flex; flex-direction: column; gap: 1.5rem; }
 .site-identity { display: flex; flex-direction: column; }
 .site-title, nav a, .post-link { font-weight: var(--gesttalt-font-weights-bold); text-decoration: none; }
-.note-link { font-weight: var(--gesttalt-font-weights-body); text-decoration: none; }
 .site-tagline, time, .post-copy p, #site-footer { color: var(--gesttalt-colors-muted-text); }
 nav { display: flex; flex-wrap: wrap; gap: 1rem; }
 .page { padding-block: 2.5rem; }
@@ -50,6 +49,19 @@ h1 { font-family: var(--gesttalt-fonts-heading); font-size: var(--gesttalt-font-
     & > [data-part="previous"] { grid-column: 1; justify-self: start; }
     & > [data-part="status"] { grid-column: 2; color: var(--gesttalt-colors-muted-text); }
     & > [data-part="next"] { grid-column: 3; justify-self: end; }
+  }
+}
+#site-notes {
+  & [data-part="permalink"] {
+    color: var(--gesttalt-colors-muted-text);
+    text-decoration: none;
+  }
+
+  & [data-part="body"] {
+    color: var(--gesttalt-colors-text);
+
+    & > :first-child { margin-top: 0; }
+    & > :last-child { margin-bottom: 0; }
   }
 }
 #site-footer {

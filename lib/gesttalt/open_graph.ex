@@ -14,6 +14,7 @@ defmodule Gesttalt.OpenGraph do
   Gesttalt itself produced.
   """
 
+  alias Gesttalt.Markdown
   alias Gesttalt.MediaStorage
   alias Gesttalt.OpenGraph.{Card, Signer}
   alias Gesttalt.Publishing
@@ -25,7 +26,7 @@ defmodule Gesttalt.OpenGraph do
   @content_type "image/jpeg"
 
   @typedoc "A page whose Open Graph image can be rendered."
-  @type subject :: {:post, Post.t()} | {:page, Post.t()} | {:home, Site.t()}
+  @type subject :: {:post, Post.t()} | {:page, Post.t()} | {:note, Post.t()} | {:home, Site.t()}
 
   @typedoc "Context needed to mint an absolute, signed image URL."
   @type url_context :: %{site: Site.t(), theme: term(), base_url: String.t()}
@@ -37,8 +38,9 @@ defmodule Gesttalt.OpenGraph do
   def image_url({:home, %Site{} = site}, %{base_url: base_url} = ctx),
     do: build_url(base_url, home_params(site, ctx))
 
-  def image_url({kind, %Post{} = post}, %{base_url: base_url} = ctx) when kind in [:post, :page],
-    do: build_url(base_url, post_params(kind, post, ctx))
+  def image_url({kind, %Post{} = post}, %{base_url: base_url} = ctx)
+      when kind in [:post, :page, :note],
+      do: build_url(base_url, post_params(kind, post, ctx))
 
   defp build_url(base_url, params) do
     params = Map.put(params, "sig", Signer.sign(params, secret()))
@@ -123,7 +125,7 @@ defmodule Gesttalt.OpenGraph do
 
     case MediaStorage.get(key) do
       {:ok, bytes} -> {:ok, bytes}
-      {:error, :not_found} -> render_locked(key, html)
+      {:error, reason} when reason in [:not_found, :enoent] -> render_locked(key, html)
       {:error, _reason} = error -> error
     end
   end
@@ -137,7 +139,7 @@ defmodule Gesttalt.OpenGraph do
       # Another request may have rendered while we waited for the lock.
       case MediaStorage.get(key) do
         {:ok, bytes} -> {:ok, bytes}
-        {:error, :not_found} -> render_and_store(key, html)
+        {:error, reason} when reason in [:not_found, :enoent] -> render_and_store(key, html)
         {:error, _reason} = error -> error
       end
     end)
@@ -161,7 +163,8 @@ defmodule Gesttalt.OpenGraph do
 
   defp subject(%Site{} = site, %{"kind" => "home"}), do: {:ok, {:home, site}}
 
-  defp subject(%Site{} = site, %{"kind" => kind, "id" => id}) when kind in ["post", "page"] do
+  defp subject(%Site{} = site, %{"kind" => kind, "id" => id})
+       when kind in ["post", "page", "note"] do
     kind_atom = String.to_existing_atom(kind)
 
     case Publishing.get_published_post(site, kind_atom, id) do
@@ -179,6 +182,16 @@ defmodule Gesttalt.OpenGraph do
       title: site.tagline || site.name,
       subtitle: if(site.tagline, do: site.name, else: ""),
       meta: ""
+    }
+  end
+
+  defp card_assigns({:note, %Post{} = post}, %Site{} = site) do
+    %{
+      variables: theme_variables(site),
+      eyebrow: site.name,
+      title: Markdown.to_text(post.body),
+      subtitle: "",
+      meta: post_meta(:note, post)
     }
   end
 
@@ -207,6 +220,8 @@ defmodule Gesttalt.OpenGraph do
       published_at -> Calendar.strftime(published_at, "%B %-d, %Y")
     end
   end
+
+  defp post_meta(:note, %Post{} = post), do: post_meta(:post, post)
 
   defp theme_variables(%Site{theme: %{variables: variables}}), do: variables
   defp theme_variables(_site), do: nil
