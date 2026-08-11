@@ -48,7 +48,7 @@ defmodule Gesttalt.PhotographyTest do
     storage_key = photo.image.storage_key
     assert {:ok, _photo} = Photography.delete_photo(site, photo.id)
     refute Photography.get_photo(site, photo.id)
-    assert {:error, :enoent} = Gesttalt.MediaStorage.get(storage_key)
+    assert {:error, :not_found} = Gesttalt.MediaStorage.get(storage_key)
   end
 
   test "requires alternative text and keeps photos inside their publication", %{site: site} do

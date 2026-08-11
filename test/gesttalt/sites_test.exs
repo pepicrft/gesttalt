@@ -187,7 +187,7 @@ defmodule Gesttalt.SitesTest do
     assert image.storage_key =~ "accounts/#{user.id}/sites/#{site.id}/"
     assert {:ok, "account image"} = Sites.fetch_image(image)
     assert {:ok, _image} = Sites.delete_image(site, image.id)
-    assert {:error, :enoent} = Gesttalt.MediaStorage.get(image.storage_key)
+    assert {:error, :not_found} = Gesttalt.MediaStorage.get(image.storage_key)
   end
 
   defp upload_fixture(filename, contents) do

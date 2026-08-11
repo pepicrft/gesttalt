@@ -11,7 +11,12 @@ defmodule Gesttalt.MediaStorage.Local do
   end
 
   @impl true
-  def get(storage_key, options), do: File.read(path(storage_key, options))
+  def get(storage_key, options) do
+    case File.read(path(storage_key, options)) do
+      {:error, :enoent} -> {:error, :not_found}
+      result -> result
+    end
+  end
 
   @impl true
   def delete(storage_key, options) do
