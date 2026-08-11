@@ -14,6 +14,8 @@ defmodule GesttaltWeb.UserAuth do
   @max_cookie_age_in_days 14
   @remember_me_cookie "_gesttalt_web_user_remember_me"
   @secure_cookies Application.compile_env(:gesttalt, :secure_cookies, false)
+  @login_return_to_salt "login return to"
+  @login_return_to_max_age_in_seconds 15 * 60
   @remember_me_options [
     sign: true,
     max_age: @max_cookie_age_in_days * 24 * 60 * 60,
@@ -44,6 +46,32 @@ defmodule GesttaltWeb.UserAuth do
     |> create_or_extend_session(user, params)
     |> redirect(to: user_return_to || signed_in_path(conn))
   end
+
+  @doc false
+  def sign_login_return_to(conn, user) do
+    case get_session(conn, :user_return_to) do
+      return_to when is_binary(return_to) ->
+        Phoenix.Token.sign(conn, @login_return_to_salt, {user.id, return_to})
+
+      _return_to ->
+        nil
+    end
+  end
+
+  @doc false
+  def restore_login_return_to(conn, user, token) when is_binary(token) do
+    case Phoenix.Token.verify(conn, @login_return_to_salt, token,
+           max_age: @login_return_to_max_age_in_seconds
+         ) do
+      {:ok, {user_id, return_to}} when user_id == user.id and is_binary(return_to) ->
+        put_session(conn, :user_return_to, return_to)
+
+      _result ->
+        conn
+    end
+  end
+
+  def restore_login_return_to(conn, _user, _token), do: conn
 
   @doc """
   Logs the user out.

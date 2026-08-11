@@ -72,9 +72,15 @@ defmodule GesttaltWeb.UserSessionController do
   # magic link request
   def create(conn, %{"user" => %{"email" => email}}) do
     if user = Accounts.get_user_by_email(email) do
+      login_url =
+        case UserAuth.sign_login_return_to(conn, user) do
+          nil -> &url(~p"/users/log-in/#{&1}")
+          return_to -> &url(~p"/users/log-in/#{&1}?return_to=#{return_to}")
+        end
+
       Accounts.deliver_login_instructions(
         user,
-        &url(~p"/users/log-in/#{&1}")
+        login_url
       )
     end
 
@@ -86,11 +92,12 @@ defmodule GesttaltWeb.UserSessionController do
     |> redirect(to: ~p"/users/log-in")
   end
 
-  def confirm(conn, %{"token" => token}) do
+  def confirm(conn, %{"token" => token} = params) do
     if user = Accounts.get_user_by_magic_link_token(token) do
       form = Phoenix.Component.to_form(%{"token" => token}, as: "user")
 
       conn
+      |> UserAuth.restore_login_return_to(user, params["return_to"])
       |> assign(:user, user)
       |> assign(:form, form)
       |> render(:confirm)
