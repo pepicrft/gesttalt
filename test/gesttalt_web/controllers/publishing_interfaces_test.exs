@@ -435,7 +435,7 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert call_tool(conn, token, 85, "delete_photo", %{id: photo["id"]})["deleted"]
 
     theme = call_tool(conn, token, 9, "get_theme")
-    assert theme["name"] == "Paper"
+    assert theme["name"] == "Inquiry"
     assert theme["variables"]["colors"]["primary"]
 
     domain =
@@ -487,7 +487,9 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     site: site,
     token: token
   } do
-    original_stylesheet = Sites.get_theme!(site).stylesheet
+    original_theme = Sites.get_theme!(site)
+    original_stylesheet = original_theme.stylesheet
+    original_background = original_theme.variables["colors"]["background"]
 
     created = call_tool(conn, token, 1, "create_theme_editing_session")
     session_id = created["session_id"]
@@ -508,7 +510,7 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert updated["revision"] == 1
     assert updated["theme"]["stylesheet"] == "body { background: papayawhip; }"
     assert updated["theme"]["variables"]["colors"]["primary"] == "#d73a49"
-    assert updated["theme"]["variables"]["colors"]["background"] == "#fdfbf7"
+    assert updated["theme"]["variables"]["colors"]["background"] == original_background
     assert Sites.get_theme!(site).stylesheet == original_stylesheet
 
     preview_path = URI.parse(updated["preview_url"]).path

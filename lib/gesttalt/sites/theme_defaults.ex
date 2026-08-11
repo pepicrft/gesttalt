@@ -14,15 +14,71 @@ defmodule Gesttalt.Sites.ThemeDefaults do
 
   @themes [
     %{
+      id: "inquiry",
+      name: "Inquiry",
+      description: "A warm, rigorous journal pairing bold headlines with literary reading type.",
+      template_dir: "inquiry",
+      variables: %{
+        "colors" => %{
+          "accent" => "#d97857",
+          "background" => "#f7f6f1",
+          "border" => "#cbc7bc",
+          "highlight" => "#d7ddca",
+          "muted" => "#efede6",
+          "mutedText" => "#67655f",
+          "primary" => "#171714",
+          "secondary" => "#484741",
+          "surface" => "#e5ded1",
+          "text" => "#171714"
+        },
+        "fonts" => %{
+          "body" => "Georgia, 'Times New Roman', serif",
+          "heading" => "Arial, Helvetica, sans-serif"
+        },
+        "fontWeights" => %{"heading" => "700"},
+        "lineHeights" => %{"body" => "1.45", "heading" => "1"},
+        "radii" => %{"large" => "1.25rem", "medium" => "0.65rem", "small" => "0.25rem"},
+        "shadows" => %{"card" => "none"},
+        "sizes" => %{"content" => "1272px"}
+      }
+    },
+    %{
+      id: "studio",
+      name: "Studio",
+      description: "A spacious editorial canvas with bold statements and modular stories.",
+      template_dir: "studio",
+      variables: %{
+        "colors" => %{
+          "accent" => "#8d4f2f",
+          "background" => "#f7f7f2",
+          "border" => "#c9c9c1",
+          "highlight" => "#d9e8ff",
+          "muted" => "#e9e9e2",
+          "mutedText" => "#65655f",
+          "primary" => "#11110f",
+          "secondary" => "#30302c",
+          "surface" => "#edede7",
+          "text" => "#11110f"
+        },
+        "fontWeights" => %{"heading" => "600"},
+        "lineHeights" => %{"body" => "1.55", "heading" => "0.98"},
+        "radii" => %{"large" => "1.5rem", "medium" => "0.75rem", "small" => "0.3rem"},
+        "shadows" => %{"card" => "none"},
+        "sizes" => %{"content" => "1200px"}
+      }
+    },
+    %{
       id: "paper",
       name: "Paper",
       description: "A quiet, considered journal for writing and photographs.",
+      template_dir: "paper",
       variables: %{}
     },
     %{
       id: "ledger",
       name: "Ledger",
       description: "A typographic, newspaper-inspired publication with crisp rules.",
+      template_dir: "paper",
       variables: %{
         "colors" => %{
           "background" => "#f5f1e8",
@@ -44,6 +100,7 @@ defmodule Gesttalt.Sites.ThemeDefaults do
       id: "darkroom",
       name: "Darkroom",
       description: "A dark, image-first portfolio with minimal visual noise.",
+      template_dir: "paper",
       variables: %{
         "colors" => %{
           "background" => "#121211",
@@ -62,6 +119,7 @@ defmodule Gesttalt.Sites.ThemeDefaults do
       id: "field-notes",
       name: "Field Notes",
       description: "A warm, practical notebook for observations, essays, and travel.",
+      template_dir: "paper",
       variables: %{
         "colors" => %{
           "background" => "#f4eedf",
@@ -118,7 +176,7 @@ defmodule Gesttalt.Sites.ThemeDefaults do
 
   def all, do: @themes
 
-  def default_id, do: "paper"
+  def default_id, do: "inquiry"
 
   def fetch(id) when is_binary(id) do
     case Enum.find(@themes, &(&1.id == id)) do
@@ -136,7 +194,7 @@ defmodule Gesttalt.Sites.ThemeDefaults do
     end
   end
 
-  def photography_template, do: read!("photography.liquid")
+  def photography_template, do: read!(paper_theme(), "photography.liquid")
 
   def preview_style(id) when is_binary(id) do
     variables = attrs(id).variables
@@ -173,19 +231,21 @@ defmodule Gesttalt.Sites.ThemeDefaults do
         Map.put(
           attrs,
           :stylesheet,
-          read!(filename) <> "\n" <> Map.get(@theme_styles, theme.id, "")
+          read!(theme, filename) <> "\n" <> Map.get(@theme_styles, theme.id, "")
         )
 
       {key, filename}, attrs ->
-        Map.put(attrs, key, read!(filename))
+        Map.put(attrs, key, read!(theme, filename))
     end)
   end
 
   defp default_theme, do: Enum.find(@themes, &(&1.id == default_id()))
 
-  defp read!(filename) do
+  defp paper_theme, do: Enum.find(@themes, &(&1.id == "paper"))
+
+  defp read!(theme, filename) do
     :gesttalt
-    |> Application.app_dir("priv/themes/paper/#{filename}")
+    |> Application.app_dir("priv/themes/#{theme.template_dir}/#{filename}")
     |> File.read!()
   end
 end

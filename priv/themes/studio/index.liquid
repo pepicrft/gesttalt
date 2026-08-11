@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% if is_notes %}Notes · {% elsif is_archive %}Writing · {% endif %}{{ site.name }}</title>
+    <meta name="description" content="{{ site.tagline }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ site.name }}">
+    <meta property="og:description" content="{{ site.tagline }}">
+    <meta property="og:image" content="{{ og_image }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="{{ og_image }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ site.name }} Really Simple Syndication feed" href="{% if is_notes %}/notes/feed.xml{% else %}/blog/feed.xml{% endif %}">
+    <link rel="alternate" type="application/atom+xml" title="{{ site.name }} Atom feed" href="{% if is_notes %}/notes/atom.xml{% else %}/blog/atom.xml{% endif %}">
+    <style>{{ stylesheet }}</style>
+  </head>
+  <body id="{% if is_notes %}site-notes{% elsif is_archive %}site-blog{% else %}site-home{% endif %}">
+    <header id="studio-header">
+      <div class="container" data-part="inner">
+        <a data-part="wordmark" href="/">{{ site.name }}</a>
+        <nav data-part="navigation" aria-label="Publication">
+          <a href="/blog">Writing</a>
+          <a href="/notes">Notes</a>
+          <a href="/photography">Photography</a>
+          {% for page in pages %}<a href="{{ page.url }}">{{ page.title }}</a>{% endfor %}
+        </nav>
+      </div>
+    </header>
+    <main>
+      {% unless is_archive %}
+      <section id="studio-introduction" class="container">
+        <p data-part="eyebrow">{{ site.name }}</p>
+        <h1 data-part="title">{{ site.tagline }}</h1>
+        {% if site.has_description %}<div data-part="description" class="prose">{{ site.description_html }}</div>{% endif %}
+        <a data-part="archive-action" href="{{ archive_url }}">Explore all writing <span aria-hidden="true">↗</span></a>
+      </section>
+      {% endunless %}
+      <section id="studio-stories" class="container">
+        <header data-part="heading">
+          <p data-part="eyebrow">{% if is_notes %}Notes{% elsif is_archive %}Archive{% else %}Latest{% endif %}</p>
+          <h1 data-part="title">{% if is_notes %}Notes{% elsif is_archive %}Writing{% else %}Recent writing{% endif %}</h1>
+        </header>
+        <div data-part="grid">
+          {% for post in posts %}
+          <article id="publication-{{ post.id }}" data-part="story" data-kind="{% if is_notes %}note{% else %}article{% endif %}">
+            <time data-part="date" datetime="{{ post.published_at }}">{{ post.published_on }}</time>
+            {% if is_notes %}
+            <a data-part="note" href="{{ post.url }}">{{ post.body }}</a>
+            {% else %}
+            <h2 data-part="story-title"><a href="{{ post.url }}">{{ post.title }}</a></h2>
+            <p data-part="excerpt">{{ post.excerpt }}</p>
+            <a data-part="story-action" href="{{ post.url }}" aria-label="Read {{ post.title }}">Read <span aria-hidden="true">↗</span></a>
+            {% endif %}
+          </article>
+          {% endfor %}
+        </div>
+        {% if pagination.total_pages > 1 %}
+        <nav id="posts-pagination" aria-label="{% if is_notes %}Notes{% else %}Writing{% endif %} pages">
+          {% if pagination.previous_url %}<a data-part="previous" href="{{ pagination.previous_url }}">Newer posts</a>{% endif %}
+          <span data-part="status">Page {{ pagination.current_page }} of {{ pagination.total_pages }}</span>
+          {% if pagination.next_url %}<a data-part="next" href="{{ pagination.next_url }}">Older posts</a>{% endif %}
+        </nav>
+        {% endif %}
+        {% unless is_archive %}<p data-part="archive-link"><a href="{{ archive_url }}">View all writing</a></p>{% endunless %}
+      </section>
+    </main>
+    <footer id="studio-footer">
+      <div class="container" data-part="inner">
+        <p data-part="identity">{{ site.name }}</p>
+        <div data-part="details">
+          <span data-part="feeds">{% if is_notes %}<a href="/notes/feed.xml">Really Simple Syndication</a> · <a href="/notes/atom.xml">Atom</a>{% else %}<a href="/blog/feed.xml">Really Simple Syndication</a> · <a href="/blog/atom.xml">Atom</a>{% endif %}</span>
+          <span data-part="powered-by">Powered by <a href="https://gesttalt.org">Gesttalt</a></span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

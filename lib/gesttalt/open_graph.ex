@@ -175,9 +175,11 @@ defmodule Gesttalt.OpenGraph do
   defp card_assigns({:home, %Site{} = site}, _site) do
     %{
       variables: theme_variables(site),
+      variant: theme_variant(site),
       eyebrow: site.name,
       title: site.tagline || site.name,
-      subtitle: if(site.tagline, do: site.name, else: ""),
+      subtitle:
+        if(site.tagline, do: "Writing, notes, and photographs from #{site.name}.", else: ""),
       meta: ""
     }
   end
@@ -185,6 +187,7 @@ defmodule Gesttalt.OpenGraph do
   defp card_assigns({kind, %Post{} = post}, %Site{} = site) do
     %{
       variables: theme_variables(site),
+      variant: theme_variant(site),
       eyebrow: site.name,
       title: post.title,
       subtitle: post.excerpt || "",
@@ -210,6 +213,12 @@ defmodule Gesttalt.OpenGraph do
 
   defp theme_variables(%Site{theme: %{variables: variables}}), do: variables
   defp theme_variables(_site), do: nil
+
+  defp theme_variant(%Site{theme: %{built_in_theme: variant}})
+       when variant in ["inquiry", "studio"],
+       do: variant
+
+  defp theme_variant(_site), do: "default"
 
   defp secret do
     :gesttalt

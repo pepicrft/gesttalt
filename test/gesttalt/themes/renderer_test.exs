@@ -4,6 +4,7 @@ defmodule Gesttalt.Themes.RendererTest do
   alias Gesttalt.AccountsFixtures
   alias Gesttalt.Publishing
   alias Gesttalt.Sites
+  alias Gesttalt.Sites.ThemeDefaults
   alias Gesttalt.Themes.Renderer
 
   setup do
@@ -125,14 +126,48 @@ defmodule Gesttalt.Themes.RendererTest do
     end
   end
 
-  test "the built-in theme left-aligns its header navigation", %{site: site} do
+  test "the default built-in theme has stable editorial structure", %{site: site} do
     theme = Sites.get_theme!(site)
 
-    assert theme.stylesheet =~
-             ".header-inner { align-items: flex-start; display: flex; flex-direction: column; gap: 1.5rem; }"
+    assert theme.stylesheet =~ "#inquiry-header"
+    assert theme.index_template =~ ~s(id="inquiry-introduction")
+    assert theme.index_template =~ ~s(id="inquiry-stories")
 
     assert {:ok, html} = Renderer.render_index(site, theme, [], [])
     assert html =~ ~s(<a href="/blog">Writing</a>)
     assert html =~ ~s(<a href="/photography">Photography</a>)
+  end
+
+  test "renders every route for the new editorial themes", %{site: site} do
+    {:ok, post} =
+      Publishing.create_post(site, %{
+        title: "A lasting question",
+        excerpt: "An introduction to the work.",
+        body: "## Begin here\n\nFollow the evidence.",
+        kind: :post,
+        status: :published
+      })
+
+    {:ok, page} =
+      Publishing.create_post(site, %{
+        title: "About",
+        body: "About this publication.",
+        kind: :page,
+        status: :published
+      })
+
+    for theme_id <- ["inquiry", "studio"] do
+      theme = ThemeDefaults.theme(site.id, theme_id)
+
+      assert {:ok, index} = Renderer.render_index(site, theme, [post], [page])
+      assert {:ok, article} = Renderer.render_article(site, theme, post, [page])
+      assert {:ok, standalone_page} = Renderer.render_page(site, theme, page, [page])
+      assert {:ok, photography} = Renderer.render_photography(site, theme, [], [page])
+
+      for html <- [index, article, standalone_page, photography] do
+        assert html =~ "Powered by"
+        assert html =~ "Gesttalt"
+      end
+    end
   end
 end

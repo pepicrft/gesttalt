@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ post.title }} · {{ site.name }}</title>
+    <meta name="description" content="{{ post.excerpt }}">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="{{ post.title }}">
+    <meta property="og:description" content="{{ post.excerpt }}">
+    <meta property="og:image" content="{{ post.og_image }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="{{ post.og_image }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ site.name }} Really Simple Syndication feed" href="{% if post.kind == 'note' %}/notes/feed.xml{% else %}/blog/feed.xml{% endif %}">
+    <link rel="alternate" type="application/atom+xml" title="{{ site.name }} Atom feed" href="{% if post.kind == 'note' %}/notes/atom.xml{% else %}/blog/atom.xml{% endif %}">
+    <style>{{ stylesheet }}</style>
+  </head>
+  <body id="site-article">
+    <header id="inquiry-header"><div class="container" data-part="inner"><a data-part="wordmark" href="/">{{ site.name }}</a><nav data-part="navigation" aria-label="Publication"><a href="/blog">Writing</a><a href="/notes">Notes</a><a href="/photography">Photography</a>{% for page in pages %}<a href="{{ page.url }}">{{ page.title }}</a>{% endfor %}</nav></div></header>
+    <main class="container">
+      <article id="inquiry-article">
+        <header data-part="heading"><div data-part="metadata"><a href="{% if post.kind == 'note' %}/notes{% else %}/blog{% endif %}">{% if post.kind == 'note' %}Notes{% else %}Writing{% endif %}</a><time datetime="{{ post.published_at }}">{{ post.published_on }}</time></div>{% if post.title != "" %}<h1 data-part="title">{{ post.title }}</h1>{% endif %}{% if post.excerpt != "" %}<p data-part="lede">{{ post.excerpt }}</p>{% endif %}</header>
+        <div data-part="body" class="prose">{{ post.body_html }}</div>
+      </article>
+    </main>
+    <footer id="inquiry-footer"><div class="container" data-part="inner"><a data-part="identity" href="/">{{ site.name }}</a><div data-part="details"><a href="/">All writing</a><span data-part="powered-by">Powered by <a href="https://gesttalt.org">Gesttalt</a></span></div></div></footer>
+  </body>
+</html>

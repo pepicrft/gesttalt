@@ -9,7 +9,7 @@ defmodule GesttaltWeb.PageControllerTest do
     assert html =~ "Manage the whole publication"
     assert html =~ ~s(id="built-in-themes-title")
 
-    for theme <- ["Paper", "Ledger", "Darkroom", "Field Notes"] do
+    for theme <- ["Inquiry", "Studio", "Paper", "Ledger", "Darkroom", "Field Notes"] do
       assert html =~ theme
     end
 
