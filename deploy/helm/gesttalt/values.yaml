@@ -19,7 +19,7 @@ env:
   GESTTALT_PHX_SERVER: "true"
   GESTTALT_HOST: gesttalt.org
   GESTTALT_MEDIA_STORAGE: local
-  GESTTALT_SMTP_RELAY: smtp-relay.pepicrft.me
+  GESTTALT_SMTP_RELAY: smtp-relay.smtp-relay.svc.cluster.local
   GESTTALT_SMTP_PORT: "587"
   GESTTALT_UPLOADS_DIR: /app/uploads
 
