@@ -2,6 +2,7 @@ name: gesttalt
 
 x-gesttalt-environment: &gesttalt-environment
   GESTTALT_AGENT_AUTH_ALLOW_EPHEMERAL_KEY: "true"
+  GESTTALT_ALLOWED_ACCOUNT_EMAILS: demo@gesttalt.local
   GESTTALT_DATABASE_SSL: "false"
   GESTTALT_DATABASE_URL: ecto://gesttalt:gesttalt@postgres/gesttalt
   GESTTALT_HOST: localhost

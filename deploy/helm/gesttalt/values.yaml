@@ -16,6 +16,7 @@ imagePullSecrets: []
 
 env:
   GESTTALT_AGENT_AUTH_ALLOW_EPHEMERAL_KEY: "true"
+  GESTTALT_ALLOWED_ACCOUNT_EMAILS: pedro@pepicrft.me
   GESTTALT_PHX_SERVER: "true"
   GESTTALT_HOST: gesttalt.org
   GESTTALT_MEDIA_STORAGE: local

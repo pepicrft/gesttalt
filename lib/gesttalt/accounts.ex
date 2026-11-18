@@ -38,11 +38,31 @@ defmodule Gesttalt.Accounts do
       nil
 
   """
-  def get_user_by_email_and_password(email, password)
+  def get_user_by_email_and_password(email, password, opts \\ [])
       when is_binary(email) and is_binary(password) do
     user = Repo.get_by(User, email: email)
-    if User.valid_password?(user, password), do: user
+
+    if User.valid_password?(user, password) and allowed_email?(user.email, opts), do: user
   end
+
+  @doc """
+  Returns whether the email belongs to an account allowed to sign in.
+
+  The allowlist comes from the `:allowed_emails` option, or from the
+  `:allowed_account_emails` application setting. `:any` allows every email.
+  """
+  def allowed_email?(email, opts \\ [])
+
+  def allowed_email?(email, opts) when is_binary(email) do
+    case Keyword.get_lazy(opts, :allowed_emails, &allowed_account_emails/0) do
+      :any -> true
+      allowed -> String.downcase(email) in Enum.map(allowed, &String.downcase/1)
+    end
+  end
+
+  def allowed_email?(_email, _opts), do: false
+
+  defp allowed_account_emails, do: Application.get_env(:gesttalt, :allowed_account_emails, :any)
 
   @doc """
   Gets a single user.
@@ -74,9 +94,12 @@ defmodule Gesttalt.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def register_user(attrs) do
+  def register_user(attrs, opts \\ []) do
     %User{}
     |> User.email_changeset(attrs)
+    |> Ecto.Changeset.validate_change(:email, fn :email, email ->
+      if allowed_email?(email, opts), do: [], else: [email: "cannot be used to create an account"]
+    end)
     |> Repo.insert()
   end
 
@@ -205,9 +228,16 @@ defmodule Gesttalt.Accounts do
 
   If the token is valid `{user, token_inserted_at}` is returned, otherwise `nil` is returned.
   """
-  def get_user_by_session_token(token) do
+  def get_user_by_session_token(token, opts \\ []) do
     {:ok, query} = UserToken.verify_session_token_query(token)
-    Repo.one(query)
+
+    case Repo.one(query) do
+      {%User{email: email}, _inserted_at} = result ->
+        if allowed_email?(email, opts), do: result
+
+      nil ->
+        nil
+    end
   end
 
   @doc """
@@ -288,11 +318,15 @@ defmodule Gesttalt.Accounts do
   @doc """
   Delivers the magic link login instructions to the given user.
   """
-  def deliver_login_instructions(%User{} = user, magic_link_url_fun)
+  def deliver_login_instructions(%User{} = user, magic_link_url_fun, opts \\ [])
       when is_function(magic_link_url_fun, 1) do
-    {encoded_token, user_token} = UserToken.build_email_token(user, "login")
-    Repo.insert!(user_token)
-    UserNotifier.deliver_login_instructions(user, magic_link_url_fun.(encoded_token))
+    if allowed_email?(user.email, opts) do
+      {encoded_token, user_token} = UserToken.build_email_token(user, "login")
+      Repo.insert!(user_token)
+      UserNotifier.deliver_login_instructions(user, magic_link_url_fun.(encoded_token))
+    else
+      {:error, :not_allowed}
+    end
   end
 
   @doc """

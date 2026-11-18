@@ -427,6 +427,46 @@ defmodule Gesttalt.AccountsTest do
     end
   end
 
+  describe "account email allowlist" do
+    setup do
+      owner = user_fixture() |> set_password()
+      stranger = user_fixture() |> set_password()
+      %{owner: owner, stranger: stranger, opts: [allowed_emails: [String.upcase(owner.email)]]}
+    end
+
+    test "creates accounts only for allowed emails", %{opts: opts} do
+      allowed = unique_user_email()
+
+      assert {:ok, %User{}} = Accounts.register_user(%{email: allowed}, allowed_emails: [allowed])
+
+      assert {:error, changeset} = Accounts.register_user(%{email: unique_user_email()}, opts)
+      assert "cannot be used to create an account" in errors_on(changeset).email
+    end
+
+    test "signs in only allowed accounts", %{owner: owner, stranger: stranger, opts: opts} do
+      assert %User{} =
+               Accounts.get_user_by_email_and_password(owner.email, valid_user_password(), opts)
+
+      refute Accounts.get_user_by_email_and_password(stranger.email, valid_user_password(), opts)
+
+      assert {%User{}, _inserted_at} =
+               owner
+               |> Accounts.generate_user_session_token()
+               |> Accounts.get_user_by_session_token(opts)
+
+      refute stranger
+             |> Accounts.generate_user_session_token()
+             |> Accounts.get_user_by_session_token(opts)
+    end
+
+    test "sends sign-in links only to allowed accounts", %{stranger: stranger, opts: opts} do
+      assert {:error, :not_allowed} =
+               Accounts.deliver_login_instructions(stranger, &"[TOKEN]#{&1}[TOKEN]", opts)
+
+      refute Repo.get_by(UserToken, user_id: stranger.id, context: "login")
+    end
+  end
+
   describe "inspect/2 for the User module" do
     test "does not include password" do
       refute inspect(%User{password: "123456"}) =~ "password: \"123456\""

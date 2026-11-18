@@ -17,6 +17,7 @@ defmodule GesttaltWeb.OAuthAuth do
     with {:ok, value} <- bearer_token(conn),
          {:ok, token} <- AccessToken.authorize(value: value),
          %User{} = user <- Repo.get(User, token.sub),
+         true <- Gesttalt.Accounts.allowed_email?(user.email),
          {:ok, site} <- Sites.ensure_site_for_user(user),
          :ok <- authorize_scopes(token.scope, required_scopes) do
       conn

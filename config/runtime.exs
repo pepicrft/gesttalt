@@ -125,6 +125,13 @@ if config_env() == :prod do
   host = System.get_env("GESTTALT_HOST") || "gesttalt.org"
   uploads_dir = System.get_env("GESTTALT_UPLOADS_DIR", "/app/uploads")
 
+  allowed_account_emails =
+    case System.get_env("GESTTALT_ALLOWED_ACCOUNT_EMAILS") do
+      nil -> raise "environment variable GESTTALT_ALLOWED_ACCOUNT_EMAILS is missing"
+      "*" -> :any
+      emails -> String.split(emails, ",", trim: true) |> Enum.map(&String.trim/1)
+    end
+
   turnstile_site_key =
     System.get_env("GESTTALT_TURNSTILE_SITE_KEY") ||
       raise "environment variable GESTTALT_TURNSTILE_SITE_KEY is missing"
@@ -164,6 +171,7 @@ if config_env() == :prod do
     pools: [{Gesttalt.OpenGraph.BrowserPool, [pool_size: og_browser_pool_size]}]
 
   config :gesttalt,
+    allowed_account_emails: allowed_account_emails,
     dns_cluster_query: System.get_env("GESTTALT_DNS_CLUSTER_QUERY"),
     platform_host: host,
     custom_domain_target: System.get_env("GESTTALT_CUSTOM_DOMAIN_TARGET", "domains.#{host}"),
