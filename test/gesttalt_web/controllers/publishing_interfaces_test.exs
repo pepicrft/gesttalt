@@ -105,6 +105,73 @@ defmodule GesttaltWeb.PublishingInterfacesTest do
     assert client.metadata["software_id"] == "claude-hosted"
   end
 
+  for {label, scope_params} <- [{"omits", %{}}, {"sends a blank", %{scope: "  "}}] do
+    test "grants only the Model Context Protocol scope to a client that #{label} scope",
+         %{conn: conn, user: user} do
+      redirect_uri = "http://127.0.0.1:33418/callback"
+      resource = GesttaltWeb.Endpoint.url() <> "/mcp"
+      verifier = String.duplicate("v", 64)
+      challenge = :sha256 |> :crypto.hash(verifier) |> Base.url_encode64(padding: false)
+
+      %{"client_id" => client_id} =
+        conn
+        |> put_req_header("content-type", "application/json")
+        |> post(
+          ~p"/oauth2/register",
+          JSON.encode!(%{
+            client_name: "Editor",
+            redirect_uris: [redirect_uri],
+            token_endpoint_auth_method: "none"
+          })
+        )
+        |> json_response(201)
+
+      query =
+        %{
+          response_type: "code",
+          client_id: client_id,
+          redirect_uri: redirect_uri,
+          code_challenge: challenge,
+          code_challenge_method: "S256",
+          state: "state",
+          resource: resource
+        }
+        |> Map.merge(unquote(Macro.escape(scope_params)))
+        |> URI.encode_query()
+
+      %{"code" => code} =
+        build_conn()
+        |> log_in_user(user)
+        |> get("/oauth2/authorize?" <> query)
+        |> redirected_to(302)
+        |> URI.parse()
+        |> Map.fetch!(:query)
+        |> URI.decode_query()
+
+      %{"access_token" => access_token} =
+        build_conn()
+        |> post(~p"/oauth2/token", %{
+          grant_type: "authorization_code",
+          code: code,
+          redirect_uri: redirect_uri,
+          client_id: client_id,
+          code_verifier: verifier,
+          resource: resource
+        })
+        |> json_response(200)
+
+      response =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{access_token}")
+        |> put_req_header("content-type", "application/json")
+        |> post(~p"/mcp", JSON.encode!(%{jsonrpc: "2.0", id: 1, method: "tools/list"}))
+        |> json_response(200)
+
+      assert [_tool | _tools] = response["result"]["tools"]
+      assert %{scope: "mcp"} = AccessTokens.get_by(value: access_token)
+    end
+  end
+
   test "returns a secret for an explicitly confidential client", %{conn: conn} do
     conn =
       conn
