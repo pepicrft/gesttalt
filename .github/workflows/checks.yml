@@ -204,7 +204,7 @@ jobs:
           abort("Hermes production console opt-in is missing") unless console_label == "enabled"
           abort("Hermes production console container is invalid") unless console_container == "web"
           abort("Hermes production console release is invalid") unless console_release == "gesttalt"
-          unless environment&.fetch("GESTTALT_SMTP_RELAY", nil) == "smtp-relay.pepicrft.me"
+          unless environment&.fetch("GESTTALT_SMTP_RELAY", nil) == "smtp-relay.smtp-relay.svc.cluster.local"
             abort("production mail relay host is invalid")
           end
           unless environment&.fetch("GESTTALT_SMTP_PORT", nil) == "587"
